@@ -33,7 +33,7 @@ export class RefutationService {
         minimumRequiredSources
       );
 
-      const { content, sources: refuteSources } = await this.openaiService.searchWithAI(prompt, options);
+      const { content: _content, sources: refuteSources } = await this.openaiService.searchWithAI(prompt, options);
 
       // Determine refutation success based on source count
       const refuteAnswer = requireMoreSources 
