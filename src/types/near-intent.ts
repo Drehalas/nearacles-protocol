@@ -55,7 +55,7 @@ export interface OracleEvaluationResult {
   timestamp: string;
 }
 
-export interface RefutationResult {
+export interface NEARRefutationResult {
   challenge_hash: string;
   evaluation_hash: string;
   refutation_successful: boolean;
@@ -86,4 +86,10 @@ export interface OracleQuote {
   required_stake: string; // yoctoNEAR
   quote_hash: string;
   expiration_time: string;
+}
+
+export interface SignedIntentData {
+  intent_message: NEARIntentMessage;
+  signature: string;
+  public_key: string;
 }

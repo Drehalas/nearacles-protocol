@@ -4,12 +4,12 @@
  */
 
 import { NEAROracleIntegration, NEARConfig, OracleSolverConfig } from './near-oracle-integration.js';
-import { IntentBroadcaster } from './intent-broadcaster.js';
+// import { IntentBroadcaster } from './intent-broadcaster.js';
 import { 
   CredibilityEvaluationIntent, 
   OracleQuote, 
   NEARIntentMessage,
-  SignedIntentData 
+  SignedIntentData as _SignedIntentData 
 } from '../types/near-intent.js';
 
 export interface SolverBiddingStrategy {
@@ -43,7 +43,7 @@ export interface IntentExecution {
 
 export class OracleSolverNode {
   private nearIntegration: NEAROracleIntegration;
-  private intentBroadcaster: IntentBroadcaster;
+  // private _intentBroadcaster: IntentBroadcaster;
   private biddingStrategy: SolverBiddingStrategy;
   private metrics: SolverMetrics;
   private activeExecutions: Map<string, IntentExecution>;
@@ -64,7 +64,7 @@ export class OracleSolverNode {
     maxConcurrentIntents: number = 5
   ) {
     this.nearIntegration = new NEAROracleIntegration(nearConfig, openaiApiKey, solverConfig);
-    this.intentBroadcaster = new IntentBroadcaster(nearConfig.privateKey);
+    // this._intentBroadcaster = new IntentBroadcaster(nearConfig.privateKey);
     this.biddingStrategy = biddingStrategy;
     this.maxConcurrentIntents = maxConcurrentIntents;
     this.activeExecutions = new Map();

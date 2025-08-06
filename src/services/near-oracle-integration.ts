@@ -9,13 +9,13 @@ import { JsonRpcProvider } from 'near-api-js/lib/providers';
 import { InMemorySigner } from 'near-api-js';
 
 import { OracleService } from './oracle.js';
-import { IntentBroadcaster } from './intent-broadcaster.js';
+// import { IntentBroadcaster } from './intent-broadcaster.js';
 import { 
   CredibilityEvaluationIntent, 
   OracleEvaluationResult,
-  RefutationResult,
+  NEARRefutationResult as _NEARRefutationResult,
   NEARIntentMessage,
-  SignedIntentData 
+  SignedIntentData as _SignedIntentData 
 } from '../types/near-intent.js';
 import { CredibilityEvaluation } from '../types/oracle.js';
 
@@ -35,9 +35,9 @@ export interface OracleSolverConfig {
 }
 
 export class NEAROracleIntegration {
-  private nearAccount: Account;
+  private nearAccount!: Account;
   private oracleService: OracleService;
-  private intentBroadcaster: IntentBroadcaster;
+  // private _intentBroadcaster: IntentBroadcaster;
   private contractId: string;
   private solverConfig: OracleSolverConfig;
 
@@ -54,10 +54,12 @@ export class NEAROracleIntegration {
     this.contractId = nearConfig.contractId;
     this.solverConfig = solverConfig;
     this.oracleService = new OracleService(openaiApiKey);
-    this.intentBroadcaster = new IntentBroadcaster(nearConfig.privateKey);
+    // this._intentBroadcaster = new IntentBroadcaster(nearConfig.privateKey);
     
-    // Initialize NEAR connection
-    this.nearAccount = this.initializeNearAccount(nearConfig);
+    // Initialize NEAR connection (will be set async)
+    this.initializeNearAccount(nearConfig).then(account => {
+      this.nearAccount = account;
+    });
   }
 
   /**
@@ -65,7 +67,7 @@ export class NEAROracleIntegration {
    */
   private async initializeNearAccount(config: NEARConfig): Promise<Account> {
     const keyStore = new InMemoryKeyStore();
-    const keyPair = KeyPair.fromString(config.privateKey);
+    const keyPair = KeyPair.fromString(config.privateKey as any);
     await keyStore.setKey(config.networkId, config.accountId, keyPair);
 
     const provider = new JsonRpcProvider({ url: config.nodeUrl });
@@ -99,7 +101,7 @@ export class NEAROracleIntegration {
    * Process a credibility evaluation intent
    */
   async processCredibilityIntent(
-    intentMessage: NEARIntentMessage,
+    _intentMessage: NEARIntentMessage,
     intent: CredibilityEvaluationIntent
   ): Promise<OracleEvaluationResult> {
     const startTime = Date.now();
@@ -164,7 +166,7 @@ export class NEAROracleIntegration {
       });
 
       console.log(`Evaluation submitted to contract for intent ${intentId}`);
-      return result as string;
+      return result as any as string;
     } catch (error) {
       console.error('Failed to submit evaluation to contract:', error);
       throw error;
@@ -195,7 +197,7 @@ export class NEAROracleIntegration {
       });
 
       console.log(`Challenge submitted for evaluation ${evaluationId}`);
-      return result as string;
+      return result as any as string;
     } catch (error) {
       console.error('Failed to submit challenge:', error);
       throw error;

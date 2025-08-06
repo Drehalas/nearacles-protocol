@@ -11,7 +11,7 @@ import {
   CredibilityEvaluationIntent,
   RefutationChallengeIntent 
 } from '../types/near-intent.js';
-import { NEARSigningService } from './near-signing.js';
+import { NEARSigningService, NEP413SignedIntentData } from './near-signing.js';
 
 export interface SolverRelayConfig {
   rpcUrl: string;
@@ -67,7 +67,7 @@ export class IntentBroadcaster {
     signerId: string,
     intents: BaseOracleIntent[],
     deadline?: string
-  ): SignedIntentData {
+  ): NEP413SignedIntentData {
     const intentMessage: NEARIntentMessage = {
       signer_id: signerId,
       deadline: deadline || new Date(Date.now() + 3600000).toISOString(), // 1 hour default
@@ -119,7 +119,7 @@ export class IntentBroadcaster {
    * Publishes a signed intent to the solver network
    */
   async publishIntent(
-    signedData: SignedIntentData,
+    signedData: NEP413SignedIntentData,
     acceptedQuoteHashes?: string[]
   ): Promise<PublishIntentResponse> {
     const requestBody = {
@@ -167,7 +167,7 @@ export class IntentBroadcaster {
       maxEvaluationTime?: number;
       deadline?: string;
     } = {}
-  ): SignedIntentData {
+  ): NEP413SignedIntentData {
     const intent: CredibilityEvaluationIntent = {
       intent: 'credibility_evaluation',
       question,
@@ -190,7 +190,7 @@ export class IntentBroadcaster {
     options: {
       deadline?: string;
     } = {}
-  ): SignedIntentData {
+  ): NEP413SignedIntentData {
     const intent: RefutationChallengeIntent = {
       intent: 'refutation_challenge',
       evaluation_hash: evaluationHash,
@@ -287,7 +287,7 @@ export class IntentBroadcaster {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const json = await response.json();
+        const json = await response.json() as any;
 
         if (json.error) {
           throw new Error(`RPC Error: ${json.error.message || json.error}`);
