@@ -6,7 +6,7 @@
 
 ## 🌟 Overview
 
-**What is Nearacles?** Think of it as "Uber for fact-checking" - users post questions with NEAR token rewards, and AI-powered oracle solvers compete to provide the most accurate, well-sourced answers. 
+**What is Nearacles?** Think of it as "Uber for fact-checking" - users post questions with NEAR token rewards, and AI-powered oracle solvers compete to provide the most accurate, well-sourced answers.
 
 **Why use it?** Unlike traditional oracles that give you pre-programmed data feeds, Nearacles lets you ask *any question* and get research-backed answers with economic guarantees. Perfect for DeFi, governance, news verification, or any application needing reliable real-world information.
 
@@ -28,12 +28,12 @@
 
 2. Oracle solvers compete with quotes:
    ├─ Solver A: "90% confidence, 3 min, stake 0.5 NEAR"
-   ├─ Solver B: "95% confidence, 2 min, stake 1 NEAR"  
+   ├─ Solver B: "95% confidence, 2 min, stake 1 NEAR"
    └─ Best solver selected automatically
 
 3. Winner conducts AI research:
    ├─ Searches 10+ sources
-   ├─ Validates source reliability  
+   ├─ Validates source reliability
    └─ Returns answer + evidence
 
 4. Challenge period (24-48 hours):
@@ -164,7 +164,7 @@ Traditional oracles are like vending machines - they dispense pre-loaded data. N
 
 1. **Intent Creation**: Users describe their information needs as structured intents
 2. **Solver Competition**: Oracle nodes bid with execution time, confidence, and stake
-3. **AI Research**: Winner conducts real-time web research with source validation  
+3. **AI Research**: Winner conducts real-time web research with source validation
 4. **Economic Verification**: Challenge periods allow disputes with higher stakes
 5. **Reputation System**: Performance affects future earnings and trustworthiness
 
@@ -217,7 +217,7 @@ Ask any question in natural language, not just pre-defined data feeds.
 - **Cost**: ~$0.50 for basic questions, ~$2-5 for complex research
 - **Use Case**: "What's the environmental impact of Bitcoin mining in 2024?"
 
-### 💰 **Economic Guarantees** 
+### 💰 **Economic Guarantees**
 Solvers stake tokens and compete on accuracy, not just speed.
 - **Minimum Stake**: 0.1 NEAR (~$0.20) per evaluation
 - **Challenge Stakes**: Must exceed original by 50%+
@@ -226,7 +226,7 @@ Solvers stake tokens and compete on accuracy, not just speed.
 ### ⚔️ **Adversarial Validation**
 Anyone can challenge answers with counter-evidence and higher stakes.
 - **Challenge Period**: 24-48 hours after answer submission
-- **Resolution Time**: 24-72 hours for disputed answers  
+- **Resolution Time**: 24-72 hours for disputed answers
 - **Success Rate**: 95%+ accuracy due to economic incentives
 
 ### 🔗 **Cross-Chain Oracle**
@@ -317,14 +317,14 @@ When someone disputes an oracle answer, economic voting determines the truth:
 ### Resolution Timeframes
 
 - **Simple challenges**: 24-48 hours
-- **Complex disputes**: 3-7 days  
+- **Complex disputes**: 3-7 days
 - **High-stakes challenges**: Up to 14 days
 - **Emergency disputes**: 2-6 hours (premium fee)
 
 ### Dispute Success Rates
 
 - **Legitimate challenges**: ~30% success rate
-- **Frivolous challenges**: ~5% success rate  
+- **Frivolous challenges**: ~5% success rate
 - **System accuracy**: 98%+ after challenge periods
 - **Economic protection**: 99.9% of staked funds secure
 
@@ -348,7 +348,7 @@ When someone disputes an oracle answer, economic voting determines the truth:
 - **Settlement Time**: 24-48 hours minimum for disputes
 
 **Network Dependencies:**
-- **NEAR Network**: Requires NEAR testnet/mainnet connectivity  
+- **NEAR Network**: Requires NEAR testnet/mainnet connectivity
 - **OpenAI API**: Requires valid API key and credits
 - **Internet Access**: Solvers need reliable web access
 - **Node.js Runtime**: Version 18+ required
@@ -385,7 +385,7 @@ A: 95-98% accuracy after the challenge period. The economic stake mechanism ensu
 #### **Q: What happens if no solvers bid on my intent?**
 A: You get a full refund of your staked tokens. This usually happens when:
 - The reward is too low for the complexity
-- The question is ambiguous or unanswerable  
+- The question is ambiguous or unanswerable
 - No solvers are currently online (rare)
 
 #### **Q: How long do evaluations take?**
@@ -398,16 +398,16 @@ A: Yes, during the first 60 seconds before solvers start bidding. After that, th
 A: **As a user**: 1 NEAR for basic evaluations, **As a solver**: 5 NEAR for competitive staking, **As a challenger**: Variable based on dispute stakes
 
 #### **Q: How do I optimize costs?**
-A: 
+A:
 - Use lower confidence thresholds (0.8 vs 0.95) for 50% cost reduction
-- Reduce required sources (3 vs 7) for simpler questions  
+- Reduce required sources (3 vs 7) for simpler questions
 - Batch multiple related questions in one intent
 - Use off-peak hours when solver competition is lower
 
 ### Common Issues & Solutions
 
 #### **Issue**: `Error: Insufficient NEAR balance`
-**Solution**: 
+**Solution**:
 ```bash
 # Check your balance
 near state your-account.testnet
@@ -432,7 +432,7 @@ const solver = new OracleSolverNode(config, apiKey, {
 ```
 
 #### **Issue**: Low solver reputation affecting earnings
-**Solution**: 
+**Solution**:
 - Focus on easier questions initially to build reputation
 - Provide more sources than required (shows thoroughness)
 - Challenge incorrect answers from other solvers
@@ -450,7 +450,7 @@ const economicalIntent = {
   reward: '500000000000000000000000' // 0.5 NEAR vs 2 NEAR
 };
 
-// Optimize for accuracy  
+// Optimize for accuracy
 const premiumIntent = {
   required_sources: 10,
   confidence_threshold: 0.95,
@@ -486,11 +486,11 @@ const priceIntent = {
 };
 ```
 
-### News Verification  
+### News Verification
 ```typescript
 // Fact-check breaking news
 const newsIntent = {
-  intent: 'credibility_evaluation', 
+  intent: 'credibility_evaluation',
   question: 'Has Company X officially announced a merger with Company Y?',
   required_sources: 7,
   confidence_threshold: 0.9,
@@ -559,12 +559,12 @@ cargo near deploy build-non-reproducible-wasm your-contract.testnet with-init-ca
   question: 'Is lab-grown meat commercially viable by 2025?',
   required_sources: 7,           // 3-15 sources
   confidence_threshold: 0.9,     // 0.7-0.99 confidence needed
-  max_evaluation_time: 180,      // seconds, 30-600 range  
+  max_evaluation_time: 180,      // seconds, 30-600 range
   reward: '2000000000000000000000000' // 2 NEAR
 }
 ```
 
-#### 2. Refutation Challenge Intent  
+#### 2. Refutation Challenge Intent
 ```typescript
 {
   intent: 'refutation_challenge',
@@ -595,14 +595,14 @@ const strategies = {
   // Conservative: Lower stakes, focus on easy questions
   conservative: {
     confidenceMultiplier: 0.9,    // Bid 10% below confidence
-    stakeMultiplier: 0.8,         // Stake 20% less  
+    stakeMultiplier: 0.8,         // Stake 20% less
     executionTimeBuffer: 60,      // Add 60 seconds buffer
     profitMargin: 0.15            // Target 15% profit
   },
-  
+
   // Aggressive: Higher stakes, compete for complex questions
   aggressive: {
-    confidenceMultiplier: 1.1,    // Bid 10% above confidence  
+    confidenceMultiplier: 1.1,    // Bid 10% above confidence
     stakeMultiplier: 1.5,         // Stake 50% more
     executionTimeBuffer: 15,      // Tight timing
     profitMargin: 0.25            // Target 25% profit
@@ -637,7 +637,7 @@ const solver = new OracleSolverNode({
   privateKey: process.env.NEAR_PRIVATE_KEY,
   accountId: 'solver-node-1.near'
 }, process.env.OPENAI_API_KEY, {
-  // Solver Configuration  
+  // Solver Configuration
   minStakeAmount: '2000000000000000000000000', // 2 NEAR
   maxExecutionTime: 180,
   confidenceThreshold: 0.85,
@@ -677,16 +677,16 @@ console.log({
   totalIntentsProcessed: metrics.totalIntentsProcessed,
   successfulEvaluations: metrics.successfulEvaluations,
   averageExecutionTime: `${metrics.averageExecutionTime}s`,
-  
-  // Economics  
+
+  // Economics
   totalEarnings: `${metrics.totalEarnings} NEAR`,
   totalStaked: `${metrics.totalStaked} NEAR`,
   profitMargin: `${(metrics.profitMargin * 100).toFixed(1)}%`,
-  
+
   // Reputation
   currentReputation: metrics.currentReputation.toFixed(3),
   reputationTrend: metrics.reputationTrend, // 'improving' | 'stable' | 'declining'
-  
+
   // Activity
   activeIntentsCount: metrics.activeIntentsCount,
   uptime: `${(metrics.uptime * 100).toFixed(1)}%`,
@@ -712,41 +712,75 @@ console.log({
 
 ## 🛣️ Roadmap
 
-### ✅ **Completed (Q4 2023 - Q1 2024)**
+### ✅ **Completed (Q2 2025 - Q3 2025)**
 - [x] Core oracle extraction from hackathon project
-- [x] TypeScript conversion and modular architecture  
+- [x] TypeScript conversion and modular architecture
 - [x] NEAR intent protocol integration
 - [x] Economic mechanisms and smart contracts
 - [x] Solver network and automated execution
 - [x] Challenge/dispute system implementation
+- [x] **Documentation Overhaul**: Comprehensive user guide with FAQ, economics, and troubleshooting
 
-### 🚧 **In Progress (Q2 2024)**
+### 🚧 **In Progress (Q3 2025)**
 - [ ] **Mainnet Launch**: Production deployment on NEAR mainnet
 - [ ] **Mobile SDK**: React Native and Flutter support
-- [ ] **Advanced AI Models**: GPT-4 Turbo, other AI model, custom fine-tuned models
-- [ ] **Multi-language Support**: Spanish, Chinese, French language oracles
+- [ ] **Advanced AI Models**: GPT-4 Turbo, other AI models, custom fine-tuned models
 
-### 🔮 **Planned (Q3-Q4 2024)**
+### 🔮 **Planned**
 - [ ] **Cross-Chain Bridges**: Ethereum, Polygon, Arbitrum integration
 - [ ] **Governance Token**: Community-owned protocol development
 - [ ] **Advanced Analytics**: Solver performance dashboards, market analytics
 - [ ] **Enterprise Features**: SLA guarantees, priority processing, custom models
 
-### 🚀 **Future Vision (2025+)**
+### 🚀 **Future Vision**
 - [ ] **Decentralized Governance**: Community-driven protocol decisions
 - [ ] **Oracle Marketplace**: Specialized solvers for different domains
-- [ ] **Zero-Knowledge Proofs**: Privacy-preserving oracle evaluations  
+- [ ] **Zero-Knowledge Proofs**: Privacy-preserving oracle evaluations
 - [ ] **AI Agent Integration**: Autonomous agents as oracle consumers
 
 ## 🤝 Contributing
 
 This protocol is in active development. Key areas for contribution:
 - Oracle solver optimization algorithms
-- Cross-chain intent relay mechanisms  
+- Cross-chain intent relay mechanisms
 - Smart contract gas optimization
 - Economic mechanism modeling
 - Security audit and testing
 
+### Development Setup
+
+```bash
+# Clone repository
+git clone https://github.com/your-org/nearacles-protocol
+cd nearacles-protocol
+
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your API keys
+
+# Build and test
+npm run build
+npm test
+
+# Run local solver node
+npm run start-solver
+```
+
+### Community Links
+
+- **GitHub**: [github.com/Drehalas/nearacles-protocol](https://github.com/Drehalas/nearacles-protocol)
+
+---
+
 ## 📜 License
 
-MIT License - see LICENSE file for details
+MIT License - Build the decentralized future of information verification!
+
+**"Truth is not determined by majority vote. With Nearacles, it's determined by economic consensus and verifiable research."**
+
+---
+
+*Last updated: August 2025 | Version 0.2.0*
