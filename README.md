@@ -1,6 +1,51 @@
 # Nearacles Protocol
 
-**NEAR Intent-Based Oracle Protocol** for decentralized credibility evaluation and fact-checking.
+**The "Uber for Fact-Checking" - NEAR Intent-Based Oracle Protocol**
+
+---
+
+## 🌟 Overview
+
+**What is Nearacles?** Think of it as "Uber for fact-checking" - users post questions with NEAR token rewards, and AI-powered oracle solvers compete to provide the most accurate, well-sourced answers. 
+
+**Why use it?** Unlike traditional oracles that give you pre-programmed data feeds, Nearacles lets you ask *any question* and get research-backed answers with economic guarantees. Perfect for DeFi, governance, news verification, or any application needing reliable real-world information.
+
+### 🆚 Traditional Oracles vs. Nearacles
+
+| Traditional Oracles | Nearacles Protocol |
+|-------------------|-------------------|
+| ❌ Fixed data feeds only | ✅ Ask any question |
+| ❌ Single point of failure | ✅ Competitive solver network |
+| ❌ No source attribution | ✅ Full source verification |
+| ❌ No dispute mechanism | ✅ Economic challenge system |
+| ❌ High setup costs | ✅ Pay-per-use model |
+
+### 📋 How It Works (Simple Flow)
+
+```
+1. User creates intent: "Is renewable energy adoption accelerating?"
+   └─ Stakes 1 NEAR (~$2-5) as reward
+
+2. Oracle solvers compete with quotes:
+   ├─ Solver A: "90% confidence, 3 min, stake 0.5 NEAR"
+   ├─ Solver B: "95% confidence, 2 min, stake 1 NEAR"  
+   └─ Best solver selected automatically
+
+3. Winner conducts AI research:
+   ├─ Searches 10+ sources
+   ├─ Validates source reliability  
+   └─ Returns answer + evidence
+
+4. Challenge period (24-48 hours):
+   ├─ Anyone can dispute with counter-evidence
+   ├─ Must stake MORE than original solver
+   └─ Economic voting resolves disputes
+
+5. Rewards distributed:
+   └─ Accurate answers earn rewards + reputation
+```
+
+---
 
 ## 🌟 Revolutionary Features
 
@@ -219,8 +264,13 @@ console.log({
 
 ## 🤝 Contributing
 
-This protocol creates a new primitive: **Intent-Based Oracles** where users express information needs as intents and competitive solvers provide economically guaranteed answers.
+This protocol is in active development. Key areas for contribution:
+- Oracle solver optimization algorithms
+- Cross-chain intent relay mechanisms  
+- Smart contract gas optimization
+- Economic mechanism modeling
+- Security audit and testing
 
 ## 📜 License
 
-MIT License - Build the decentralized future of information verification!
+MIT License - see LICENSE file for details
