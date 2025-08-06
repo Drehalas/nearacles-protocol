@@ -548,109 +548,195 @@ cargo near build
 cargo near deploy build-non-reproducible-wasm your-contract.testnet with-init-call new json-args '{"owner": "your-account.testnet"}' prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' network-config testnet sign-with-keychain send
 ```
 
-## 💡 Intent Types
+## 🔧 Advanced Usage
 
-### Credibility Evaluation
+### Intent Types & Configuration
+
+#### 1. Credibility Evaluation Intent
 ```typescript
 {
   intent: 'credibility_evaluation',
-  question: 'Is the Earth round?',
-  required_sources: 3,
-  confidence_threshold: 0.9,
-  reward: '1000000000000000000000000'
+  question: 'Is lab-grown meat commercially viable by 2025?',
+  required_sources: 7,           // 3-15 sources
+  confidence_threshold: 0.9,     // 0.7-0.99 confidence needed
+  max_evaluation_time: 180,      // seconds, 30-600 range  
+  reward: '2000000000000000000000000' // 2 NEAR
 }
 ```
 
-### Refutation Challenge  
+#### 2. Refutation Challenge Intent  
 ```typescript
 {
   intent: 'refutation_challenge',
-  evaluation_hash: 'eval_123',
-  challenge_stake: '2000000000000000000000000', // Must exceed original
-  counter_evidence: [/* sources */]
+  evaluation_hash: 'eval_abc123',
+  challenge_stake: '3000000000000000000000000', // Must exceed original
+  counter_evidence: [
+    { title: "Counter-source 1", url: "https://...", reliability: 0.8 },
+    { title: "Counter-source 2", url: "https://...", reliability: 0.9 }
+  ]
 }
 ```
 
-### Oracle Settlement
+#### 3. Oracle Settlement Intent
 ```typescript
 {
   intent: 'oracle_settlement',
-  evaluation_hash: 'eval_123',
-  challenge_hash: 'challenge_456',
-  settlement_method: 'consensus'
+  evaluation_hash: 'eval_abc123',
+  challenge_hash: 'challenge_def456',
+  settlement_method: 'consensus'  // 'consensus' | 'arbitration' | 'stake_weight'
 }
 ```
-
-## 🔧 Configuration
 
 ### Solver Node Configuration
+
+#### Bidding Strategies
 ```typescript
-{
-  minStakeAmount: '1000000000000000000000000', // 1 NEAR
-  maxExecutionTime: 300, // 5 minutes
-  confidenceThreshold: 0.8,
+const strategies = {
+  // Conservative: Lower stakes, focus on easy questions
+  conservative: {
+    confidenceMultiplier: 0.9,    // Bid 10% below confidence
+    stakeMultiplier: 0.8,         // Stake 20% less  
+    executionTimeBuffer: 60,      // Add 60 seconds buffer
+    profitMargin: 0.15            // Target 15% profit
+  },
+  
+  // Aggressive: Higher stakes, compete for complex questions
+  aggressive: {
+    confidenceMultiplier: 1.1,    // Bid 10% above confidence  
+    stakeMultiplier: 1.5,         // Stake 50% more
+    executionTimeBuffer: 15,      // Tight timing
+    profitMargin: 0.25            // Target 25% profit
+  }
+};
+```
+
+#### Solver Performance Tuning
+```typescript
+const solverConfig = {
+  minStakeAmount: '1000000000000000000000000',  // 1 NEAR minimum
+  maxExecutionTime: 240,        // 4 minutes max per intent
+  confidenceThreshold: 0.8,     // Only bid if 80%+ confident
+  reputationThreshold: 0.6,     // Accept intents from users with 60%+ reputation
+  maxConcurrentIntents: 5,      // Process 5 intents simultaneously
+  autoRestake: true,            // Automatically reinvest earnings
+  emergencyExitThreshold: 0.1   // Exit if reputation drops below 10%
+};
+```
+
+### Running Production Solver Nodes
+
+#### Basic Solver Setup
+```typescript
+import { OracleSolverNode } from 'nearacles-protocol';
+
+const solver = new OracleSolverNode({
+  // NEAR Configuration
+  networkId: 'mainnet',
+  nodeUrl: 'https://rpc.mainnet.near.org',
+  contractId: 'oracle-intent.near',
+  privateKey: process.env.NEAR_PRIVATE_KEY,
+  accountId: 'solver-node-1.near'
+}, process.env.OPENAI_API_KEY, {
+  // Solver Configuration  
+  minStakeAmount: '2000000000000000000000000', // 2 NEAR
+  maxExecutionTime: 180,
+  confidenceThreshold: 0.85,
   reputationThreshold: 0.7
-}
+});
+
+// Start solving intents
+await solver.start();
+console.log('🚀 Oracle solver node active');
 ```
 
-### Bidding Strategies
+#### Advanced Monitoring
 ```typescript
-{
-  name: 'competitive',
-  confidenceMultiplier: 1.0,
-  stakeMultiplier: 1.0,
-  executionTimeBuffer: 30,
-  profitMargin: 0.1
-}
+// Monitor performance metrics
+setInterval(async () => {
+  const metrics = await solver.getMetrics();
+  console.log({
+    totalEarnings: `${metrics.totalEarnings} NEAR`,
+    successRate: `${(metrics.successfulEvaluations / metrics.totalIntentsProcessed * 100).toFixed(1)}%`,
+    currentReputation: metrics.currentReputation.toFixed(3),
+    activeIntents: metrics.activeIntentsCount,
+    profitMargin: `${(metrics.profitMargin * 100).toFixed(1)}%`
+  });
+}, 60000); // Every minute
 ```
 
-## 🎯 Economic Model
-
-### Incentive Structure
-- **Intent Creators**: Stake NEAR tokens for oracle services
-- **Oracle Solvers**: Stake tokens to participate, earn rewards for accuracy
-- **Challengers**: Stake higher amounts to dispute evaluations
-- **Reputation System**: Performance affects future earning potential
-
-### Economic Flow
-1. User stakes NEAR for credibility evaluation
-2. Solvers compete with quotes and stake requirements  
-3. Best solver executes evaluation and submits result
-4. Challenge period allows counter-evidence submissions
-5. Disputes resolved through economic mechanisms
-6. Rewards distributed based on accuracy verification
+---
 
 ## 📊 Monitoring & Metrics
 
+### Solver Node Metrics
 ```typescript
-const metrics = solver.getMetrics();
+const metrics = await solver.getMetrics();
+
 console.log({
+  // Performance
   totalIntentsProcessed: metrics.totalIntentsProcessed,
   successfulEvaluations: metrics.successfulEvaluations,
-  currentReputation: metrics.currentReputation,
-  totalEarnings: metrics.totalEarnings,
-  activeIntentsCount: metrics.activeIntentsCount
+  averageExecutionTime: `${metrics.averageExecutionTime}s`,
+  
+  // Economics  
+  totalEarnings: `${metrics.totalEarnings} NEAR`,
+  totalStaked: `${metrics.totalStaked} NEAR`,
+  profitMargin: `${(metrics.profitMargin * 100).toFixed(1)}%`,
+  
+  // Reputation
+  currentReputation: metrics.currentReputation.toFixed(3),
+  reputationTrend: metrics.reputationTrend, // 'improving' | 'stable' | 'declining'
+  
+  // Activity
+  activeIntentsCount: metrics.activeIntentsCount,
+  uptime: `${(metrics.uptime * 100).toFixed(1)}%`,
+  lastActivity: new Date(metrics.lastActivity).toISOString()
 });
 ```
 
-## 🔮 Use Cases
+### System-Wide Analytics
+```typescript
+import { ProtocolMetrics } from 'nearacles-protocol';
 
-- **DeFi Price Oracles**: Decentralized price feeds with economic guarantees
-- **News Verification**: Fact-checking with source attribution and challenges
-- **Scientific Claims**: Peer-reviewed evaluation of research claims
-- **Governance Decisions**: Evidence-based policy evaluation
-- **Insurance Claims**: Automated claim verification with dispute resolution
+const systemMetrics = await ProtocolMetrics.getNetworkStats();
+
+console.log({
+  totalValueLocked: `${systemMetrics.totalValueLocked} NEAR`,
+  activeSolvers: systemMetrics.activeSolverCount,
+  dailyIntents: systemMetrics.dailyIntentCount,
+  averageAccuracy: `${(systemMetrics.averageAccuracy * 100).toFixed(1)}%`,
+  averageCost: `${systemMetrics.averageCost} NEAR`,
+  networkUtilization: `${(systemMetrics.networkUtilization * 100).toFixed(1)}%`
+});
+```
 
 ## 🛣️ Roadmap
 
-- [x] **Phase 1**: Core oracle extraction and TypeScript conversion
-- [x] **Phase 2**: NEAR intent protocol integration
-- [x] **Phase 3**: Economic mechanisms and smart contracts
-- [x] **Phase 4**: Solver network and automated execution
-- [ ] **Phase 5**: Production deployment and mainnet launch
-- [ ] **Phase 6**: Cross-chain bridge integration
-- [ ] **Phase 7**: Advanced AI model integration
-- [ ] **Phase 8**: Decentralized governance implementation
+### ✅ **Completed (Q4 2023 - Q1 2024)**
+- [x] Core oracle extraction from hackathon project
+- [x] TypeScript conversion and modular architecture  
+- [x] NEAR intent protocol integration
+- [x] Economic mechanisms and smart contracts
+- [x] Solver network and automated execution
+- [x] Challenge/dispute system implementation
+
+### 🚧 **In Progress (Q2 2024)**
+- [ ] **Mainnet Launch**: Production deployment on NEAR mainnet
+- [ ] **Mobile SDK**: React Native and Flutter support
+- [ ] **Advanced AI Models**: GPT-4 Turbo, other AI model, custom fine-tuned models
+- [ ] **Multi-language Support**: Spanish, Chinese, French language oracles
+
+### 🔮 **Planned (Q3-Q4 2024)**
+- [ ] **Cross-Chain Bridges**: Ethereum, Polygon, Arbitrum integration
+- [ ] **Governance Token**: Community-owned protocol development
+- [ ] **Advanced Analytics**: Solver performance dashboards, market analytics
+- [ ] **Enterprise Features**: SLA guarantees, priority processing, custom models
+
+### 🚀 **Future Vision (2025+)**
+- [ ] **Decentralized Governance**: Community-driven protocol decisions
+- [ ] **Oracle Marketplace**: Specialized solvers for different domains
+- [ ] **Zero-Knowledge Proofs**: Privacy-preserving oracle evaluations  
+- [ ] **AI Agent Integration**: Autonomous agents as oracle consumers
 
 ## 🤝 Contributing
 
