@@ -85,54 +85,72 @@ const solver = new SolverNode(nearConfig, openaiKey);
 await solver.start(); // Automatically bids and executes intents
 ```
 
-## 🚀 Quick Start
+## ⚡ Quick Start (5-Minute Test)
 
-### 1. Install Dependencies
+Get Nearacles running and test your first intent in under 5 minutes!
+
+### Step 1: Install & Setup (2 minutes)
 ```bash
+# Install the package
 npm install nearacles-protocol
+
+# Set your API keys
+export OPENAI_API_KEY="sk-..." # Get from OpenAI dashboard
+export NEAR_PRIVATE_KEY="ed25519:..." # Get from NEAR CLI
 ```
 
-### 2. Set Environment Variables
-```bash
-export OPENAI_API_KEY="your_openai_api_key"
-export NEAR_PRIVATE_KEY="ed25519:your_near_private_key"
-```
+**Cost estimate**: Free setup, ~$0.50 per basic evaluation
 
-### 3. Run Oracle Solver Node
+### Step 2: Test Basic Oracle (2 minutes)
 ```typescript
-import { OracleSolverNode } from 'nearacles-protocol';
+import { OracleService } from 'nearacles-protocol';
 
-const solver = new OracleSolverNode({
-  networkId: 'testnet',
-  nodeUrl: 'https://rpc.testnet.near.org',
-  contractId: 'oracle-intent.testnet',
-  privateKey: process.env.NEAR_PRIVATE_KEY!,
-  accountId: 'your-account.testnet'
-}, process.env.OPENAI_API_KEY!);
+const oracle = new OracleService(process.env.OPENAI_API_KEY);
 
-await solver.start();
+// Ask any question - get researched answer with sources
+const result = await oracle.evaluate("Is Bitcoin trading above $50,000?");
+
+console.log(result);
+// Expected output:
+// {
+//   question: "Is Bitcoin trading above $50,000?",
+//   answer: true,
+//   confidence: 0.95,
+//   sources: [
+//     { title: "CoinMarketCap", url: "...", reliability: 0.9 },
+//     { title: "CoinGecko", url: "...", reliability: 0.85 }
+//   ],
+//   executionTime: 3200
+// }
 ```
 
-### 4. Create Oracle Intents
+### Step 3: Try Intent-Based Oracle (1 minute)
 ```typescript
 import { IntentBroadcaster } from 'nearacles-protocol';
 
-const broadcaster = new IntentBroadcaster(process.env.NEAR_PRIVATE_KEY!);
+const broadcaster = new IntentBroadcaster(process.env.NEAR_PRIVATE_KEY);
 
-// Create credibility evaluation intent
+// Create intent with economic guarantees
 const result = await broadcaster.executeOracleIntent(
-  'user.testnet',
+  'your-account.testnet',
   {
     intent: 'credibility_evaluation',
-    question: 'Is renewable energy adoption accelerating globally?',
+    question: 'Are electric vehicle sales growing faster than gas cars?',
     required_sources: 5,
     confidence_threshold: 0.85,
-    reward: '1000000000000000000000000' // 1 NEAR
+    reward: '1000000000000000000000000' // 1 NEAR (~$2-5)
   }
 );
 
-console.log('Intent executed:', result.intentResponse);
+console.log('Intent executed with economic guarantees:', result);
 ```
+
+**🎉 Success!** You just created your first economically-guaranteed oracle query. The system will find competitive solvers, execute research, and provide verifiable answers.
+
+**Troubleshooting:**
+- **Error: Invalid API key**: Check your OpenAI API key format starts with `sk-`
+- **Error: NEAR account**: Ensure you have testnet NEAR tokens from [faucet](https://near-faucet.io/)
+- **Slow responses**: First queries may take 30-60 seconds as solvers initialize
 
 ## 🎮 Demo
 
