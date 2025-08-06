@@ -28,13 +28,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "openai": "^5.3.0",
-    "near-api-js": "^4.0.0",
-    "bs58": "^5.0.0"
+    "bs58": "^5.0.0",
+    "near-api-js": "^4.0.4",
+    "openai": "^5.3.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
     "@types/bs58": "^4.0.0",
+    "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
