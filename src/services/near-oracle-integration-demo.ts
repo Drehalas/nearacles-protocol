@@ -70,7 +70,7 @@ export class NEAROracleIntegration {
       return {
         evaluation_hash: evaluation.hash || 'demo-hash',
         question: evaluation.question,
-        answer: evaluation.answer.toString(),
+        answer: evaluation.answer,
         confidence,
         sources: evaluation.sources,
         execution_time: executionTime,
