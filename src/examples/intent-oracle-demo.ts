@@ -4,9 +4,9 @@
  */
 
 import { IntentBroadcaster } from '../services/intent-broadcaster.js';
-import { NEAROracleIntegration } from '../services/near-oracle-integration.js';
+// import { NEAROracleIntegration } from '../services/near-oracle-integration.js';
 import { OracleSolverNode } from '../services/oracle-solver-node.js';
-import { CredibilityEvaluationIntent } from '../types/near-intent.js';
+import { CredibilityEvaluationIntent as _CredibilityEvaluationIntent } from '../types/near-intent.js';
 
 // Demo configuration
 const DEMO_CONFIG = {
@@ -28,16 +28,16 @@ const DEMO_CONFIG = {
 
 class IntentOracleDemo {
   private intentBroadcaster: IntentBroadcaster;
-  private oracleIntegration: NEAROracleIntegration;
+  // private _oracleIntegration: NEAROracleIntegration;
   private solverNode: OracleSolverNode;
 
   constructor() {
     this.intentBroadcaster = new IntentBroadcaster(DEMO_CONFIG.nearConfig.privateKey);
-    this.oracleIntegration = new NEAROracleIntegration(
-      DEMO_CONFIG.nearConfig,
-      DEMO_CONFIG.openaiApiKey,
-      DEMO_CONFIG.solverConfig
-    );
+    // this._oracleIntegration = new NEAROracleIntegration(
+    //   DEMO_CONFIG.nearConfig,
+    //   DEMO_CONFIG.openaiApiKey,
+    //   DEMO_CONFIG.solverConfig
+    // );
     this.solverNode = new OracleSolverNode(
       DEMO_CONFIG.nearConfig,
       DEMO_CONFIG.openaiApiKey,
@@ -121,7 +121,7 @@ class IntentOracleDemo {
       console.log(`   Max Execution Time: 240 seconds`);
 
       // Extract intent message for demonstration
-      const intentMessage = JSON.parse(signedIntent.payload.message);
+      const intentMessage = this.intentBroadcaster['signingService'].extractIntentMessage(signedIntent);
       console.log('\n📋 Signed Intent Created:');
       console.log(`   Signer: ${intentMessage.signer_id}`);
       console.log(`   Deadline: ${intentMessage.deadline}`);
@@ -167,7 +167,8 @@ class IntentOracleDemo {
       console.log('\n🔍 Challenge Intent Created:');
       console.log(`   Evaluation Hash: ${evaluationHash}`);
       console.log(`   Challenge Stake: ${challengeStake} yoctoNEAR`);
-      console.log(`   Intent Hash: ${challengeIntent.payload.nonce.substring(0, 16)}...`);
+      const challengeMessage = this.intentBroadcaster['signingService'].extractIntentMessage(challengeIntent);
+      console.log(`   Intent Hash: ${challengeMessage.intents[0].intent}...`);
 
       console.log('\n📡 Broadcasting challenge to solver network...');
       console.log('✅ Challenge broadcast successful');

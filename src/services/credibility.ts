@@ -75,7 +75,7 @@ export class CredibilityService {
   /**
    * Parses the answer from OpenAI response
    */
-  private parseAnswer(content: string, question: string): boolean {
+  private parseAnswer(content: string, _question: string): boolean {
     const answer = content.trim().toLowerCase();
     const firstSentence = answer.split('.')[0].toLowerCase();
 

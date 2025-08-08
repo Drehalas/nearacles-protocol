@@ -14,7 +14,7 @@ export interface NEP413Payload {
   recipient: string;
 }
 
-export interface SignedIntentData {
+export interface NEP413SignedIntentData {
   standard: 'nep413';
   payload: NEP413Payload;
   signature: string;
@@ -25,7 +25,7 @@ export class NEARSigningService {
   private keyPair: KeyPair;
 
   constructor(privateKey: string) {
-    this.keyPair = KeyPair.fromString(privateKey);
+    this.keyPair = KeyPair.fromString(privateKey as any);
   }
 
   /**
@@ -67,7 +67,7 @@ export class NEARSigningService {
     const publicKey = this.keyPair.getPublicKey().toString();
 
     return {
-      signature,
+      signature: signature.signature,
       publicKey,
     };
   }
@@ -78,7 +78,7 @@ export class NEARSigningService {
   createSignedIntent(
     intentMessage: NEARIntentMessage,
     recipient: string = 'intents.near'
-  ): SignedIntentData {
+  ): NEP413SignedIntentData {
     const messageStr = JSON.stringify(intentMessage);
     const nonce = this.generateNonce();
     const intentData = this.serializeIntent(messageStr, recipient, nonce);
@@ -107,7 +107,7 @@ export class NEARSigningService {
   /**
    * Verifies a signed intent message
    */
-  verifySignedIntent(signedData: SignedIntentData): boolean {
+  verifySignedIntent(signedData: NEP413SignedIntentData): boolean {
     try {
       const { payload, signature, public_key } = signedData;
       
@@ -122,7 +122,7 @@ export class NEARSigningService {
       const signatureBytes = bs58Decode(signature.replace('ed25519:', ''));
       
       // Create KeyPair from public key for verification
-      const publicKeyPair = KeyPair.fromString(public_key);
+      const publicKeyPair = KeyPair.fromString(public_key as any);
       
       // Verify signature
       return publicKeyPair.verify(intentData, signatureBytes);
@@ -135,7 +135,7 @@ export class NEARSigningService {
   /**
    * Extracts intent message from signed data
    */
-  extractIntentMessage(signedData: SignedIntentData): NEARIntentMessage {
+  extractIntentMessage(signedData: NEP413SignedIntentData): NEARIntentMessage {
     return JSON.parse(signedData.payload.message);
   }
 }
