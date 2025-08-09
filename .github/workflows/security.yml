@@ -1,0 +1,106 @@
+name: Security
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run weekly security scans
+    - cron: '0 2 * * 1'
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: false
+      
+      - name: Check for leaked NEAR private keys
+        run: |
+          echo "Checking for leaked NEAR private keys..."
+          if grep -r "ed25519:" src/ 2>/dev/null; then
+            echo "❌ NEAR private key found in source code!"
+            exit 1
+          fi
+          echo "✅ No NEAR private keys found in source code"
+      
+      - name: Check for leaked API keys
+        run: |
+          echo "Checking for leaked API keys..."
+          patterns=(
+            "PRIVATE_KEY"
+            "SECRET_KEY" 
+            "API_KEY"
+            "OPENAI_API_KEY"
+            "sk-[A-Za-z0-9]{40,}"
+          )
+          
+          found_secrets=false
+          for pattern in "${patterns[@]}"; do
+            if grep -rE "$pattern" src/ 2>/dev/null | grep -v "process.env" | grep -v "config" | grep -v "example"; then
+              echo "❌ Potential secret found: $pattern"
+              found_secrets=true
+            fi
+          done
+          
+          if [ "$found_secrets" = true ]; then
+            echo "❌ Secrets found in source code!"
+            exit 1
+          fi
+          echo "✅ No hardcoded secrets found in source code"
+      
+      - name: Check file permissions
+        run: |
+          echo "Checking for files with overly permissive permissions..."
+          if find . -type f -perm /o+w 2>/dev/null | grep -v node_modules | grep -v .git; then
+            echo "❌ World-writable files found!"
+            exit 1
+          fi
+          echo "✅ No world-writable files found"
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: typescript
+          queries: security-extended
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

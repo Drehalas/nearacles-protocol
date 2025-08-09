@@ -4,8 +4,8 @@
  */
 
 import { OracleService } from './oracle.js';
-import { 
-  CredibilityEvaluationIntent, 
+import {
+  CredibilityEvaluationIntent,
   OracleEvaluationResult,
   // NEARIntentMessage
 } from '../types/near-intent.js';
@@ -38,7 +38,7 @@ export class NEAROracleIntegration {
       minStakeAmount: '1000000000000000000000000',
       maxExecutionTime: 300,
       confidenceThreshold: 0.8,
-      reputationThreshold: 0.7
+      reputationThreshold: 0.7,
     }
   ) {
     // this.contractId = nearConfig.contractId;
@@ -61,7 +61,7 @@ export class NEAROracleIntegration {
 
       const evaluation = await this.oracleService.evaluate(intent.question, {
         requireSources: true,
-        minimumSources: intent.required_sources || 2
+        minimumSources: intent.required_sources || 2,
       });
 
       const executionTime = Date.now() - startTime;
@@ -70,12 +70,12 @@ export class NEAROracleIntegration {
       return {
         evaluation_hash: evaluation.hash || 'demo-hash',
         question: evaluation.question,
-        answer: evaluation.answer.toString(),
+        answer: evaluation.answer,
         confidence,
         sources: evaluation.sources,
         execution_time: executionTime,
         solver_id: 'demo-solver',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       console.error('Error processing intent:', error);
@@ -92,7 +92,10 @@ export class NEAROracleIntegration {
       throw new Error('Maximum evaluation time must be at least 30 seconds');
     }
 
-    if (intent.confidence_threshold && (intent.confidence_threshold < 0 || intent.confidence_threshold > 1)) {
+    if (
+      intent.confidence_threshold &&
+      (intent.confidence_threshold < 0 || intent.confidence_threshold > 1)
+    ) {
       throw new Error('Confidence threshold must be between 0 and 1');
     }
   }
@@ -116,7 +119,7 @@ export class NEAROracleIntegration {
       totalEvaluations: 150,
       successRate: 0.98,
       averageResponseTime: 45,
-      totalStaked: '5000000000000000000000000'
+      totalStaked: '5000000000000000000000000',
     };
   }
 
