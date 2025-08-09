@@ -1,6 +1,6 @@
 /**
  * Nearacles Protocol - NEAR Intent-Based Oracle System
- * 
+ *
  * Main entry point for the intent-based oracle system
  */
 
