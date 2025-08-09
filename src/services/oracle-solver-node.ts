@@ -3,13 +3,17 @@
  * Listens for oracle intents, bids competitively, and executes evaluations
  */
 
-import { NEAROracleIntegration, NEARConfig, OracleSolverConfig } from './near-oracle-integration.js';
+import {
+  NEAROracleIntegration,
+  NEARConfig,
+  OracleSolverConfig,
+} from './near-oracle-integration.js';
 // import { IntentBroadcaster } from './intent-broadcaster.js';
-import { 
-  CredibilityEvaluationIntent, 
-  OracleQuote, 
+import {
+  CredibilityEvaluationIntent,
+  OracleQuote,
   NEARIntentMessage,
-  SignedIntentData as _SignedIntentData 
+  SignedIntentData as _SignedIntentData,
 } from '../types/near-intent.js';
 
 export interface SolverBiddingStrategy {
@@ -59,7 +63,7 @@ export class OracleSolverNode {
       confidenceMultiplier: 1.0,
       stakeMultiplier: 1.0,
       executionTimeBuffer: 30,
-      profitMargin: 0.1
+      profitMargin: 0.1,
     },
     maxConcurrentIntents: number = 5
   ) {
@@ -68,7 +72,7 @@ export class OracleSolverNode {
     this.biddingStrategy = biddingStrategy;
     this.maxConcurrentIntents = maxConcurrentIntents;
     this.activeExecutions = new Map();
-    
+
     this.metrics = {
       totalIntentsProcessed: 0,
       successfulEvaluations: 0,
@@ -77,7 +81,7 @@ export class OracleSolverNode {
       totalSlashed: '0',
       averageExecutionTime: 0,
       currentReputation: 1.0,
-      activeIntentsCount: 0
+      activeIntentsCount: 0,
     };
   }
 
@@ -91,7 +95,7 @@ export class OracleSolverNode {
     }
 
     console.log('🚀 Starting Oracle Solver Node...');
-    
+
     try {
       // Initialize NEAR integration and register as solver
       await this.nearIntegration.registerAsSolver();
@@ -100,11 +104,10 @@ export class OracleSolverNode {
       // Start intent monitoring
       this.isRunning = true;
       this.startIntentMonitoring();
-      
+
       console.log('🔍 Monitoring for oracle intents...');
       console.log(`📊 Strategy: ${this.biddingStrategy.name}`);
       console.log(`⚡ Max concurrent intents: ${this.maxConcurrentIntents}`);
-      
     } catch (error) {
       console.error('❌ Failed to start solver node:', error);
       throw error;
@@ -162,13 +165,14 @@ export class OracleSolverNode {
     try {
       // Get pending intents from NEAR contract
       const pendingIntents = await this.nearIntegration.getIntent(''); // Get all pending
-      
+
       for (const intent of pendingIntents || []) {
-        if (intent.intent_type === 'CredibilityEvaluation' && 
-            !this.activeExecutions.has(intent.intent_id)) {
-          
+        if (
+          intent.intent_type === 'CredibilityEvaluation' &&
+          !this.activeExecutions.has(intent.intent_id)
+        ) {
           await this.processNewIntent(intent);
-          
+
           if (this.activeExecutions.size >= this.maxConcurrentIntents) {
             break; // Reached capacity
           }
@@ -190,7 +194,7 @@ export class OracleSolverNode {
         required_sources: intent.required_sources || 3,
         confidence_threshold: intent.confidence_threshold || 0.8,
         max_evaluation_time: intent.max_evaluation_time || 300,
-        reward: intent.reward
+        reward: intent.reward,
       };
 
       // Evaluate if we should bid on this intent
@@ -202,7 +206,7 @@ export class OracleSolverNode {
 
       // Create competitive quote
       const quote = this.createQuote(intent.intent_id, credibilityIntent);
-      
+
       console.log(`💰 Bidding on intent ${intent.intent_id}`);
       console.log(`   Question: ${credibilityIntent.question}`);
       console.log(`   Confidence: ${quote.confidence_guarantee}`);
@@ -213,14 +217,13 @@ export class OracleSolverNode {
       const execution: IntentExecution = {
         intentId: intent.intent_id,
         status: 'bidding',
-        startTime: Date.now()
+        startTime: Date.now(),
       };
 
       this.activeExecutions.set(intent.intent_id, execution);
-      
+
       // Execute the intent directly (simplified - in production would wait for quote acceptance)
       this.executeIntent(intent.intent_id, credibilityIntent);
-      
     } catch (error) {
       console.error(`Error processing intent ${intent.intent_id}:`, error);
     }
@@ -233,12 +236,13 @@ export class OracleSolverNode {
     const baseExecutionTime = 60; // Base 60 seconds
     const complexityMultiplier = Math.min(intent.question.length / 100, 2); // Max 2x for complexity
     const estimatedTime = Math.ceil(
-      (baseExecutionTime * complexityMultiplier + this.biddingStrategy.executionTimeBuffer)
+      baseExecutionTime * complexityMultiplier + this.biddingStrategy.executionTimeBuffer
     );
 
     const baseStake = '1000000000000000000000000'; // 1 NEAR
     const requiredStake = (
-      BigInt(baseStake) * BigInt(Math.ceil(this.biddingStrategy.stakeMultiplier * 100)) / BigInt(100)
+      (BigInt(baseStake) * BigInt(Math.ceil(this.biddingStrategy.stakeMultiplier * 100))) /
+      BigInt(100)
     ).toString();
 
     const confidenceGuarantee = Math.min(
@@ -253,7 +257,7 @@ export class OracleSolverNode {
       confidence_guarantee: confidenceGuarantee,
       required_stake: requiredStake,
       quote_hash: this.generateQuoteHash(intentId),
-      expiration_time: new Date(Date.now() + 300000).toISOString() // 5 minutes
+      expiration_time: new Date(Date.now() + 300000).toISOString(), // 5 minutes
     };
   }
 
@@ -261,7 +265,7 @@ export class OracleSolverNode {
    * Execute an oracle intent
    */
   private async executeIntent(
-    intentId: string, 
+    intentId: string,
     intent: CredibilityEvaluationIntent
   ): Promise<void> {
     const execution = this.activeExecutions.get(intentId);
@@ -275,18 +279,18 @@ export class OracleSolverNode {
       const intentMessage: NEARIntentMessage = {
         signer_id: 'user.near', // Would be actual signer
         deadline: new Date(Date.now() + 3600000).toISOString(),
-        intents: [intent]
+        intents: [intent],
       };
 
       // Process the intent using NEAR integration
       const evaluationResult = await this.nearIntegration.processCredibilityIntent(
-        intentMessage, 
+        intentMessage,
         intent
       );
 
       // Submit result to NEAR contract
       const evaluationId = await this.nearIntegration.submitEvaluationToContract(
-        intentId, 
+        intentId,
         evaluationResult
       );
 
@@ -303,14 +307,13 @@ export class OracleSolverNode {
       console.log(`✅ Completed intent ${intentId} -> evaluation ${evaluationId}`);
       console.log(`   Execution time: ${(execution.endTime - execution.startTime) / 1000}s`);
       console.log(`   Earnings: ${execution.earnings} yoctoNEAR`);
-
     } catch (error) {
       execution.status = 'failed';
       execution.endTime = Date.now();
       execution.error = error instanceof Error ? error.message : 'Unknown error';
 
       this.metrics.failedEvaluations++;
-      
+
       console.error(`❌ Failed to execute intent ${intentId}:`, error);
     } finally {
       this.metrics.totalIntentsProcessed++;
@@ -328,13 +331,14 @@ export class OracleSolverNode {
     for (const [intentId, execution] of this.activeExecutions.entries()) {
       if (execution.status === 'executing') {
         const executionTime = (Date.now() - execution.startTime) / 1000;
-        
+
         // Check for timeout
-        if (executionTime > 600) { // 10 minutes timeout
+        if (executionTime > 600) {
+          // 10 minutes timeout
           execution.status = 'failed';
           execution.endTime = Date.now();
           execution.error = 'Execution timeout';
-          
+
           this.metrics.failedEvaluations++;
           console.error(`⏰ Intent ${intentId} timed out after ${executionTime}s`);
         }
@@ -353,18 +357,19 @@ export class OracleSolverNode {
       }
 
       this.metrics.activeIntentsCount = this.activeExecutions.size;
-      
+
       // Calculate average execution time
-      const completedExecutions = Array.from(this.activeExecutions.values())
-        .filter(e => e.status === 'completed' && e.endTime);
-      
+      const completedExecutions = Array.from(this.activeExecutions.values()).filter(
+        e => e.status === 'completed' && e.endTime
+      );
+
       if (completedExecutions.length > 0) {
         const totalTime = completedExecutions.reduce(
-          (sum, e) => sum + (e.endTime! - e.startTime), 0
+          (sum, e) => sum + (e.endTime! - e.startTime),
+          0
         );
         this.metrics.averageExecutionTime = totalTime / completedExecutions.length / 1000;
       }
-
     } catch (error) {
       console.error('Error updating metrics:', error);
     }
