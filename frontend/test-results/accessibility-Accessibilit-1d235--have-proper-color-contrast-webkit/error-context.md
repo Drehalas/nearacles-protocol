@@ -15,11 +15,11 @@
       - /url: /v1/analytics
     - link "Explorer v1":
       - /url: /v1/explorer
-    - button "Connect Wallet"
+    - button "Connect your NEAR wallet to the platform": Connect Wallet
 - heading "NEAR Protocol Oracle Network" [level=1]
 - paragraph: Advanced NEAR blockchain oracle platform with multiple data sources, real-time consensus algorithms, and enterprise-grade security for decentralized applications.
-- button "Launch Platform"
-- button "View Documentation"
+- button "Launch the Nearacles Oracle Platform": Launch Platform
+- button "View platform documentation and guides": View Documentation
 - heading "Comprehensive NEAR Oracle Platform" [level=2]
 - paragraph: 11 full services providing enterprise-grade oracle infrastructure with 75+ API endpoints and production-ready scalability
 - text: 
@@ -148,9 +148,9 @@
   - text: 
   - heading "Nearacles" [level=3]
   - paragraph: Advanced NEAR blockchain Oracle platform with multiple data sources, real-time analytics, and enterprise-grade security.
-  - button ""
-  - button ""
-  - button ""
+  - button "Visit our GitHub repository": 
+  - button "Follow us on Twitter": 
+  - button "Join our Discord community": 
   - heading "Platform" [level=4]
   - list:
     - listitem:
@@ -180,7 +180,4 @@
       - link "Status Page":
         - /url: /status
   - paragraph: © 2024 Nearacles. All rights reserved. Built on NEAR Protocol.
-- alert
-- button "Open Next.js Dev Tools":
-  - img
 ```

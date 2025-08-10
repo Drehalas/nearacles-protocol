@@ -87,7 +87,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
 
   test('should maintain functionality after page refresh', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.App');
+    await page.waitForSelector('.min-h-screen');
     
     // Refresh page
     await page.reload();

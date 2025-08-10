@@ -37,7 +37,7 @@ test.describe('Error Handling Tests', () => {
     
     // App should still load even without CSS
     await expect(page.locator('#root')).toBeVisible();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle network connectivity issues', async ({ page, context }) => {
@@ -76,7 +76,7 @@ test.describe('Error Handling Tests', () => {
       await page.waitForTimeout(500);
       
       // App should remain functional at all sizes
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
     }
   });
 
@@ -97,7 +97,7 @@ test.describe('Error Handling Tests', () => {
       }
       
       // App should remain stable
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
     }
   });
 
@@ -130,14 +130,14 @@ test.describe('Error Handling Tests', () => {
     
     // Test browser back
     await page.goBack();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     await page.goBack();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     // Test browser forward
     await page.goForward();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle page refresh at any time', async ({ page }) => {
@@ -148,7 +148,7 @@ test.describe('Error Handling Tests', () => {
     for (let i = 0; i < 3; i++) {
       await page.reload();
       await page.waitForLoadState('networkidle');
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
       await page.waitForTimeout(1000);
     }
   });
@@ -164,7 +164,7 @@ test.describe('Error Handling Tests', () => {
     await page.goto('/');
     
     // App should work without stored data
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle memory pressure gracefully', async ({ page }) => {
@@ -177,7 +177,7 @@ test.describe('Error Handling Tests', () => {
     });
     
     // App should remain responsive
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     // Cleanup
     await page.evaluate(() => {

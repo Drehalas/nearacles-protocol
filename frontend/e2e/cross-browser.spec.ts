@@ -11,14 +11,14 @@ test.describe('Cross-Browser Compatibility Tests', () => {
         
         // Basic functionality should work across all browsers
         await expect(page.locator('#root')).toBeVisible();
-        await expect(page.locator('.App')).toBeVisible();
+        await expect(page.locator('.min-h-screen')).toBeVisible();
       });
 
       test(`should handle CSS features in ${browserName}`, async ({ page }) => {
         await page.goto('/');
         
         // Check if basic CSS is applied
-        const appElement = page.locator('.App');
+        const appElement = page.locator('.min-h-screen');
         await expect(appElement).toBeVisible();
         
         // Check computed styles
@@ -86,7 +86,7 @@ test.describe('Cross-Browser Compatibility Tests', () => {
       
       // Should be functional on mobile
       await expect(page.locator('#root')).toBeVisible();
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
       
       // Test touch interactions
       if (page.locator('.swagger-ui .opblock-summary').first()) {
@@ -116,7 +116,7 @@ test.describe('Cross-Browser Compatibility Tests', () => {
       await page.waitForLoadState('networkidle');
       
       // Should work at all resolutions
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
       
       // Check if content is not overflowing
       const bodyOverflow = await page.locator('body').evaluate(el => {
@@ -138,29 +138,29 @@ test.describe('Cross-Browser Compatibility Tests', () => {
     // Test light mode
     await page.emulateMedia({ colorScheme: 'light' });
     await page.goto('/');
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     // Test dark mode
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.reload();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     // Test no preference
     await page.emulateMedia({ colorScheme: null });
     await page.reload();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle reduced motion preferences', async ({ page }) => {
     // Test with reduced motion
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     // Test with motion allowed
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.reload();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should work with disabled JavaScript', async ({ browser }) => {
@@ -193,7 +193,7 @@ test.describe('Cross-Browser Compatibility Tests', () => {
       await page.waitForTimeout(500);
       
       // Should remain functional at all zoom levels
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
     }
   });
 });

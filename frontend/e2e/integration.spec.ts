@@ -8,7 +8,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     // Test React component hierarchy
     const componentStructure = await page.evaluate(() => {
       const root = document.querySelector('#root');
-      const app = document.querySelector('.App');
+      const app = document.querySelector('.min-h-screen');
       const swaggerUI = document.querySelector('.swagger-ui');
       
       return {
@@ -57,7 +57,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     // Test CSS integration
     const stylingIntegration = await page.evaluate(() => {
       const body = document.body;
-      const app = document.querySelector('.App');
+      const app = document.querySelector('.min-h-screen');
       const swaggerUI = document.querySelector('.swagger-ui');
       
       return {
@@ -163,7 +163,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     await page.waitForTimeout(1000);
     
     // Application should handle errors gracefully
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     // Critical React errors should not occur
     const criticalReactErrors = reactErrors.filter(error => 
@@ -208,7 +208,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
       await page.waitForLoadState('networkidle');
       
       // Verify functionality at each viewport
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
       
       // Check if SwaggerUI adapts to viewport
       await page.waitForSelector('.swagger-ui', { timeout: 10000 });
@@ -244,7 +244,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     await page.waitForTimeout(500);
     
     // App should remain functional throughout navigation
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should integrate performance monitoring', async ({ page }) => {

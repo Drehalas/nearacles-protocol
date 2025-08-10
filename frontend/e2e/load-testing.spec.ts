@@ -28,7 +28,7 @@ test.describe('Load Testing', () => {
     
     // Verify all pages loaded successfully
     for (const page of pages) {
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
     }
     
     // Cleanup
@@ -58,7 +58,7 @@ test.describe('Load Testing', () => {
       expect(endTime - startTime).toBeLessThan(5000);
       
       // App should remain stable
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
     }
   });
 
@@ -99,7 +99,7 @@ test.describe('Load Testing', () => {
     expect(memoryTest).toBeLessThan(5000);
     
     // App should remain responsive
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle continuous scrolling', async ({ page }) => {
@@ -126,7 +126,7 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeLessThan(7000);
     
     // App should remain functional
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle rapid resize operations', async ({ page }) => {
@@ -156,7 +156,7 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeLessThan(3000);
     
     // App should remain stable after resizing
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should maintain performance with large DOM', async ({ page }) => {
@@ -202,7 +202,7 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeLessThan(2000);
     
     // Original app should still be functional
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle network throttling', async ({ page, context }) => {
@@ -221,7 +221,7 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeGreaterThan(1000);
     
     // App should still load completely
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle browser tab switching simulation', async ({ page }) => {
@@ -248,7 +248,7 @@ test.describe('Load Testing', () => {
     }
     
     // App should remain stable after visibility changes
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle stress testing of API calls', async ({ page }) => {
@@ -272,6 +272,6 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeLessThan(5000);
     
     // App should remain functional
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 });

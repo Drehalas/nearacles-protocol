@@ -112,8 +112,8 @@ test.describe('Advanced Testing Patterns', () => {
     await scenario.execute();
     
     // Verify scenario completed successfully
-    await expect(page.locator('.App')).toBeVisible();
-    await helpers.waitForSwaggerUI();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
+    await helpers.waitForAppReady();
   });
 
   test('should implement retry pattern with exponential backoff', async ({ page }) => {

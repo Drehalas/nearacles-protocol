@@ -12,8 +12,9 @@ export class TestHelpers {
    */
   async waitForAppReady(timeout = 15000): Promise<void> {
     await this.page.waitForLoadState('networkidle');
-    await this.page.waitForSelector('#root', { timeout });
-    await this.page.waitForSelector('.App', { timeout });
+    // For Next.js app, wait for main content instead of React root
+    await this.page.waitForSelector('header', { timeout });
+    await this.page.waitForSelector('main, .min-h-screen', { timeout });
   }
 
   /**
@@ -256,7 +257,7 @@ export class TestHelpers {
       expect(hasHorizontalScroll).toBe(false);
       
       // Verify app is still visible
-      await expect(this.page.locator('.App')).toBeVisible();
+      await expect(this.page.locator('.min-h-screen, header')).toBeVisible();
     }
   }
 

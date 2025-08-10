@@ -114,7 +114,7 @@ test.describe('User Workflow Tests', () => {
     await page.waitForTimeout(500);
     
     // App should remain functional
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle search and filter workflow', async ({ page }) => {
@@ -168,7 +168,7 @@ test.describe('User Workflow Tests', () => {
       await page.waitForTimeout(500);
       
       // App should remain functional on mobile
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
     }
   });
 
@@ -190,7 +190,7 @@ test.describe('User Workflow Tests', () => {
       await page.keyboard.press('Control+C');
       
       // Verify copy operation doesn't break the app
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
     }
   });
 
@@ -208,16 +208,16 @@ test.describe('User Workflow Tests', () => {
     // Use browser back button
     await page.goBack();
     await page.waitForTimeout(500);
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     // Use browser forward button
     await page.goForward();
     await page.waitForTimeout(500);
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     // Direct navigation
     await page.goto('/');
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle refresh and reload workflow', async ({ page }) => {
@@ -235,7 +235,7 @@ test.describe('User Workflow Tests', () => {
     await page.reload({ waitUntil: 'networkidle' });
     
     // Verify app loads correctly after refresh
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     await page.waitForSelector('.swagger-ui', { timeout: 15000 });
     
     // Soft refresh (F5)
@@ -243,7 +243,7 @@ test.describe('User Workflow Tests', () => {
     await page.waitForLoadState('networkidle');
     
     // Verify app still works
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
   test('should handle multi-tab workflow simulation', async ({ browser }) => {
@@ -265,8 +265,8 @@ test.describe('User Workflow Tests', () => {
     ]);
     
     // Verify both tabs work independently
-    await expect(page1.locator('.App')).toBeVisible();
-    await expect(page2.locator('.App')).toBeVisible();
+    await expect(page1.locator('.min-h-screen')).toBeVisible();
+    await expect(page2.locator('.min-h-screen')).toBeVisible();
     
     // Interact with one tab
     await page1.waitForSelector('.swagger-ui', { timeout: 15000 });
@@ -276,7 +276,7 @@ test.describe('User Workflow Tests', () => {
     }
     
     // Other tab should remain unaffected
-    await expect(page2.locator('.App')).toBeVisible();
+    await expect(page2.locator('.min-h-screen')).toBeVisible();
     
     await context.close();
   });
@@ -296,7 +296,7 @@ test.describe('User Workflow Tests', () => {
       await page.waitForTimeout(300);
       
       // App should remain stable during screen reader navigation
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen')).toBeVisible();
     }
     
     // Test skip links if present

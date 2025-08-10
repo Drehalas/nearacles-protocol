@@ -30,13 +30,25 @@ export default function Home() {
                 real-time analytics, and enterprise-grade security.
               </p>
               <div className="flex space-x-4">
-                <button className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer">
+                <button 
+                  className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer"
+                  aria-label="Visit our GitHub repository"
+                  title="GitHub"
+                >
                   <i className="ri-github-line text-gray-400"></i>
                 </button>
-                <button className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer">
+                <button 
+                  className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer"
+                  aria-label="Follow us on Twitter"
+                  title="Twitter"
+                >
                   <i className="ri-twitter-line text-gray-400"></i>
                 </button>
-                <button className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer">
+                <button 
+                  className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer"
+                  aria-label="Join our Discord community"
+                  title="Discord"
+                >
                   <i className="ri-discord-line text-gray-400"></i>
                 </button>
               </div>

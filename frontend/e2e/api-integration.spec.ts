@@ -88,7 +88,7 @@ test.describe('API Integration Tests', () => {
     await page.goto('/');
     
     // App should still be accessible
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen')).toBeVisible();
     
     // Should handle JSON parsing errors
     const hasJsonError = consoleErrors.some(error => 

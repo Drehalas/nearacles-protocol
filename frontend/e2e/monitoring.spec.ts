@@ -208,7 +208,7 @@ test.describe('Monitoring and Observability Tests', () => {
       return {
         // DOM health
         hasRootElement: !!document.getElementById('root'),
-        hasReactApp: !!document.querySelector('.App'),
+        hasReactApp: !!document.querySelector('.min-h-screen'),
         
         // JavaScript health
         hasJavaScriptErrors: window.onerror !== null,

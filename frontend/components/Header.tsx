@@ -31,7 +31,11 @@ export default function Header() {
             Explorer
             <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs px-1.5 py-0.5 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">v1</span>
           </Link>
-          <button className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 whitespace-nowrap cursor-pointer">
+          <button 
+            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 whitespace-nowrap cursor-pointer"
+            aria-label="Connect your NEAR wallet to the platform"
+            title="Connect Wallet"
+          >
             Connect Wallet
           </button>
         </nav>
