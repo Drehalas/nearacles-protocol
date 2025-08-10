@@ -168,6 +168,7 @@ export class AssetManager {
           {
             viewMethods: ['ft_balance_of'],
             changeMethods: [],
+            useLocalViewExecution: false,
           }
         );
 
@@ -280,6 +281,7 @@ export class AssetManager {
         {
           viewMethods: ['storage_balance_of'],
           changeMethods: [],
+          useLocalViewExecution: false,
         }
       );
 
@@ -314,6 +316,7 @@ export class AssetManager {
         {
           viewMethods: [],
           changeMethods: ['storage_deposit'],
+          useLocalViewExecution: false,
         }
       );
 
