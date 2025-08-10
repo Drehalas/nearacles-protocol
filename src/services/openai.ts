@@ -22,7 +22,7 @@ export class OpenAIService {
    * Performs web search using OpenAI's search-enabled models
    */
   async searchWithAI(
-    prompt: string, 
+    prompt: string,
     options: WebSearchOptions = {}
   ): Promise<{ content: string; sources: Source[] }> {
     const { searchContextSize = 'high', model = 'gpt-4o-mini-search-preview' } = options;
@@ -51,7 +51,9 @@ export class OpenAIService {
       return { content, sources };
     } catch (error) {
       console.error('Error in OpenAI search:', error);
-      throw new Error(`Failed to perform AI search: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to perform AI search: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -60,11 +62,11 @@ export class OpenAIService {
    */
   private extractSources(content: string): Source[] {
     const sources: Source[] = [];
-    
+
     // Extract markdown links
     const sourceRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
     let match;
-    
+
     while ((match = sourceRegex.exec(content)) !== null) {
       sources.push({
         title: match[1],
