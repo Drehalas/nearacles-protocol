@@ -5,8 +5,8 @@ test.describe('Visual Regression Tests', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // Wait for SwaggerUI to fully load
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    // Wait for Header to fully load
+    await page.waitForSelector('header', { timeout: 15000 });
     
     // Take screenshot of the entire page
     await expect(page).toHaveScreenshot('main-page.png', {
@@ -15,12 +15,12 @@ test.describe('Visual Regression Tests', () => {
     });
   });
 
-  test('should match SwaggerUI component screenshot', async ({ page }) => {
+  test('should match Header component screenshot', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    await page.waitForSelector('header', { timeout: 15000 });
     
-    // Screenshot just the SwaggerUI component
-    const swaggerContainer = page.locator('.swagger-ui');
+    // Screenshot just the Header component
+    const swaggerContainer = page.locator('header');
     await expect(swaggerContainer).toHaveScreenshot('swagger-ui-component.png', {
       animations: 'disabled',
     });
@@ -61,10 +61,10 @@ test.describe('Visual Regression Tests', () => {
 
   test('should match expanded swagger operations', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui .opblock', { timeout: 15000 });
+    await page.waitForSelector('header .opblock', { timeout: 15000 });
     
     // Expand first operation if available
-    const firstOperation = page.locator('.swagger-ui .opblock').first();
+    const firstOperation = page.locator('header .opblock').first();
     if (await firstOperation.count() > 0) {
       await firstOperation.locator('.opblock-summary').click();
       await page.waitForTimeout(1000);

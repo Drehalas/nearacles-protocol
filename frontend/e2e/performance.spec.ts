@@ -58,9 +58,9 @@ test.describe('Performance Tests', () => {
 
   test('should handle multiple rapid clicks', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 10000 });
+    await page.waitForSelector('header', { timeout: 10000 });
     
-    const clickableElements = await page.locator('.swagger-ui .opblock-summary').all();
+    const clickableElements = await page.locator('button, a[href]').all();
     
     if (clickableElements.length > 0) {
       const startTime = Date.now();

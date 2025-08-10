@@ -32,12 +32,11 @@ jobs:
       working-directory: ./frontend
       run: npx playwright install --with-deps ${{ matrix.browser }}
     
-    - name: Build application
+    - name: Run Playwright tests (starts dev server automatically)
       working-directory: ./frontend
-      run: npm run build
-    
-    - name: Run Playwright tests
-      working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
       run: npx playwright test --project=${{ matrix.browser }}
       
     - name: Upload test results
@@ -79,6 +78,9 @@ jobs:
     
     - name: Run mobile tests
       working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
       run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
       
     - name: Upload mobile test results
@@ -112,6 +114,9 @@ jobs:
     
     - name: Run accessibility tests
       working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
       run: npx playwright test accessibility.spec.ts
       
     - name: Upload accessibility results
@@ -145,6 +150,9 @@ jobs:
     
     - name: Run performance tests
       working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
       run: npx playwright test performance.spec.ts
       
     - name: Upload performance results

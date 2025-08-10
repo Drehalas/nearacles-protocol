@@ -18,15 +18,15 @@ export class TestHelpers {
   }
 
   /**
-   * Wait for SwaggerUI to be fully loaded
+   * Wait for Header to be fully loaded
    */
-  async waitForSwaggerUI(timeout = 20000): Promise<void> {
-    await this.page.waitForSelector('.swagger-ui', { timeout });
+  async waitForHeader(timeout = 20000): Promise<void> {
+    await this.page.waitForSelector('header', { timeout });
     
-    // Wait for swagger content to load
+    // Wait for dashboard content to load
     await this.page.waitForFunction(() => {
-      const swaggerContainer = document.querySelector('.swagger-ui');
-      return swaggerContainer && swaggerContainer.children.length > 0;
+      const dashboardContainer = document.querySelector('header');
+      return dashboardContainer && dashboardContainer.children.length > 0;
     }, { timeout });
   }
 
@@ -289,7 +289,7 @@ export class SwaggerHelpers extends TestHelpers {
    * Expand all API operations
    */
   async expandAllOperations(): Promise<void> {
-    const operations = await this.page.locator('.swagger-ui .opblock-summary').all();
+    const operations = await this.page.locator('header .opblock-summary').all();
     
     for (const operation of operations) {
       await operation.click();
@@ -301,10 +301,10 @@ export class SwaggerHelpers extends TestHelpers {
    * Get list of available operations
    */
   async getOperations(): Promise<string[]> {
-    await this.waitForSwaggerUI();
+    await this.waitForHeader();
     
     return await this.page.evaluate(() => {
-      const operations = document.querySelectorAll('.swagger-ui .opblock-summary');
+      const operations = document.querySelectorAll('header .opblock-summary');
       return Array.from(operations).map(op => op.textContent?.trim() || '');
     });
   }
@@ -313,7 +313,7 @@ export class SwaggerHelpers extends TestHelpers {
    * Try out an API operation if possible
    */
   async tryOperation(operationIndex = 0): Promise<boolean> {
-    const operations = await this.page.locator('.swagger-ui .opblock').all();
+    const operations = await this.page.locator('header .opblock').all();
     
     if (operations.length <= operationIndex) {
       return false;
@@ -346,19 +346,19 @@ export class SwaggerHelpers extends TestHelpers {
   }
 
   /**
-   * Validate swagger document structure
+   * Validate dashboard document structure
    */
   async validateSwaggerDocument(): Promise<any> {
-    const response = await this.page.request.get('/swagger.json');
-    const swaggerDoc = await response.json();
+    const response = await this.page.request.get('/dashboard.json');
+    const dashboardDoc = await response.json();
     
     const validation = {
-      hasSwaggerVersion: !!(swaggerDoc.swagger || swaggerDoc.openapi),
-      hasInfo: !!swaggerDoc.info,
-      hasPaths: !!swaggerDoc.paths,
-      pathCount: swaggerDoc.paths ? Object.keys(swaggerDoc.paths).length : 0,
+      hasSwaggerVersion: !!(dashboardDoc.dashboard || dashboardDoc.openapi),
+      hasInfo: !!dashboardDoc.info,
+      hasPaths: !!dashboardDoc.paths,
+      pathCount: dashboardDoc.paths ? Object.keys(dashboardDoc.paths).length : 0,
     };
     
-    return { swaggerDoc, validation };
+    return { dashboardDoc, validation };
   }
 }

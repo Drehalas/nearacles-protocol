@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 7
+      "actualWorkers": 1
     },
     "preserveOutput": "always",
     "reporter": [
@@ -43,7 +43,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 7
+          "actualWorkers": 1
         },
         "id": "chromium",
         "name": "chromium",
@@ -59,7 +59,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 7
+          "actualWorkers": 1
         },
         "id": "firefox",
         "name": "firefox",
@@ -75,7 +75,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 7
+          "actualWorkers": 1
         },
         "id": "webkit",
         "name": "webkit",
@@ -91,7 +91,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 7
+          "actualWorkers": 1
         },
         "id": "Mobile Chrome",
         "name": "Mobile Chrome",
@@ -107,7 +107,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 7
+          "actualWorkers": 1
         },
         "id": "Mobile Safari",
         "name": "Mobile Safari",
@@ -133,20 +133,20 @@
   },
   "suites": [
     {
-      "title": "accessibility.spec.ts",
-      "file": "accessibility.spec.ts",
+      "title": "swagger-ui.spec.ts",
+      "file": "swagger-ui.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Accessibility Tests",
-          "file": "accessibility.spec.ts",
-          "line": 4,
+          "title": "Dashboard Navigation Tests",
+          "file": "swagger-ui.spec.ts",
+          "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "should not have any accessibility violations",
+              "title": "should render main navigation",
               "ok": false,
               "tags": [],
               "tests": [
@@ -154,320 +154,69 @@
                   "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 9244,
+                      "duration": 2390,
                       "error": {
-                        "message": "AssertionError: 3 accessibility violations were detected",
-                        "stack": "AssertionError: 3 accessibility violations were detected\n    at testResultDependsOnViolations (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\utils.js:16:26)\n    at C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:143:51\n    at fulfilled (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:28:58)"
+                        "message": "Error: expect.toBeVisible: Error: strict mode violation: locator('text=Nearacles') resolved to 3 elements:\n    1) <h1 class=\"font-['Pacifico'] text-2xl text-gray-900\">Nearacles</h1> aka getByRole('link', { name: ' Nearacles' })\n    2) <h3 class=\"font-[\\'Pacifico\\'] text-2xl\">Nearacles</h3> aka getByRole('contentinfo').getByRole('heading', { name: 'Nearacles' })\n    3) <p>© 2024 Nearacles. All rights reserved. Built on N…</p> aka getByText('© 2024 Nearacles. All rights')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Nearacles')\u001b[22m\n",
+                        "stack": "Error: expect.toBeVisible: Error: strict mode violation: locator('text=Nearacles') resolved to 3 elements:\n    1) <h1 class=\"font-['Pacifico'] text-2xl text-gray-900\">Nearacles</h1> aka getByRole('link', { name: ' Nearacles' })\n    2) <h3 class=\"font-[\\'Pacifico\\'] text-2xl\">Nearacles</h3> aka getByRole('contentinfo').getByRole('heading', { name: 'Nearacles' })\n    3) <p>© 2024 Nearacles. All rights reserved. Built on N…</p> aka getByText('© 2024 Nearacles. All rights')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Nearacles')\u001b[22m\n\n    at C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\e2e\\swagger-ui.spec.ts:11:50",
+                        "location": {
+                          "file": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\e2e\\swagger-ui.spec.ts",
+                          "column": 50,
+                          "line": 11
+                        },
+                        "snippet": "\u001b[0m \u001b[90m  9 |\u001b[39m     \u001b[90m// Check for header and branding\u001b[39m\n \u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'header'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Nearacles'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m     \n \u001b[90m 13 |\u001b[39m     \u001b[90m// Check for main navigation elements (actual links from Header.tsx)\u001b[39m\n \u001b[90m 14 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Dashboard'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
-                          "message": "AssertionError: 3 accessibility violations were detected\n\u001b[2m    at testResultDependsOnViolations (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\utils.js:16:26)\u001b[22m\n\u001b[2m    at C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:143:51\u001b[22m\n\u001b[2m    at fulfilled (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:28:58)\u001b[22m"
+                          "location": {
+                            "file": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\e2e\\swagger-ui.spec.ts",
+                            "column": 50,
+                            "line": 11
+                          },
+                          "message": "Error: expect.toBeVisible: Error: strict mode violation: locator('text=Nearacles') resolved to 3 elements:\n    1) <h1 class=\"font-['Pacifico'] text-2xl text-gray-900\">Nearacles</h1> aka getByRole('link', { name: ' Nearacles' })\n    2) <h3 class=\"font-[\\'Pacifico\\'] text-2xl\">Nearacles</h3> aka getByRole('contentinfo').getByRole('heading', { name: 'Nearacles' })\n    3) <p>© 2024 Nearacles. All rights reserved. Built on N…</p> aka getByText('© 2024 Nearacles. All rights')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Nearacles')\u001b[22m\n\n\n\u001b[0m \u001b[90m  9 |\u001b[39m     \u001b[90m// Check for header and branding\u001b[39m\n \u001b[90m 10 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'header'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Nearacles'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m     \n \u001b[90m 13 |\u001b[39m     \u001b[90m// Check for main navigation elements (actual links from Header.tsx)\u001b[39m\n \u001b[90m 14 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Dashboard'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\e2e\\swagger-ui.spec.ts:11:50\u001b[22m"
                         }
                       ],
-                      "stdout": [
-                        {
-                          "text": "┌─────────┬─────────────────────┬────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────┐\n│ (index) │ id                  │ impact     │ description                                                                                                      │ nodes │\n├─────────┼─────────────────────┼────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────┤\n│ 0       │ \u001b[32m'color-contrast'\u001b[39m    │ \u001b[32m'serious'\u001b[39m  │ \u001b[32m'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds'\u001b[39m │ \u001b[33m2\u001b[39m     │\n│ 1       │ \u001b[32m'landmark-one-main'\u001b[39m │ \u001b[32m'moderate'\u001b[39m │ \u001b[32m'Ensure the document has a main landmark'\u001b[39m                                                                        │ \u001b[33m1\u001b[39m     │\n│ 2       │ \u001b[32m'region'\u001b[39m            │ \u001b[32m'moderate'\u001b[39m │ \u001b[32m'Ensure all page content is contained by landmarks'\u001b[39m                                                              │ \u001b[33m5\u001b[39m     │\n└─────────┴─────────────────────┴────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────┘\n"
-                        },
-                        {
-                          "text": "┌─────────┬───────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬────────────┐\n│ (index) │ target                                    │ html                                                                                                                                                                                                                                        │ violations │\n├─────────┼───────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────┤\n│ 0       │ \u001b[32m'[\".px-4\"]'\u001b[39m                               │ \u001b[32m'<button class=\"bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 whitespace-nowrap cursor-pointer\" aria-label=\"Connect your NEAR wallet to the platform\" title=\"Connect Wallet\">Connect Wallet</button>'\u001b[39m         │ \u001b[32m'[0]'\u001b[39m      │\n│ 1       │ \u001b[32m'[\"button[title=\\\\\"Launch Platform\\\\\"]\"]'\u001b[39m │ \u001b[32m'<button class=\"bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg whitespace-nowrap cursor-pointer\" aria-label=\"Launch the Nearacles Oracle Platform\" title=\"Launch Platform\">Launch Platform</button>'\u001b[39m │ \u001b[32m'[0]'\u001b[39m      │\n│ 2       │ \u001b[32m'[\"html\"]'\u001b[39m                                │ \u001b[32m'<html lang=\"en\">'\u001b[39m                                                                                                                                                                                                                          │ \u001b[32m'[1]'\u001b[39m      │\n│ 3       │ \u001b[32m'[\".text-5xl\"]'\u001b[39m                           │ \u001b[32m'<h1 class=\"text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight\">NEAR Protocol<br><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400\">Oracle Network</span></h1>'\u001b[39m                              │ \u001b[32m'[2]'\u001b[39m      │\n│ 4       │ \u001b[32m'[\".text-gray-200\"]'\u001b[39m                      │ \u001b[32m'<p class=\"text-xl text-gray-200 mb-8 max-w-2xl leading-relaxed\">Advanced NEAR blockchain oracle platform with multiple data sources, real-time consensus algorithms, and enterprise-grade security for decentralized applications.</p>'\u001b[39m    │ \u001b[32m'[2]'\u001b[39m      │\n│ 5       │ \u001b[32m'[\"section:nth-child(3)\"]'\u001b[39m                │ \u001b[32m'<section class=\"py-24 bg-white\">'\u001b[39m                                                                                                                                                                                                          │ \u001b[32m'[2]'\u001b[39m      │\n│ 6       │ \u001b[32m'[\".bg-gray-50\"]'\u001b[39m                         │ \u001b[32m'<section class=\"py-24 bg-gray-50\">'\u001b[39m                                                                                                                                                                                                        │ \u001b[32m'[2]'\u001b[39m      │\n│ 7       │ \u001b[32m'[\"section:nth-child(5)\"]'\u001b[39m                │ \u001b[32m'<section class=\"py-24 bg-gradient-to-r from-green-600 to-blue-600\">'\u001b[39m                                                                                                                                                                       │ \u001b[32m'[2]'\u001b[39m      │\n└─────────┴───────────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴────────────┘\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-10T18:14:01.191Z",
+                      "startTime": "2025-08-10T22:25:03.855Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\accessibility-Accessibilit-24333-ny-accessibility-violations-Mobile-Chrome\\test-failed-1.png"
+                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\\test-failed-1.png"
                         },
                         {
                           "name": "video",
                           "contentType": "video/webm",
-                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\accessibility-Accessibilit-24333-ny-accessibility-violations-Mobile-Chrome\\video.webm"
+                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\\video.webm"
                         },
                         {
                           "name": "error-context",
                           "contentType": "text/markdown",
-                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\accessibility-Accessibilit-24333-ny-accessibility-violations-Mobile-Chrome\\error-context.md"
+                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\\error-context.md"
                         }
-                      ]
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\e2e\\swagger-ui.spec.ts",
+                        "column": 50,
+                        "line": 11
+                      }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "ddd864604af8a6a0198f-00d10a2379263e5c1e6b",
-              "file": "accessibility.spec.ts",
-              "line": 10,
-              "column": 7
-            },
-            {
-              "title": "should have proper heading structure",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 8796,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-10T18:14:01.217Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "ddd864604af8a6a0198f-b14d341e5611bc31670a",
-              "file": "accessibility.spec.ts",
-              "line": 17,
-              "column": 7
-            },
-            {
-              "title": "should have proper focus management",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 8707,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-10T18:14:01.215Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "ddd864604af8a6a0198f-d1380d9ed91469bcc3b0",
-              "file": "accessibility.spec.ts",
-              "line": 29,
-              "column": 7
-            },
-            {
-              "title": "should have proper color contrast",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
-                      "status": "failed",
-                      "duration": 9621,
-                      "error": {
-                        "message": "AssertionError: 3 accessibility violations were detected",
-                        "stack": "AssertionError: 3 accessibility violations were detected\n    at testResultDependsOnViolations (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\utils.js:16:26)\n    at C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:143:51\n    at fulfilled (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:28:58)"
-                      },
-                      "errors": [
-                        {
-                          "message": "AssertionError: 3 accessibility violations were detected\n\u001b[2m    at testResultDependsOnViolations (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\utils.js:16:26)\u001b[22m\n\u001b[2m    at C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:143:51\u001b[22m\n\u001b[2m    at fulfilled (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:28:58)\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "┌─────────┬─────────────────────┬────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────┐\n│ (index) │ id                  │ impact     │ description                                                                                                      │ nodes │\n├─────────┼─────────────────────┼────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────┤\n│ 0       │ \u001b[32m'color-contrast'\u001b[39m    │ \u001b[32m'serious'\u001b[39m  │ \u001b[32m'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds'\u001b[39m │ \u001b[33m2\u001b[39m     │\n│ 1       │ \u001b[32m'landmark-one-main'\u001b[39m │ \u001b[32m'moderate'\u001b[39m │ \u001b[32m'Ensure the document has a main landmark'\u001b[39m                                                                        │ \u001b[33m1\u001b[39m     │\n│ 2       │ \u001b[32m'region'\u001b[39m            │ \u001b[32m'moderate'\u001b[39m │ \u001b[32m'Ensure all page content is contained by landmarks'\u001b[39m                                                              │ \u001b[33m5\u001b[39m     │\n└─────────┴─────────────────────┴────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────┘\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-10T18:14:01.216Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\accessibility-Accessibilit-1d235--have-proper-color-contrast-Mobile-Chrome\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\accessibility-Accessibilit-1d235--have-proper-color-contrast-Mobile-Chrome\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\accessibility-Accessibilit-1d235--have-proper-color-contrast-Mobile-Chrome\\error-context.md"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "ddd864604af8a6a0198f-017debe5688987295692",
-              "file": "accessibility.spec.ts",
-              "line": 45,
-              "column": 7
-            },
-            {
-              "title": "should support keyboard navigation",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [
-                    {
-                      "workerIndex": 4,
-                      "parallelIndex": 4,
-                      "status": "passed",
-                      "duration": 8187,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-10T18:14:01.228Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "ddd864604af8a6a0198f-c45e6c3986b3046e6c09",
-              "file": "accessibility.spec.ts",
-              "line": 53,
-              "column": 7
-            },
-            {
-              "title": "should have proper ARIA attributes",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [
-                    {
-                      "workerIndex": 5,
-                      "parallelIndex": 5,
-                      "status": "failed",
-                      "duration": 9507,
-                      "error": {
-                        "message": "AssertionError: 3 accessibility violations were detected",
-                        "stack": "AssertionError: 3 accessibility violations were detected\n    at testResultDependsOnViolations (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\utils.js:16:26)\n    at C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:143:51\n    at fulfilled (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:28:58)"
-                      },
-                      "errors": [
-                        {
-                          "message": "AssertionError: 3 accessibility violations were detected\n\u001b[2m    at testResultDependsOnViolations (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\utils.js:16:26)\u001b[22m\n\u001b[2m    at C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:143:51\u001b[22m\n\u001b[2m    at fulfilled (C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\node_modules\\axe-playwright\\dist\\index.js:28:58)\u001b[22m"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "┌─────────┬─────────────────────┬────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────┐\n│ (index) │ id                  │ impact     │ description                                                                                                      │ nodes │\n├─────────┼─────────────────────┼────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────┤\n│ 0       │ \u001b[32m'color-contrast'\u001b[39m    │ \u001b[32m'serious'\u001b[39m  │ \u001b[32m'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds'\u001b[39m │ \u001b[33m2\u001b[39m     │\n│ 1       │ \u001b[32m'landmark-one-main'\u001b[39m │ \u001b[32m'moderate'\u001b[39m │ \u001b[32m'Ensure the document has a main landmark'\u001b[39m                                                                        │ \u001b[33m1\u001b[39m     │\n│ 2       │ \u001b[32m'region'\u001b[39m            │ \u001b[32m'moderate'\u001b[39m │ \u001b[32m'Ensure all page content is contained by landmarks'\u001b[39m                                                              │ \u001b[33m5\u001b[39m     │\n└─────────┴─────────────────────┴────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────┘\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-10T18:14:01.206Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\accessibility-Accessibilit-332ae-have-proper-ARIA-attributes-Mobile-Chrome\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\accessibility-Accessibilit-332ae-have-proper-ARIA-attributes-Mobile-Chrome\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "C:\\Users\\yasin\\Nearacles\\nearacles-protocol\\frontend\\test-results\\accessibility-Accessibilit-332ae-have-proper-ARIA-attributes-Mobile-Chrome\\error-context.md"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "ddd864604af8a6a0198f-ecb4f1649b796adfe8a9",
-              "file": "accessibility.spec.ts",
-              "line": 69,
-              "column": 7
-            },
-            {
-              "title": "should work with screen readers",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "Mobile Chrome",
-                  "projectName": "Mobile Chrome",
-                  "results": [
-                    {
-                      "workerIndex": 6,
-                      "parallelIndex": 6,
-                      "status": "passed",
-                      "duration": 8199,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-10T18:14:01.222Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "ddd864604af8a6a0198f-d4446dbd2902b81eed8a",
-              "file": "accessibility.spec.ts",
-              "line": 78,
+              "id": "b33af8f8276a61be05e7-ac44546ee350bfa23020",
+              "file": "swagger-ui.spec.ts",
+              "line": 8,
               "column": 7
             }
           ]
@@ -477,11 +226,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-10T18:13:52.101Z",
-    "duration": 19692.474000000002,
-    "expected": 4,
+    "startTime": "2025-08-10T22:24:55.963Z",
+    "duration": 10902.33,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 3,
+    "unexpected": 1,
     "flaky": 0
   }
 }

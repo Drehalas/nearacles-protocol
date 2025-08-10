@@ -9,7 +9,7 @@ test.describe('API Integration Tests', () => {
     // Check if any API calls in the background are successful
     const responses: any[] = [];
     page.on('response', response => {
-      if (response.url().includes('/api/')) {
+      if (response.url().includes('/_next/') && response.status() >= 400) {
         responses.push({
           url: response.url(),
           status: response.status()
@@ -70,7 +70,7 @@ test.describe('API Integration Tests', () => {
 
   test('should handle malformed API responses', async ({ page }) => {
     // Intercept and return malformed JSON
-    await page.route('**/swagger.json', route => {
+    await page.route('**/dashboard.json', route => {
       route.fulfill({
         contentType: 'application/json',
         body: '{ invalid json }',
@@ -88,7 +88,7 @@ test.describe('API Integration Tests', () => {
     await page.goto('/');
     
     // App should still be accessible
-    await expect(page.locator('.min-h-screen')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
     
     // Should handle JSON parsing errors
     const hasJsonError = consoleErrors.some(error => 
@@ -126,30 +126,30 @@ test.describe('API Integration Tests', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // For now, no auth should be required for swagger.json
+    // For now, no auth should be required for dashboard.json
     expect(authRequests).toHaveLength(0);
   });
 
   test('should validate API response schemas', async ({ page, request }) => {
-    const response = await request.get('/swagger.json');
-    const swaggerData = await response.json();
+    const response = await request.get('/dashboard.json');
+    const dashboardData = await response.json();
     
-    // Validate swagger/OpenAPI structure
-    if (swaggerData.swagger) {
-      expect(swaggerData.swagger).toMatch(/^2\./);
-      expect(swaggerData.info).toBeDefined();
-      expect(swaggerData.paths).toBeDefined();
-    } else if (swaggerData.openapi) {
-      expect(swaggerData.openapi).toMatch(/^3\./);
-      expect(swaggerData.info).toBeDefined();
-      expect(swaggerData.paths).toBeDefined();
+    // Validate dashboard/OpenAPI structure
+    if (dashboardData.dashboard) {
+      expect(dashboardData.dashboard).toMatch(/^2\./);
+      expect(dashboardData.info).toBeDefined();
+      expect(dashboardData.paths).toBeDefined();
+    } else if (dashboardData.openapi) {
+      expect(dashboardData.openapi).toMatch(/^3\./);
+      expect(dashboardData.info).toBeDefined();
+      expect(dashboardData.paths).toBeDefined();
     }
   });
 
   test('should handle concurrent API requests', async ({ page }) => {
     // Make multiple concurrent requests to the same endpoint
     const promises = Array.from({ length: 5 }, () => 
-      page.request.get('/swagger.json')
+      page.request.get('/dashboard.json')
     );
     
     const responses = await Promise.all(promises);

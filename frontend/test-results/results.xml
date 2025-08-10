@@ -1,135 +1,48 @@
-<testsuites id="" name="" tests="7" failures="3" skipped="0" errors="0" time="19.692474">
-<testsuite name="accessibility.spec.ts" timestamp="2025-08-10T18:14:00.249Z" hostname="Mobile Chrome" tests="7" failures="3" skipped="0" time="62.261" errors="0">
-<testcase name="Accessibility Tests › should not have any accessibility violations" classname="accessibility.spec.ts" time="9.244">
-<failure message="accessibility.spec.ts:10:7 should not have any accessibility violations" type="FAILURE">
-<![CDATA[  [Mobile Chrome] › accessibility.spec.ts:10:7 › Accessibility Tests › should not have any accessibility violations 
+<testsuites id="" name="" tests="1" failures="1" skipped="0" errors="0" time="10.90233">
+<testsuite name="swagger-ui.spec.ts" timestamp="2025-08-10T22:25:03.068Z" hostname="chromium" tests="1" failures="1" skipped="0" time="2.39" errors="0">
+<testcase name="Dashboard Navigation Tests › should render main navigation" classname="swagger-ui.spec.ts" time="2.39">
+<failure message="swagger-ui.spec.ts:8:7 should render main navigation" type="FAILURE">
+<![CDATA[  [chromium] › swagger-ui.spec.ts:8:7 › Dashboard Navigation Tests › should render main navigation ─
 
-    AssertionError: 3 accessibility violations were detected
-        at testResultDependsOnViolations (C:\Users\yasin\Nearacles\nearacles-protocol\frontend\node_modules\axe-playwright\dist\utils.js:16:26)
-        at C:\Users\yasin\Nearacles\nearacles-protocol\frontend\node_modules\axe-playwright\dist\index.js:143:51
-        at fulfilled (C:\Users\yasin\Nearacles\nearacles-protocol\frontend\node_modules\axe-playwright\dist\index.js:28:58)
+    Error: expect.toBeVisible: Error: strict mode violation: locator('text=Nearacles') resolved to 3 elements:
+        1) <h1 class="font-['Pacifico'] text-2xl text-gray-900">Nearacles</h1> aka getByRole('link', { name: ' Nearacles' })
+        2) <h3 class="font-[\'Pacifico\'] text-2xl">Nearacles</h3> aka getByRole('contentinfo').getByRole('heading', { name: 'Nearacles' })
+        3) <p>© 2024 Nearacles. All rights reserved. Built on N…</p> aka getByText('© 2024 Nearacles. All rights')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('text=Nearacles')
+
+
+       9 |     // Check for header and branding
+      10 |     await expect(page.locator('header')).toBeVisible();
+    > 11 |     await expect(page.locator('text=Nearacles')).toBeVisible();
+         |                                                  ^
+      12 |     
+      13 |     // Check for main navigation elements (actual links from Header.tsx)
+      14 |     await expect(page.locator('text=Dashboard')).toBeVisible();
+        at C:\Users\yasin\Nearacles\nearacles-protocol\frontend\e2e\swagger-ui.spec.ts:11:50
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\accessibility-Accessibilit-24333-ny-accessibility-violations-Mobile-Chrome\test-failed-1.png
+    ..\test-results\swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\accessibility-Accessibilit-24333-ny-accessibility-violations-Mobile-Chrome\video.webm
+    ..\test-results\swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ..\test-results\accessibility-Accessibilit-24333-ny-accessibility-violations-Mobile-Chrome\error-context.md
+    Error Context: ..\test-results\swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\error-context.md
 ]]>
 </failure>
 <system-out>
-<![CDATA[┌─────────┬─────────────────────┬────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────┐
-│ (index) │ id                  │ impact     │ description                                                                                                      │ nodes │
-├─────────┼─────────────────────┼────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────┤
-│ 0       │ [32m'color-contrast'[39m    │ [32m'serious'[39m  │ [32m'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds'[39m │ [33m2[39m     │
-│ 1       │ [32m'landmark-one-main'[39m │ [32m'moderate'[39m │ [32m'Ensure the document has a main landmark'[39m                                                                        │ [33m1[39m     │
-│ 2       │ [32m'region'[39m            │ [32m'moderate'[39m │ [32m'Ensure all page content is contained by landmarks'[39m                                                              │ [33m5[39m     │
-└─────────┴─────────────────────┴────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────┘
-┌─────────┬───────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬────────────┐
-│ (index) │ target                                    │ html                                                                                                                                                                                                                                        │ violations │
-├─────────┼───────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────┤
-│ 0       │ [32m'[".px-4"]'[39m                               │ [32m'<button class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 whitespace-nowrap cursor-pointer" aria-label="Connect your NEAR wallet to the platform" title="Connect Wallet">Connect Wallet</button>'[39m         │ [32m'[0]'[39m      │
-│ 1       │ [32m'["button[title=\\"Launch Platform\\"]"]'[39m │ [32m'<button class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg whitespace-nowrap cursor-pointer" aria-label="Launch the Nearacles Oracle Platform" title="Launch Platform">Launch Platform</button>'[39m │ [32m'[0]'[39m      │
-│ 2       │ [32m'["html"]'[39m                                │ [32m'<html lang="en">'[39m                                                                                                                                                                                                                          │ [32m'[1]'[39m      │
-│ 3       │ [32m'[".text-5xl"]'[39m                           │ [32m'<h1 class="text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">NEAR Protocol<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">Oracle Network</span></h1>'[39m                              │ [32m'[2]'[39m      │
-│ 4       │ [32m'[".text-gray-200"]'[39m                      │ [32m'<p class="text-xl text-gray-200 mb-8 max-w-2xl leading-relaxed">Advanced NEAR blockchain oracle platform with multiple data sources, real-time consensus algorithms, and enterprise-grade security for decentralized applications.</p>'[39m    │ [32m'[2]'[39m      │
-│ 5       │ [32m'["section:nth-child(3)"]'[39m                │ [32m'<section class="py-24 bg-white">'[39m                                                                                                                                                                                                          │ [32m'[2]'[39m      │
-│ 6       │ [32m'[".bg-gray-50"]'[39m                         │ [32m'<section class="py-24 bg-gray-50">'[39m                                                                                                                                                                                                        │ [32m'[2]'[39m      │
-│ 7       │ [32m'["section:nth-child(5)"]'[39m                │ [32m'<section class="py-24 bg-gradient-to-r from-green-600 to-blue-600">'[39m                                                                                                                                                                       │ [32m'[2]'[39m      │
-└─────────┴───────────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴────────────┘
+<![CDATA[
+[[ATTACHMENT|swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\test-failed-1.png]]
 
-[[ATTACHMENT|accessibility-Accessibilit-24333-ny-accessibility-violations-Mobile-Chrome\test-failed-1.png]]
+[[ATTACHMENT|swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\video.webm]]
 
-[[ATTACHMENT|accessibility-Accessibilit-24333-ny-accessibility-violations-Mobile-Chrome\video.webm]]
-
-[[ATTACHMENT|accessibility-Accessibilit-24333-ny-accessibility-violations-Mobile-Chrome\error-context.md]]
+[[ATTACHMENT|swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\error-context.md]]
 ]]>
 </system-out>
-</testcase>
-<testcase name="Accessibility Tests › should have proper heading structure" classname="accessibility.spec.ts" time="8.796">
-</testcase>
-<testcase name="Accessibility Tests › should have proper focus management" classname="accessibility.spec.ts" time="8.707">
-</testcase>
-<testcase name="Accessibility Tests › should have proper color contrast" classname="accessibility.spec.ts" time="9.621">
-<failure message="accessibility.spec.ts:45:7 should have proper color contrast" type="FAILURE">
-<![CDATA[  [Mobile Chrome] › accessibility.spec.ts:45:7 › Accessibility Tests › should have proper color contrast 
-
-    AssertionError: 3 accessibility violations were detected
-        at testResultDependsOnViolations (C:\Users\yasin\Nearacles\nearacles-protocol\frontend\node_modules\axe-playwright\dist\utils.js:16:26)
-        at C:\Users\yasin\Nearacles\nearacles-protocol\frontend\node_modules\axe-playwright\dist\index.js:143:51
-        at fulfilled (C:\Users\yasin\Nearacles\nearacles-protocol\frontend\node_modules\axe-playwright\dist\index.js:28:58)
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\accessibility-Accessibilit-1d235--have-proper-color-contrast-Mobile-Chrome\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\accessibility-Accessibilit-1d235--have-proper-color-contrast-Mobile-Chrome\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\accessibility-Accessibilit-1d235--have-proper-color-contrast-Mobile-Chrome\error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[┌─────────┬─────────────────────┬────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────┐
-│ (index) │ id                  │ impact     │ description                                                                                                      │ nodes │
-├─────────┼─────────────────────┼────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────┤
-│ 0       │ [32m'color-contrast'[39m    │ [32m'serious'[39m  │ [32m'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds'[39m │ [33m2[39m     │
-│ 1       │ [32m'landmark-one-main'[39m │ [32m'moderate'[39m │ [32m'Ensure the document has a main landmark'[39m                                                                        │ [33m1[39m     │
-│ 2       │ [32m'region'[39m            │ [32m'moderate'[39m │ [32m'Ensure all page content is contained by landmarks'[39m                                                              │ [33m5[39m     │
-└─────────┴─────────────────────┴────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────┘
-
-[[ATTACHMENT|accessibility-Accessibilit-1d235--have-proper-color-contrast-Mobile-Chrome\test-failed-1.png]]
-
-[[ATTACHMENT|accessibility-Accessibilit-1d235--have-proper-color-contrast-Mobile-Chrome\video.webm]]
-
-[[ATTACHMENT|accessibility-Accessibilit-1d235--have-proper-color-contrast-Mobile-Chrome\error-context.md]]
-]]>
-</system-out>
-</testcase>
-<testcase name="Accessibility Tests › should support keyboard navigation" classname="accessibility.spec.ts" time="8.187">
-</testcase>
-<testcase name="Accessibility Tests › should have proper ARIA attributes" classname="accessibility.spec.ts" time="9.507">
-<failure message="accessibility.spec.ts:69:7 should have proper ARIA attributes" type="FAILURE">
-<![CDATA[  [Mobile Chrome] › accessibility.spec.ts:69:7 › Accessibility Tests › should have proper ARIA attributes 
-
-    AssertionError: 3 accessibility violations were detected
-        at testResultDependsOnViolations (C:\Users\yasin\Nearacles\nearacles-protocol\frontend\node_modules\axe-playwright\dist\utils.js:16:26)
-        at C:\Users\yasin\Nearacles\nearacles-protocol\frontend\node_modules\axe-playwright\dist\index.js:143:51
-        at fulfilled (C:\Users\yasin\Nearacles\nearacles-protocol\frontend\node_modules\axe-playwright\dist\index.js:28:58)
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\accessibility-Accessibilit-332ae-have-proper-ARIA-attributes-Mobile-Chrome\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\accessibility-Accessibilit-332ae-have-proper-ARIA-attributes-Mobile-Chrome\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\accessibility-Accessibilit-332ae-have-proper-ARIA-attributes-Mobile-Chrome\error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[┌─────────┬─────────────────────┬────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────┐
-│ (index) │ id                  │ impact     │ description                                                                                                      │ nodes │
-├─────────┼─────────────────────┼────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────┤
-│ 0       │ [32m'color-contrast'[39m    │ [32m'serious'[39m  │ [32m'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds'[39m │ [33m2[39m     │
-│ 1       │ [32m'landmark-one-main'[39m │ [32m'moderate'[39m │ [32m'Ensure the document has a main landmark'[39m                                                                        │ [33m1[39m     │
-│ 2       │ [32m'region'[39m            │ [32m'moderate'[39m │ [32m'Ensure all page content is contained by landmarks'[39m                                                              │ [33m5[39m     │
-└─────────┴─────────────────────┴────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────┘
-
-[[ATTACHMENT|accessibility-Accessibilit-332ae-have-proper-ARIA-attributes-Mobile-Chrome\test-failed-1.png]]
-
-[[ATTACHMENT|accessibility-Accessibilit-332ae-have-proper-ARIA-attributes-Mobile-Chrome\video.webm]]
-
-[[ATTACHMENT|accessibility-Accessibilit-332ae-have-proper-ARIA-attributes-Mobile-Chrome\error-context.md]]
-]]>
-</system-out>
-</testcase>
-<testcase name="Accessibility Tests › should work with screen readers" classname="accessibility.spec.ts" time="8.199">
 </testcase>
 </testsuite>
 </testsuites>

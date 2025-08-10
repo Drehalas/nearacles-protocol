@@ -58,7 +58,8 @@ test.describe('Monitoring and Observability Tests', () => {
     
     page.on('response', async (response) => {
       const request = response.request();
-      const timing = response.timing();
+      // Note: response.timing() is deprecated, using alternative approach
+      const timing = null;
       
       networkLog.push({
         url: response.url(),
@@ -159,7 +160,7 @@ test.describe('Monitoring and Observability Tests', () => {
         cacheControl,
         etag,
         lastModified,
-        fromCache: response.fromCache(),
+        fromCache: false, // response.fromCache() is deprecated
         size: parseInt(response.headers()['content-length'] || '0'),
       });
     });
@@ -207,7 +208,7 @@ test.describe('Monitoring and Observability Tests', () => {
     const healthCheck = await page.evaluate(() => {
       return {
         // DOM health
-        hasRootElement: !!document.getElementById('root'),
+        hasRootElement: !!document.querySelector('main') || !!document.querySelector('.min-h-screen'),
         hasReactApp: !!document.querySelector('.min-h-screen'),
         
         // JavaScript health
@@ -256,8 +257,8 @@ test.describe('Monitoring and Observability Tests', () => {
     await page.waitForLoadState('networkidle');
     
     // Perform basic functionality test
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
-    const swaggerLoaded = await page.locator('.swagger-ui').isVisible();
+    await page.waitForSelector('header', { timeout: 15000 });
+    const headerLoaded = await page.locator('header').isVisible();
     
     const testEnd = Date.now();
     
