@@ -8,7 +8,7 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
-    '@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended',
   ],
   rules: {
     // Disable rules that might cause issues in tests

@@ -24,7 +24,7 @@ export default function HeroSection() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <button 
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg whitespace-nowrap cursor-pointer"
+              className="bg-green-700 hover:bg-green-800 text-white px-8 py-4 rounded-lg font-semibold text-lg whitespace-nowrap cursor-pointer"
               aria-label="Launch the Nearacles Oracle Platform"
               title="Launch Platform"
             >
