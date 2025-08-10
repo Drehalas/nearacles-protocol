@@ -432,7 +432,7 @@ export class IntentAgent {
    */
   private async parseIntentDescription(description: string): Promise<IntentRequestParams | null> {
     // Very basic pattern matching - in production, use proper NLP/AI
-    const swapPattern = /swap\s+(\d+(?:\.\d+)?)\s+(\w+)\s+(?:for|to)\s+(\w+)/i;
+    const swapPattern = /swap\s+(\d+(?:\.\d+)?)\s+(\w+)\s+(?:for|to)\s+(\w+)(?:\s+.*)?/i;
     const match = description.match(swapPattern);
 
     if (match) {

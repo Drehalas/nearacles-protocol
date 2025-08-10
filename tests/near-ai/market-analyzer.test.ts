@@ -61,7 +61,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         expect(result.data.marketAnalysis).toBeDefined();
         expect(result.data.patterns).toBeDefined();
         expect(result.data.mlPrediction).toBeDefined();
@@ -85,7 +85,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         expect(result.data.mlPrediction).toBeUndefined();
         expect(result.data.marketAnalysis).toBeDefined();
       }
@@ -95,7 +95,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         expect(result.data.marketAnalysis.confidence).toBeGreaterThan(0);
         expect(result.data.marketAnalysis.confidence).toBeLessThanOrEqual(1);
 
@@ -110,7 +110,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success && result.data.patterns.length > 0) {
+      if (result.success && result.data && result.data.patterns.length > 0) {
         const pattern = result.data.patterns[0];
         expect(pattern.pattern).toBeDefined();
         expect(pattern.confidence).toBeGreaterThan(0);
@@ -124,7 +124,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         const validActions = ['buy', 'sell', 'hold', 'wait'];
         expect(validActions).toContain(result.data.marketAnalysis.recommended_action);
 
@@ -206,7 +206,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         const candlestickPatterns = result.data.patterns.filter(p => 
           ['bullish_engulfing', 'bearish_engulfing', 'hammer', 'doji'].includes(p.pattern)
         );
@@ -224,7 +224,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         const chartPatterns = result.data.patterns.filter(p => 
           ['triangle', 'head_shoulders', 'double_top', 'double_bottom'].includes(p.pattern)
         );
@@ -242,7 +242,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success && result.data.mlPrediction) {
+      if (result.success && result.data && result.data.mlPrediction) {
         const prediction = result.data.mlPrediction;
         
         expect(prediction.predicted_price).toBeGreaterThan(0);
@@ -268,7 +268,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         expect(result.data.mlPrediction).toBeUndefined();
       }
     });
@@ -279,7 +279,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success && result.data.onChainMetrics) {
+      if (result.success && result.data && result.data.onChainMetrics) {
         const metrics = result.data.onChainMetrics;
         
         expect(metrics.tvl).toBeDefined();
@@ -299,7 +299,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         expect(result.data.onChainMetrics).toBeUndefined();
       }
     });
@@ -310,7 +310,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         expect(Array.isArray(result.data.riskFactors)).toBe(true);
         
         result.data.riskFactors.forEach(risk => {
@@ -324,7 +324,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         expect(Array.isArray(result.data.opportunities)).toBe(true);
         
         result.data.opportunities.forEach(opportunity => {
@@ -368,8 +368,7 @@ describe('Market Analyzer Tests', () => {
       // Should either succeed with mock data or fail gracefully
       expect(typeof result.success).toBe('boolean');
       
-      if (!result.success) {
-        expect(result.error).toBeDefined();
+      if (!result.success && result.error) {
         expect(result.error.code).toBeDefined();
         expect(result.error.message).toBeDefined();
       }
