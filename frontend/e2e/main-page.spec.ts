@@ -9,15 +9,15 @@ test.describe('Main Page Tests', () => {
     // Check if the page loads without errors
     await expect(page).toHaveTitle(/Nearacles/);
     
-    // Check if the root element is present
-    const rootElement = page.locator('#root');
-    await expect(rootElement).toBeVisible();
+    // Check if the main content is present
+    const mainContent = page.locator('div.min-h-screen');
+    await expect(mainContent).toBeVisible();
   });
 
-  test('should render the App component', async ({ page }) => {
-    // Check if the App component is rendered
-    const appElement = page.locator('.App');
-    await expect(appElement).toBeVisible();
+  test('should render the main components', async ({ page }) => {
+    // Check if main components are rendered
+    await expect(page.locator('text=Nearacles')).toBeVisible();
+    await expect(page.getByRole('navigation')).toBeVisible();
   });
 
   test('should have proper meta tags', async ({ page }) => {
@@ -64,14 +64,14 @@ test.describe('Main Page Tests', () => {
   test('should be responsive', async ({ page }) => {
     // Test desktop view
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await expect(page.locator('#root')).toBeVisible();
+    await expect(page.locator('div.min-h-screen')).toBeVisible();
     
     // Test tablet view
     await page.setViewportSize({ width: 768, height: 1024 });
-    await expect(page.locator('#root')).toBeVisible();
+    await expect(page.locator('div.min-h-screen')).toBeVisible();
     
     // Test mobile view
     await page.setViewportSize({ width: 375, height: 667 });
-    await expect(page.locator('#root')).toBeVisible();
+    await expect(page.locator('div.min-h-screen')).toBeVisible();
   });
 });

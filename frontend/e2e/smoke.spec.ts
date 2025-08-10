@@ -6,8 +6,8 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
     await page.goto('/');
     
     // Critical elements must be present
-    await expect(page.locator('#root')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('.App')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('div.min-h-screen')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Nearacles')).toBeVisible({ timeout: 5000 });
     
     // Page should load without critical errors
     const title = await page.title();
@@ -26,23 +26,19 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
     // Critical: DOM should load within 3 seconds
     expect(loadTime).toBeLessThan(3000);
     
-    // React app should be mounted
-    const reactApp = await page.locator('.App').count();
-    expect(reactApp).toBe(1);
+    // Next.js app should be mounted
+    const nextApp = await page.locator('div.min-h-screen').count();
+    expect(nextApp).toBe(1);
   });
 
-  test('should have working SwaggerUI integration', async ({ page }) => {
+  test('should have working navigation', async ({ page }) => {
     await page.goto('/');
     
-    // Wait for SwaggerUI with generous timeout for smoke test
-    await page.waitForSelector('.swagger-ui', { timeout: 20000 });
-    
-    const swaggerContainer = page.locator('.swagger-ui');
-    await expect(swaggerContainer).toBeVisible();
-    
-    // Basic interaction test
-    const operations = await page.locator('.swagger-ui .opblock').count();
-    expect(operations).toBeGreaterThanOrEqual(0); // At least no errors
+    // Check for main navigation elements
+    await expect(page.locator('text=Dashboard')).toBeVisible();
+    await expect(page.locator('text=Oracle Network')).toBeVisible();
+    await expect(page.locator('text=Analytics')).toBeVisible();
+    await expect(page.locator('text=Explorer')).toBeVisible();
   });
 
   test('should handle basic user interaction', async ({ page }) => {
@@ -58,7 +54,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
       await page.waitForTimeout(1000);
       
       // App should remain stable
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('div.min-h-screen')).toBeVisible();
     }
   });
 
@@ -72,7 +68,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
     await page.keyboard.press('Escape');
     
     // App should handle keyboard input without crashes
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('div.min-h-screen')).toBeVisible();
   });
 
   test('should work on mobile viewport', async ({ page }) => {
@@ -81,8 +77,8 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
     await page.goto('/');
     
     // Core elements should be visible on mobile
-    await expect(page.locator('#root')).toBeVisible();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('div.min-h-screen')).toBeVisible();
+    await expect(page.locator('text=Nearacles')).toBeVisible();
     
     // Should be responsive
     const bodyWidth = await page.locator('body').evaluate(el => el.clientWidth);
@@ -98,7 +94,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
     await page.waitForLoadState('domcontentloaded');
     
     // Core functionality should be restored
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('div.min-h-screen')).toBeVisible();
   });
 
   test('should not have critical JavaScript errors', async ({ page }) => {
@@ -155,7 +151,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
       await page.waitForLoadState('domcontentloaded');
       
       // App should load regardless of entry point
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('div.min-h-screen')).toBeVisible();
     }
   });
 });
