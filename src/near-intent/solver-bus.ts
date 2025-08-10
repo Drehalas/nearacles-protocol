@@ -211,7 +211,7 @@ export class SolverBus {
     if (quotes.length === 0) return null;
 
     // Filter quotes based on criteria
-    let filteredQuotes = quotes.filter(quote => {
+    const filteredQuotes = quotes.filter(quote => {
       if (criteria.maxFee && BigInt(quote.fee) > BigInt(criteria.maxFee)) {
         return false;
       }

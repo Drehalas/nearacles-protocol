@@ -126,7 +126,7 @@ export interface VerifierContractMethods {
   is_registered: (args: { account_id: string }) => Promise<boolean>;
   
   // Change methods
-  register_user: (args: {}, gas?: string, deposit?: string) => Promise<void>;
+  register_user: (args: Record<string, never>, gas?: string, deposit?: string) => Promise<void>;
   submit_intent: (args: { intent: Intent }, gas?: string, deposit?: string) => Promise<string>;
   submit_quote: (args: { quote: Quote }, gas?: string, deposit?: string) => Promise<void>;
   execute_intent: (args: { intent_id: string, quote_id: string }, gas?: string, deposit?: string) => Promise<void>;

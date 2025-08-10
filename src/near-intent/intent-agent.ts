@@ -21,7 +21,7 @@ import { AssetManager } from './asset-manager';
 import { SolverBus } from './solver-bus';
 import { QuoteManager } from './quote-manager';
 import { VerifierContract } from './verifier-contract';
-import { Account, connect, ConnectConfig, keyStores } from 'near-api-js';
+import { Account, connect, ConnectConfig, keyStores, utils } from 'near-api-js';
 import { getCurrentTimestamp, retry } from '../utils/helpers';
 
 export class IntentAgent {
@@ -78,7 +78,7 @@ export class IntentAgent {
    */
   private async connectWithCredentials(accountId: string, privateKey: string): Promise<void> {
     const keyStore = new keyStores.InMemoryKeyStore();
-    const keyPair = require('near-api-js').utils.KeyPair.fromString(privateKey);
+    const keyPair = utils.KeyPair.fromString(privateKey);
     await keyStore.setKey(this.config.network_id, accountId, keyPair);
 
     const connectionConfig: ConnectConfig = {

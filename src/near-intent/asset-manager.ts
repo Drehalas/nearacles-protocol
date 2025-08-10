@@ -4,7 +4,7 @@
  */
 
 import { TokenMetadata, AssetBalance, AssetInfo, IntentError } from './types';
-import { Account } from 'near-api-js';
+import { Account, Contract } from 'near-api-js';
 import { formatTokenAmount, parseTokenAmount, stringToBigInt } from '../utils/helpers';
 
 export class AssetManager {
@@ -162,7 +162,7 @@ export class AssetManager {
         locked = '0';
       } else {
         // Get FT balance
-        const contract = new (require('near-api-js').Contract)(
+        const contract = new Contract(
           this.account!,
           asset.contract_address,
           {
@@ -274,7 +274,7 @@ export class AssetManager {
     const targetAccountId = accountId || this.account!.accountId;
 
     try {
-      const contract = new (require('near-api-js').Contract)(
+      const contract = new Contract(
         this.account!,
         asset.contract_address,
         {
@@ -308,7 +308,7 @@ export class AssetManager {
     }
 
     try {
-      const contract = new (require('near-api-js').Contract)(
+      const contract = new Contract(
         this.account,
         asset.contract_address,
         {
