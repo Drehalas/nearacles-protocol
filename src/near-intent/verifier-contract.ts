@@ -44,6 +44,7 @@ export class VerifierContract {
           'update_solver_reputation',
           'add_supported_asset',
         ],
+        useLocalViewExecution: false
       }
     ) as Contract & VerifierContractMethods;
   }
@@ -96,7 +97,7 @@ export class VerifierContract {
       // Ensure user is registered
       const registrationResult = await this.registerUser();
       if (!registrationResult.success) {
-        return registrationResult as AsyncResult<string>;
+        return Promise.resolve(registrationResult);
       }
 
       // Calculate storage deposit
@@ -185,7 +186,7 @@ export class VerifierContract {
       }, 3, 2000);
 
       // The result should contain transaction hash
-      const txHash = result?.transaction?.hash || 'unknown';
+      const txHash = (result as any)?.transaction?.hash || 'unknown';
 
       return { success: true, data: txHash };
 

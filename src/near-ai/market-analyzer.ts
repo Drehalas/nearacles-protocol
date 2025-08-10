@@ -310,7 +310,7 @@ export class MarketAnalyzer {
     let timeHorizon: 'immediate' | 'short' | 'medium' | 'long' = 'short';
     if (marketData.volatility_index > 0.6) {
       timeHorizon = 'immediate';
-    } else if (trendDirection !== 'neutral') {
+    } else {
       timeHorizon = 'medium';
     }
 

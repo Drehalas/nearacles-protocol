@@ -50,6 +50,35 @@ export interface SolverInfo {
   active: boolean;
 }
 
+export interface QuoteEvaluationCriteria {
+  prioritize_cost?: boolean;
+  prioritize_speed?: boolean;
+  prioritize_reliability?: boolean;
+  max_execution_time?: number;
+  min_confidence_score?: number;
+  max_fee_percentage?: number;
+  preferred_solvers?: string[];
+  maxSlippage?: number;
+  riskTolerance?: 'low' | 'medium' | 'high';
+  maxFee?: string;
+  maxExecutionTime?: number;
+  minConfidence?: number;
+  prioritize?: 'amount' | 'fee' | 'speed' | 'reputation' | 'balanced';
+}
+
+export interface QuoteAnalysis {
+  quote: Quote;
+  score: number;
+  reasoning: string;
+  risk_factors: string[];
+  opportunities: string[];
+  recommendation: 'accept' | 'reject' | 'consider';
+  confidence: number;
+  pros: string[];
+  cons: string[];
+  riskLevel: 'low' | 'medium' | 'high';
+}
+
 // Request and Response Types
 export interface IntentRequestParams {
   asset_in: string;

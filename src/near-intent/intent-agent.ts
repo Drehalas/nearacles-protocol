@@ -423,7 +423,7 @@ export class IntentAgent {
       prioritize: params.user_preferences?.execution_speed === 'fast' ? 'speed' : 'balanced',
       riskTolerance: 'medium',
       maxFee: params.user_preferences?.max_fee,
-      preferredSolvers: params.user_preferences?.preferred_solvers,
+      preferred_solvers: params.user_preferences?.preferred_solvers,
     };
   }
 

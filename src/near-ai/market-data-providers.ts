@@ -114,14 +114,15 @@ export class MarketDataProviders {
 
     const data = await response.json();
     
+    const marketData = data as any; // Type assertion for external API data
     return {
       asset_pair: assetPair,
-      price: data.price,
-      volume_24h: data.volume_24h || '0',
-      price_change_24h: data.price_change_24h || 0,
-      price_change_7d: data.price_change_7d || 0,
-      liquidity_score: data.liquidity_score || 0.5,
-      volatility_index: data.volatility || 0.3,
+      price: marketData.price,
+      volume_24h: marketData.volume_24h || '0',
+      price_change_24h: marketData.price_change_24h || 0,
+      price_change_7d: marketData.price_change_7d || 0,
+      liquidity_score: marketData.liquidity_score || 0.5,
+      volatility_index: marketData.volatility || 0.3,
       timestamp: getCurrentTimestamp(),
     };
   }
@@ -146,7 +147,8 @@ export class MarketDataProviders {
     }
 
     const data = await response.json();
-    const priceData = data[0];
+    const historicalData = data as any[];
+    const priceData = historicalData[0];
 
     return {
       asset_pair: assetPair,
@@ -189,7 +191,8 @@ export class MarketDataProviders {
     }
 
     const data = await response.json();
-    const coinData = data[coinId];
+    const apiData = data as any;
+    const coinData = apiData[coinId];
 
     return {
       asset_pair: assetPair,

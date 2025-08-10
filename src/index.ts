@@ -5,19 +5,22 @@
 
 // Export all NEAR Intent components
 export * from './near-intent';
-export * from './near-ai';
+// Export NEAR AI components (excluding overlapping types)
+export { 
+  AIAgent, 
+  MarketAnalyzer, 
+  RiskAssessor, 
+  IntentOptimizer,
+  SentimentAnalyzer 
+} from './near-ai';
 export * from './utils/helpers';
 
-// Export main classes
+// Export main classes (avoiding duplicates)
 export { IntentAgent } from './near-intent/intent-agent';
-export { AIAgent } from './near-ai/ai-agent';
 export { AssetManager } from './near-intent/asset-manager';
 export { SolverBus } from './near-intent/solver-bus';
 export { QuoteManager } from './near-intent/quote-manager';
 export { VerifierContract } from './near-intent/verifier-contract';
-export { MarketAnalyzer } from './near-ai/market-analyzer';
-export { RiskAssessor } from './near-ai/risk-assessor';
-export { IntentOptimizer } from './near-ai/intent-optimizer';
 
 // Configuration and constants
 export const NEARACLES_VERSION = '1.0.0';

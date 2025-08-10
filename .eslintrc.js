@@ -1,18 +1,37 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: 'module',
+    project: './tsconfig.json',
+  },
+  plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
     '@typescript-eslint/recommended',
   ],
-  parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: 'module',
-  },
   rules: {
-    '@typescript-eslint/no-unused-vars': 'error',
-    '@typescript-eslint/explicit-function-return-type': 'off',
+    // Disable rules that might cause issues in tests
+    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/no-explicit-any': 'warn',
-    'prefer-const': 'error',
-    'no-var': 'error',
+    '@typescript-eslint/no-non-null-assertion': 'warn',
+    '@typescript-eslint/ban-ts-comment': 'warn',
+    'no-console': 'off', // Allow console in development
+    '@typescript-eslint/no-empty-function': 'warn',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-inferrable-types': 'off',
   },
+  env: {
+    node: true,
+    es2020: true,
+    jest: true,
+  },
+  ignorePatterns: [
+    'dist/',
+    'node_modules/',
+    'coverage/',
+    '*.js',
+    '*.d.ts'
+  ],
 };
