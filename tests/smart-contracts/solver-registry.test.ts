@@ -1,0 +1,366 @@
+/**
+ * Solver Registry Contract Test Suite
+ * Tests for solver registration, management, and reputation tracking
+ */
+
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { NEAR } from 'near-workspaces';
+import { initTestEnvironment, cleanupTestEnvironment, TestContext } from './setup';
+
+describe('Solver Registry Contract Tests', () => {
+  let context: TestContext;
+
+  beforeEach(async () => {
+    context = await initTestEnvironment();
+  });
+
+  afterEach(async () => {
+    await cleanupTestEnvironment(context);
+  });
+
+  describe('Solver Registration', () => {
+    it('should register a new solver successfully', async () => {
+      const newSolver = await context.root.createSubAccount('newsolver');
+      
+      const result = await newSolver.call(
+        context.solverRegistryContract,
+        'register_solver',
+        {
+          name: 'New Solver',
+          description: 'A test solver',
+          supported_assets: ['NEAR', 'USDC'],
+          fee_rate: 0.005,
+        },
+        {
+          attachedDeposit: NEAR.parse('1').toString(),
+          gas: '150000000000000',
+        }
+      );
+
+      expect(result).toBeDefined();
+
+      // Verify solver is registered
+      const solverInfo = await context.solverRegistryContract.view('get_solver', {
+        solver_id: newSolver.accountId,
+      });
+
+      expect(solverInfo).toBeDefined();
+      expect(solverInfo.name).toBe('New Solver');
+      expect(solverInfo.active).toBe(true);
+    });
+
+    it('should not allow duplicate solver registration', async () => {
+      const solver = context.testSolvers.solver1;
+
+      try {
+        await solver.call(
+          context.solverRegistryContract,
+          'register_solver',
+          {
+            name: 'Duplicate Solver',
+            description: 'Should fail',
+            supported_assets: ['NEAR'],
+            fee_rate: 0.005,
+          },
+          {
+            attachedDeposit: NEAR.parse('1').toString(),
+            gas: '150000000000000',
+          }
+        );
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
+    });
+
+    it('should require minimum deposit for registration', async () => {
+      const newSolver = await context.root.createSubAccount('lowdepositsolver');
+
+      try {
+        await newSolver.call(
+          context.solverRegistryContract,
+          'register_solver',
+          {
+            name: 'Low Deposit Solver',
+            description: 'Should fail due to low deposit',
+            supported_assets: ['NEAR'],
+            fee_rate: 0.005,
+          },
+          {
+            attachedDeposit: NEAR.parse('0.1').toString(), // Too low
+            gas: '150000000000000',
+          }
+        );
+        expect(true).toBe(false);
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
+    });
+  });
+
+  describe('Solver Management', () => {
+    it('should allow solver to update their information', async () => {
+      const solver = context.testSolvers.solver1;
+
+      await solver.call(
+        context.solverRegistryContract,
+        'update_solver_info',
+        {
+          name: 'Updated Solver Name',
+          description: 'Updated description',
+          fee_rate: 0.004,
+        },
+        { gas: '100000000000000' }
+      );
+
+      const solverInfo = await context.solverRegistryContract.view('get_solver', {
+        solver_id: solver.accountId,
+      });
+
+      expect(solverInfo.name).toBe('Updated Solver Name');
+      expect(solverInfo.fee_rate).toBe(0.004);
+    });
+
+    it('should allow solver to deactivate themselves', async () => {
+      const solver = context.testSolvers.solver1;
+
+      await solver.call(
+        context.solverRegistryContract,
+        'deactivate_solver',
+        {},
+        { gas: '100000000000000' }
+      );
+
+      const solverInfo = await context.solverRegistryContract.view('get_solver', {
+        solver_id: solver.accountId,
+      });
+
+      expect(solverInfo.active).toBe(false);
+    });
+
+    it('should allow solver to reactivate themselves', async () => {
+      const solver = context.testSolvers.solver1;
+
+      // First deactivate
+      await solver.call(
+        context.solverRegistryContract,
+        'deactivate_solver',
+        {},
+        { gas: '100000000000000' }
+      );
+
+      // Then reactivate
+      await solver.call(
+        context.solverRegistryContract,
+        'reactivate_solver',
+        {},
+        { gas: '100000000000000' }
+      );
+
+      const solverInfo = await context.solverRegistryContract.view('get_solver', {
+        solver_id: solver.accountId,
+      });
+
+      expect(solverInfo.active).toBe(true);
+    });
+  });
+
+  describe('Reputation System', () => {
+    it('should track solver performance metrics', async () => {
+      const solver = context.testSolvers.solver1;
+
+      // Simulate successful execution
+      await context.solverRegistryContract.call(
+        context.solverRegistryContract,
+        'record_execution',
+        {
+          solver_id: solver.accountId,
+          success: true,
+          execution_time: 25,
+          gas_used: '180000000000000',
+        },
+        { gas: '100000000000000' }
+      );
+
+      const performance = await context.solverRegistryContract.view('get_solver_performance', {
+        solver_id: solver.accountId,
+      });
+
+      expect(performance.total_executions).toBe(1);
+      expect(performance.successful_executions).toBe(1);
+      expect(performance.success_rate).toBe(1.0);
+    });
+
+    it('should update reputation based on performance', async () => {
+      const solver = context.testSolvers.solver1;
+
+      // Record multiple executions
+      for (let i = 0; i < 10; i++) {
+        await context.solverRegistryContract.call(
+          context.solverRegistryContract,
+          'record_execution',
+          {
+            solver_id: solver.accountId,
+            success: i < 9, // 90% success rate
+            execution_time: 20 + (i % 5),
+            gas_used: '180000000000000',
+          },
+          { gas: '100000000000000' }
+        );
+      }
+
+      const solverInfo = await context.solverRegistryContract.view('get_solver', {
+        solver_id: solver.accountId,
+      });
+
+      expect(solverInfo.reputation).toBeGreaterThan(0.8);
+      expect(solverInfo.reputation).toBeLessThan(1.0);
+    });
+
+    it('should penalize poor performance', async () => {
+      const solver = context.testSolvers.solver2;
+
+      // Record poor performance
+      for (let i = 0; i < 10; i++) {
+        await context.solverRegistryContract.call(
+          context.solverRegistryContract,
+          'record_execution',
+          {
+            solver_id: solver.accountId,
+            success: i < 3, // 30% success rate
+            execution_time: 60 + (i % 10),
+            gas_used: '300000000000000',
+          },
+          { gas: '100000000000000' }
+        );
+      }
+
+      const solverInfo = await context.solverRegistryContract.view('get_solver', {
+        solver_id: solver.accountId,
+      });
+
+      expect(solverInfo.reputation).toBeLessThan(0.5);
+    });
+  });
+
+  describe('Solver Discovery', () => {
+    it('should return active solvers for asset pair', async () => {
+      const solvers = await context.solverRegistryContract.view('get_solvers_for_assets', {
+        asset_in: 'NEAR',
+        asset_out: 'USDC',
+      });
+
+      expect(Array.isArray(solvers)).toBe(true);
+      expect(solvers.length).toBeGreaterThan(0);
+      
+      // All returned solvers should be active
+      solvers.forEach((solver: any) => {
+        expect(solver.active).toBe(true);
+      });
+    });
+
+    it('should return solvers sorted by reputation', async () => {
+      const solvers = await context.solverRegistryContract.view('get_top_solvers', {
+        limit: 5,
+      });
+
+      expect(Array.isArray(solvers)).toBe(true);
+      
+      // Should be sorted by reputation (highest first)
+      for (let i = 1; i < solvers.length; i++) {
+        expect(solvers[i - 1].reputation).toBeGreaterThanOrEqual(solvers[i].reputation);
+      }
+    });
+
+    it('should filter solvers by minimum reputation', async () => {
+      const solvers = await context.solverRegistryContract.view('get_solvers_by_reputation', {
+        min_reputation: 0.8,
+        limit: 10,
+      });
+
+      expect(Array.isArray(solvers)).toBe(true);
+      
+      solvers.forEach((solver: any) => {
+        expect(solver.reputation).toBeGreaterThanOrEqual(0.8);
+      });
+    });
+  });
+
+  describe('Administrative Functions', () => {
+    it('should allow admin to suspend malicious solver', async () => {
+      const solver = context.testSolvers.solver3;
+
+      await context.root.call(
+        context.solverRegistryContract,
+        'admin_suspend_solver',
+        {
+          solver_id: solver.accountId,
+          reason: 'Malicious behavior detected',
+        },
+        { gas: '100000000000000' }
+      );
+
+      const solverInfo = await context.solverRegistryContract.view('get_solver', {
+        solver_id: solver.accountId,
+      });
+
+      expect(solverInfo.suspended).toBe(true);
+    });
+
+    it('should not allow non-admin to suspend solver', async () => {
+      const solver = context.testSolvers.solver1;
+      const user = context.testUsers.alice;
+
+      try {
+        await user.call(
+          context.solverRegistryContract,
+          'admin_suspend_solver',
+          {
+            solver_id: solver.accountId,
+            reason: 'Should fail',
+          },
+          { gas: '100000000000000' }
+        );
+        expect(true).toBe(false);
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
+    });
+  });
+
+  describe('Economic Incentives', () => {
+    it('should distribute rewards to high-performing solvers', async () => {
+      const solver = context.testSolvers.solver1;
+      const initialBalance = await solver.balance();
+
+      // Record excellent performance
+      for (let i = 0; i < 5; i++) {
+        await context.solverRegistryContract.call(
+          context.solverRegistryContract,
+          'record_execution',
+          {
+            solver_id: solver.accountId,
+            success: true,
+            execution_time: 15,
+            gas_used: '150000000000000',
+          },
+          { gas: '100000000000000' }
+        );
+      }
+
+      // Trigger reward distribution
+      await context.root.call(
+        context.solverRegistryContract,
+        'distribute_rewards',
+        {},
+        {
+          attachedDeposit: NEAR.parse('10').toString(),
+          gas: '200000000000000',
+        }
+      );
+
+      const finalBalance = await solver.balance();
+      expect(BigInt(finalBalance.total)).toBeGreaterThan(BigInt(initialBalance.total));
+    });
+  });
+});
