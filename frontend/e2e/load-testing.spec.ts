@@ -169,7 +169,16 @@ test.describe('Load Testing', () => {
       
       for (let i = 0; i < 1000; i++) {
         const element = document.createElement('div');
-        element.innerHTML = `<span>Item ${i}</span><p>Description for item ${i}</p>`;
+        
+        // Create elements safely without innerHTML to prevent XSS
+        const spanElement = document.createElement('span');
+        spanElement.textContent = `Item ${i}`;
+        
+        const pElement = document.createElement('p');
+        pElement.textContent = `Description for item ${i}`;
+        
+        element.appendChild(spanElement);
+        element.appendChild(pElement);
         container.appendChild(element);
       }
       
