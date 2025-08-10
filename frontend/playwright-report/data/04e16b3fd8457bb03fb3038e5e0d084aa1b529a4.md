@@ -1,0 +1,186 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link " Nearacles":
+    - /url: /
+    - text: 
+    - heading "Nearacles" [level=1]
+  - navigation:
+    - link "Dashboard v1":
+      - /url: /v1/dashboard
+    - link "Oracles v1":
+      - /url: /v1/oracles
+    - link "Analytics v1":
+      - /url: /v1/analytics
+    - link "Explorer v1":
+      - /url: /v1/explorer
+    - button "Connect Wallet"
+- heading "NEAR Protocol Oracle Network" [level=1]
+- paragraph: Advanced NEAR blockchain oracle platform with multiple data sources, real-time consensus algorithms, and enterprise-grade security for decentralized applications.
+- button "Launch Platform"
+- button "View Documentation"
+- heading "Comprehensive NEAR Oracle Platform" [level=2]
+- paragraph: 11 full services providing enterprise-grade oracle infrastructure with 75+ API endpoints and production-ready scalability
+- text: 
+- heading "NEAR Storage Service" [level=3]
+- paragraph: AES-256 encrypted decentralized storage, GDPR & HIPAA compliant with digital ID support and full access audit logs.
+- list:
+  - listitem: AES-256 Encryption
+  - listitem: GDPR Compliance
+  - listitem: Digital ID Support
+  - listitem: Audit Logs
+- text: 
+- heading "NEAR Token Service" [level=3]
+- paragraph: NEP-141 token creation with oracle-based audit trail, automated pricing, and cross-chain compatibility.
+- list:
+  - listitem: NEP-141 Tokens
+  - listitem: Oracle Pricing
+  - listitem: Audit Trail
+  - listitem: Cross-chain
+- text: 
+- heading "Smart Contracts" [level=3]
+- paragraph: Rust/AssemblyScript compilation, full deploy pipeline with oracle integration and dynamic provider selection.
+- list:
+  - listitem: Rust Support
+  - listitem: Deploy Pipeline
+  - listitem: Oracle Integration
+  - listitem: Provider Selection
+- text: 
+- heading "Account Service" [level=3]
+- paragraph: Multi-account handling, NEAR balance checks, account creation from keys with transaction signing & auditing.
+- list:
+  - listitem: Multi-account
+  - listitem: Balance Checks
+  - listitem: Key Management
+  - listitem: Transaction Audit
+- text: 
+- heading "Network Services" [level=3]
+- paragraph: Testnet/Mainnet switching, gas optimization, validator monitoring with uptime, stake, and reward tracking.
+- list:
+  - listitem: Network Switch
+  - listitem: Gas Optimization
+  - listitem: Validator Monitor
+  - listitem: Reward Tracking
+- text: 
+- heading "NEAR Explorer" [level=3]
+- paragraph: Multi-entity URLs, visual status badges, batch tracking with comprehensive blockchain data exploration.
+- list:
+  - listitem: Multi-entity
+  - listitem: Status Badges
+  - listitem: Batch Tracking
+  - listitem: Data Explorer
+- text: 
+- heading "Oracle Consensus" [level=3]
+- paragraph: Median, weighted average, majority vote algorithms with 3-sigma outlier filtering and confidence weighting.
+- list:
+  - listitem: Multiple Algorithms
+  - listitem: Outlier Filtering
+  - listitem: Confidence Weight
+  - listitem: Real-time Processing
+- text: 
+- heading "Security Layer" [level=3]
+- paragraph: Role-based access control, AES-256 encryption, digital signatures with input validation and audit trails.
+- list:
+  - listitem: Role-based Access
+  - listitem: Digital Signatures
+  - listitem: Input Validation
+  - listitem: Security Audit
+- text: 
+- heading "Analytics & Monitoring" [level=3]
+- paragraph: Real-time health checks, TPS monitoring, success rate tracking with comprehensive cost analysis.
+- list:
+  - listitem: Health Checks
+  - listitem: TPS Monitoring
+  - listitem: Success Rates
+  - listitem: Cost Analysis
+- text: 
+- heading "Consensus Messaging" [level=3]
+- paragraph: 4 custom audit topics with real-time & batch messaging, auto-topic creation with smart batching algorithms.
+- list:
+  - listitem: 4 Audit Topics
+  - listitem: Real-time Messaging
+  - listitem: Auto-creation
+  - listitem: Smart Batching
+- text: 
+- heading "Data Feeds" [level=3]
+- paragraph: Integration with 9 oracle providers, real-time price feeds, quality metrics with staleness detection.
+- list:
+  - listitem: 9 Providers
+  - listitem: Real-time Feeds
+  - listitem: Quality Metrics
+  - listitem: Staleness Check
+- heading "Advanced Consensus Algorithms" [level=2]
+- paragraph: Multiple oracle consensus mechanisms with sophisticated outlier filtering and confidence-weighted aggregation for maximum data reliability.
+- heading "Weighted Average" [level=3]
+- text: 99.7%
+- paragraph: Provider reliability-based weighting with historical performance metrics
+- heading "Median Consensus" [level=3]
+- text: 99.5%
+- paragraph: Statistical median calculation with outlier resistance
+- heading "Majority Vote" [level=3]
+- text: 99.8%
+- paragraph: Democratic consensus with confidence-weighted voting
+- heading "3-Sigma Filter" [level=3]
+- text: 99.9%
+- paragraph: Advanced outlier detection with 30% deviation threshold
+- heading "Enterprise Security" [level=2]
+- paragraph: Multi-layered security architecture with role-based access control, encryption, and comprehensive audit trails for enterprise compliance.
+- text: 
+- heading "AES-256 Encryption" [level=3]
+- paragraph: Military-grade encryption for all data
+- text: 
+- heading "Digital Signatures" [level=3]
+- paragraph: Cryptographic validation for all transactions
+- text: 
+- heading "Role-based Access" [level=3]
+- paragraph: Granular permission management system
+- heading "Complete Audit Trail" [level=3]
+- paragraph: Immutable logging of all platform activities
+- heading "GDPR & HIPAA Compliant" [level=4]
+- paragraph: Full compliance with global data protection regulations including GDPR, HIPAA, and SOX requirements for enterprise deployments.
+- heading "Production-Grade Platform" [level=2]
+- paragraph: Scalable, secure, and real-time oracle infrastructure built for enterprise needs
+- text:  15,000+ Lines of Code  11 Full Services 75+ API Endpoints  9 Oracle Providers 4 Audit Topics  99.9% Uptime SLA
+- heading "Built on NEAR Protocol" [level=3]
+- paragraph: Leveraging NEAR's fast finality, low costs, and developer-friendly environment to deliver the most advanced oracle network in the ecosystem. Our platform processes thousands of data points per second with sub-second latency and enterprise-grade reliability.
+- contentinfo:
+  - text: 
+  - heading "Nearacles" [level=3]
+  - paragraph: Advanced NEAR blockchain Oracle platform with multiple data sources, real-time analytics, and enterprise-grade security.
+  - button ""
+  - button ""
+  - button ""
+  - heading "Platform" [level=4]
+  - list:
+    - listitem:
+      - link "Dashboard":
+        - /url: /dashboard
+    - listitem:
+      - link "Oracle Network":
+        - /url: /oracles
+    - listitem:
+      - link "Analytics":
+        - /url: /analytics
+    - listitem:
+      - link "Explorer":
+        - /url: /explorer
+  - heading "Resources" [level=4]
+  - list:
+    - listitem:
+      - link "Documentation":
+        - /url: /docs
+    - listitem:
+      - link "API Reference":
+        - /url: /api
+    - listitem:
+      - link "Support":
+        - /url: /support
+    - listitem:
+      - link "Status Page":
+        - /url: /status
+  - paragraph: © 2024 Nearacles. All rights reserved. Built on NEAR Protocol.
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```
