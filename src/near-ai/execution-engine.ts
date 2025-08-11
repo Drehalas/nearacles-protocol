@@ -3,9 +3,8 @@
  * Handles the actual execution of optimized intent strategies
  */
 
-import { IntentOptimizer, OptimizationResult, ExecutionRoute, SplitOrder } from './intent-optimizer';
+import { OptimizationResult, ExecutionRoute, SplitOrder } from './intent-optimizer';
 import { AdvancedRiskAssessor } from './advanced-risk-assessor';
-import { AIAgentConfig } from './types';
 
 export interface ExecutionConfig {
   enableDryRun: boolean;
@@ -53,21 +52,15 @@ export interface ExecutionResult {
 }
 
 export class ExecutionEngine {
-  private aiConfig: AIAgentConfig;
-  private intentOptimizer: IntentOptimizer;
   private riskAssessor: AdvancedRiskAssessor;
   private config: ExecutionConfig;
   private activeExecutions: Map<string, ExecutionStatus> = new Map();
   private executionHistory: Map<string, ExecutionResult> = new Map();
 
   constructor(
-    aiConfig: AIAgentConfig,
-    intentOptimizer: IntentOptimizer,
     riskAssessor: AdvancedRiskAssessor,
     config: ExecutionConfig
   ) {
-    this.aiConfig = aiConfig;
-    this.intentOptimizer = intentOptimizer;
     this.riskAssessor = riskAssessor;
     this.config = config;
   }
@@ -76,11 +69,7 @@ export class ExecutionEngine {
    * Execute an optimized intent with full monitoring and failover
    */
   async executeIntent(
-    assetIn: string,
-    assetOut: string,
-    amountIn: string,
-    optimizationResult: OptimizationResult,
-    userConfirmation: boolean = true
+    optimizationResult: OptimizationResult
   ): Promise<ExecutionResult> {
     const executionId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
@@ -104,7 +93,7 @@ export class ExecutionEngine {
       await this.validateExecution(optimizationResult, status);
 
       // Risk assessment
-      await this.performPreExecutionRiskCheck(assetIn, assetOut, amountIn, optimizationResult, status);
+      await this.performPreExecutionRiskCheck(optimizationResult, status);
 
       // Execute based on strategy
       let result: ExecutionResult;
@@ -206,9 +195,6 @@ export class ExecutionEngine {
    * Perform pre-execution risk assessment
    */
   private async performPreExecutionRiskCheck(
-    assetIn: string,
-    assetOut: string,
-    amountIn: string,
     optimizationResult: OptimizationResult,
     status: ExecutionStatus
   ): Promise<void> {
@@ -228,7 +214,7 @@ export class ExecutionEngine {
       });
 
       // If risk is critical, abort
-      if (riskData.risk_level === 'critical') {
+      if (riskData.overall_risk > 0.9) {
         throw new Error('Critical risk level detected, aborting execution');
       }
     }
@@ -263,7 +249,7 @@ export class ExecutionEngine {
           `Executing swap ${fromAsset} → ${toAsset} on ${dex}`
         );
 
-        const stepResult = await this.executeSwapStep(fromAsset, toAsset, dex, route);
+        const stepResult = await this.executeSwapStep(route);
         totalGasUsed += parseFloat(stepResult.gasUsed);
         actualOutput = stepResult.output;
 
@@ -524,9 +510,6 @@ export class ExecutionEngine {
    * Execute a single swap step
    */
   private async executeSwapStep(
-    fromAsset: string,
-    toAsset: string,
-    dex: string,
     route: ExecutionRoute
   ): Promise<{ output: string; gasUsed: string }> {
     // In a real implementation, this would:
@@ -564,9 +547,6 @@ export class ExecutionEngine {
   }> {
     try {
       const result = await this.executeSwapStep(
-        splitOrder.route.path[0],
-        splitOrder.route.path[splitOrder.route.path.length - 1],
-        splitOrder.route.dexes[0],
         splitOrder.route
       );
 
@@ -624,9 +604,7 @@ export class ExecutionEngine {
   /**
    * Wait for transaction confirmations
    */
-  private async waitForConfirmations(status: ExecutionStatus): Promise<void> {
-    const confirmationTime = this.config.confirmationBlocks * 1000; // 1 second per block (simplified)
-    
+  private async waitForConfirmations(status: ExecutionStatus): Promise<void> {    
     for (let i = 0; i < this.config.confirmationBlocks; i++) {
       const progress = 90 + (i / this.config.confirmationBlocks) * 10;
       this.updateStatus(status, progress, `Waiting for confirmation ${i + 1}/${this.config.confirmationBlocks}`);
