@@ -13,6 +13,7 @@ import {
   AsyncResult 
 } from './types';
 import { retry, sleep, getCurrentTimestamp } from '../utils/helpers';
+import WebSocket from 'ws';
 
 export class SolverBus {
   private baseUrl: string;
@@ -46,16 +47,16 @@ export class SolverBus {
         }
       };
 
-      this.wsConnection.onmessage = (event) => {
+      this.wsConnection.onmessage = (event: WebSocket.MessageEvent) => {
         try {
-          const message: SolverBusMessage = JSON.parse(event.data);
+          const message: SolverBusMessage = JSON.parse(event.data.toString());
           this.handleMessage(message);
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
         }
       };
 
-      this.wsConnection.onerror = (error) => {
+      this.wsConnection.onerror = (error: WebSocket.ErrorEvent) => {
         console.error('WebSocket error:', error);
       };
 
