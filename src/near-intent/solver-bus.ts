@@ -3,6 +3,10 @@
  * Handles communication with the off-chain solver network
  */
 
+<<<<<<< HEAD
+import WebSocket from 'ws';
+=======
+>>>>>>> origin/main
 import { 
   Quote, 
   SolverInfo, 
@@ -13,7 +17,10 @@ import {
   AsyncResult 
 } from './types';
 import { retry, sleep, getCurrentTimestamp } from '../utils/helpers';
+<<<<<<< HEAD
+=======
 import WebSocket from 'ws';
+>>>>>>> origin/main
 
 export class SolverBus {
   private baseUrl: string;
@@ -47,16 +54,30 @@ export class SolverBus {
         }
       };
 
+<<<<<<< HEAD
+      this.wsConnection.onmessage = (event) => {
+        try {
+          const data = typeof event.data === 'string' ? event.data : 
+            (event.data instanceof ArrayBuffer ? new TextDecoder().decode(event.data) : 
+             Array.isArray(event.data) ? new TextDecoder().decode(event.data[0]) : 
+             String(event.data));
+          const message: SolverBusMessage = JSON.parse(data);
+=======
       this.wsConnection.onmessage = (event: WebSocket.MessageEvent) => {
         try {
           const message: SolverBusMessage = JSON.parse(event.data.toString());
+>>>>>>> origin/main
           this.handleMessage(message);
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
         }
       };
 
+<<<<<<< HEAD
+      this.wsConnection.onerror = (error) => {
+=======
       this.wsConnection.onerror = (error: WebSocket.ErrorEvent) => {
+>>>>>>> origin/main
         console.error('WebSocket error:', error);
       };
 
