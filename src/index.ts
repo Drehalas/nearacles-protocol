@@ -3,21 +3,9 @@
  * Main entry point for the NEAR Intent Protocol
  */
 
-// Export specific NEAR Intent components
-export * from './near-intent/intent-request';
-export * from './near-intent/quote-manager';
-export * from './near-intent/solver-bus';
-export * from './near-intent/verifier-contract';
-export * from './near-intent/asset-manager';
-export * from './near-intent/types';
-
-// Export specific NEAR AI components  
-export * from './near-ai/ai-agent';
-export * from './near-ai/market-analyzer';
-export * from './near-ai/intent-optimizer';
-export * from './near-ai/risk-assessor';
-export * from './near-ai/sentiment-analyzer';
-export * from './near-ai/types';
+// Export specific types to avoid conflicts
+export type { Intent, Quote, AssetInfo, SolverInfo, IntentRequestParams, IntentConfig, IntentError, AsyncResult } from './near-intent/types';
+export type { AIAgentConfig, AIDecision, MarketAnalysisResult } from './near-ai/types';
 export * from './utils/helpers';
 
 // Export main classes
@@ -34,7 +22,6 @@ export { IntentOptimizer } from './near-ai/intent-optimizer';
 // Configuration and constants
 export const NEARACLES_VERSION = '1.0.0';
 export const PROTOCOL_VERSION = 'v1';
-
 // Default configurations
 export const DEFAULT_TESTNET_CONFIG = {
   network_id: 'testnet' as const,
@@ -42,7 +29,7 @@ export const DEFAULT_TESTNET_CONFIG = {
   wallet_url: 'https://wallet.testnet.near.org',
   helper_url: 'https://helper.testnet.near.org',
   explorer_url: 'https://explorer.testnet.near.org',
-  solver_bus_url: 'wss://solver-bus.testnet.near.org',
+  solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
   verifier_contract: 'verifier.testnet',
   intent_contract: 'intents.testnet',
   gas_limits: {
@@ -64,8 +51,8 @@ export const DEFAULT_MAINNET_CONFIG = {
   wallet_url: 'https://wallet.mainnet.near.org',
   helper_url: 'https://helper.mainnet.near.org',
   explorer_url: 'https://explorer.mainnet.near.org',
-  solver_bus_url: 'wss://solver-bus.near.org',
-  verifier_contract: 'verifier.near',
+  solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
+  verifier_contract: 'intents.near',
   intent_contract: 'intents.near',
   gas_limits: {
     register: '100000000000000',
