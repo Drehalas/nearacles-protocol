@@ -23,7 +23,12 @@ describe('Intent Optimizer Basic Tests', () => {
       minProfitThreshold: 0.5,
     };
 
-    marketDataProviders = new MarketDataProviders();
+    marketDataProviders = new MarketDataProviders({
+      providers: ['test-provider'],
+      cache_duration: 5000,
+      fallback_enabled: true,
+      timeout_ms: 10000
+    });
     intentOptimizer = new IntentOptimizer(marketDataProviders, optimizationConfig);
   });
 
