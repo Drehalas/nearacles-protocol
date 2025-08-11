@@ -89,3 +89,9 @@ public
 # Temporary folders
 tmp/
 temp/
+
+# Ide
+CLAUDE.local.md
+CLAUDE.md
+myDocs
+.claude
