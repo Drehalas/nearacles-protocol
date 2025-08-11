@@ -217,7 +217,7 @@ describe('Market Analyzer Tests', () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        const candlestickPatterns = result.data!.patterns.filter(p => 
+        const candlestickPatterns = result.data!.patterns.filter(p =>
           ['bullish_engulfing', 'bearish_engulfing', 'hammer', 'doji'].includes(p.pattern)
         );
 
@@ -235,7 +235,7 @@ describe('Market Analyzer Tests', () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        const chartPatterns = result.data!.patterns.filter(p => 
+        const chartPatterns = result.data!.patterns.filter(p =>
           ['triangle', 'head_shoulders', 'double_top', 'double_bottom'].includes(p.pattern)
         );
 

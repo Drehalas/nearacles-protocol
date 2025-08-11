@@ -69,6 +69,7 @@ export interface QuoteAnalysis {
   pros: string[];
   cons: string[];
 }
+
 // Request and Response Types
 export interface IntentRequestParams {
   asset_in: string;
@@ -195,7 +196,7 @@ export interface IntentEvent {
 }
 
 // AI Agent Types (for NEAR AI integration)
-export interface AIAgentConfig {
+export interface IntentAIAgentConfig {
   model: 'gpt-4' | 'claude-3' | 'near-ai';
   api_key?: string;
   endpoint?: string;
@@ -204,7 +205,7 @@ export interface AIAgentConfig {
   context_window: number;
 }
 
-export interface AIDecision {
+export interface IntentAIDecision {
   action: 'execute' | 'wait' | 'cancel' | 'modify';
   confidence: number;
   reasoning: string;
