@@ -88,7 +88,7 @@ export class AIAgent {
    * Make an AI-powered decision
    */
   async makeDecision(
-    intent: IntentRequestParams,
+    intent: Intent,
     quotes: Quote[],
     context?: AIDecisionContext
   ): Promise<AIResponse<AIDecision>> {
@@ -97,8 +97,8 @@ export class AIAgent {
     try {
       // Step 1: Analyze market conditions
       const marketAnalysis = await this.marketAnalyzer.analyzeMarket(
-        intent.asset_in?.token_id || 'unknown',
-        intent.asset_out?.token_id || 'unknown'
+        typeof intent.asset_in === 'string' ? intent.asset_in : intent.asset_in?.token_id || 'unknown',
+        typeof intent.asset_out === 'string' ? intent.asset_out : intent.asset_out?.token_id || 'unknown'
       );
 
       // Step 2: Assess risks
@@ -189,7 +189,8 @@ export class AIAgent {
 
     // Market analysis reasoning
     if (marketAnalysis.recommended_action === 'buy' && marketAnalysis.confidence > 0.7) {
-      reasoning.push(`Market analysis suggests favorable conditions for ${intent.asset_out?.symbol || 'target asset'} (confidence: ${(marketAnalysis.confidence * 100).toFixed(1)}%)`);
+      const assetOutSymbol = typeof intent.asset_out === 'string' ? intent.asset_out : intent.asset_out?.symbol || 'target asset';
+      reasoning.push(`Market analysis suggests favorable conditions for ${assetOutSymbol} (confidence: ${(marketAnalysis.confidence * 100).toFixed(1)}%)`);
       confidence += 0.1;
       action = 'execute';
     } else if (marketAnalysis.recommended_action === 'hold') {
@@ -351,8 +352,10 @@ export class AIAgent {
     return relevantMemories.find(m => {
       try {
         const content = typeof m.content === 'string' ? JSON.parse(m.content) : m.content;
-        return content?.intent?.asset_in?.token_id === intent.asset_in?.token_id &&
-               content?.intent?.asset_out?.token_id === intent.asset_out?.token_id;
+        const intentAssetIn = typeof intent.asset_in === 'string' ? intent.asset_in : intent.asset_in?.token_id;
+        const intentAssetOut = typeof intent.asset_out === 'string' ? intent.asset_out : intent.asset_out?.token_id;
+        return content?.intent?.asset_in?.token_id === intentAssetIn &&
+               content?.intent?.asset_out?.token_id === intentAssetOut;
       } catch {
         return false;
       }
