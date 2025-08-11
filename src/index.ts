@@ -22,7 +22,7 @@ export { IntentOptimizer } from './near-ai/intent-optimizer';
 // Configuration and constants
 export const NEARACLES_VERSION = '1.0.0';
 export const PROTOCOL_VERSION = 'v1';
-<<<<<<< HEAD
+
 // Default configurations
 export const DEFAULT_TESTNET_CONFIG = {
   network_id: 'testnet' as const,
@@ -45,32 +45,6 @@ export const DEFAULT_TESTNET_CONFIG = {
     quote: '0.005',
   },
 };
-
-=======
-
-export const DEFAULT_TESTNET_CONFIG = {
-  network_id: 'testnet' as const,
-  node_url: 'https://rpc.testnet.near.org',
-  wallet_url: 'https://wallet.testnet.near.org',
-  helper_url: 'https://helper.testnet.near.org',
-  explorer_url: 'https://explorer.testnet.near.org',
-  solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
-  verifier_contract: 'intents.testnet',
-  intent_contract: 'intents.testnet',
-  gas_limits: {
-    register: '100000000000000',
-    submit_intent: '300000000000000',
-    submit_quote: '200000000000000',
-    execute_intent: '300000000000000',
-  },
-  storage_deposits: {
-    registration: '0.1',
-    intent: '0.01',
-    quote: '0.005',
-  },
-};
-
->>>>>>> origin/main
 export const DEFAULT_MAINNET_CONFIG = {
   network_id: 'mainnet' as const,
   node_url: 'https://rpc.mainnet.near.org',
