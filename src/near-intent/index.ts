@@ -8,7 +8,11 @@ export type { Intent, Quote, AssetInfo, SolverInfo, IntentRequestParams, IntentC
 
 // Export classes
 export { IntentRequest } from './intent-request';
+<<<<<<< HEAD
 export { QuoteManager } from './quote-manager';
+=======
+export { QuoteManager } from './quote-manager';  
+>>>>>>> origin/main
 export { SolverBus } from './solver-bus';
 export { VerifierContract } from './verifier-contract';
 export { AssetManager } from './asset-manager';

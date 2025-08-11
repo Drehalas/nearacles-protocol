@@ -50,6 +50,29 @@ export interface SolverInfo {
   active: boolean;
 }
 
+<<<<<<< HEAD
+=======
+// Quote Analysis Types  
+export interface QuoteEvaluationCriteria {
+  maxSlippage?: number; // percentage
+  maxFee?: string;
+  maxExecutionTime?: number; // seconds
+  minConfidence?: number; // 0-1
+  preferredSolvers?: string[];
+  prioritize?: 'amount' | 'fee' | 'speed' | 'reputation' | 'balanced';
+  riskTolerance?: 'low' | 'medium' | 'high';
+}
+
+export interface QuoteAnalysis {
+  quote: Quote;
+  score: number;
+  recommendation: 'accept' | 'reject' | 'consider';
+  riskLevel: 'low' | 'medium' | 'high';
+  pros: string[];
+  cons: string[];
+}
+
+>>>>>>> origin/main
 // Request and Response Types
 export interface IntentRequestParams {
   asset_in: string;
@@ -175,7 +198,11 @@ export interface IntentEvent {
 }
 
 // AI Agent Types (for NEAR AI integration)
+<<<<<<< HEAD
 export interface IntentAIAgentConfig {
+=======
+export interface AIAgentConfig {
+>>>>>>> origin/main
   model: 'gpt-4' | 'claude-3' | 'near-ai';
   api_key?: string;
   endpoint?: string;
@@ -184,7 +211,11 @@ export interface IntentAIAgentConfig {
   context_window: number;
 }
 
+<<<<<<< HEAD
 export interface IntentAIDecision {
+=======
+export interface AIDecision {
+>>>>>>> origin/main
   action: 'execute' | 'wait' | 'cancel' | 'modify';
   confidence: number;
   reasoning: string;
@@ -225,6 +256,7 @@ export interface FilterParams {
   date_from?: number;
   date_to?: number;
 }
+<<<<<<< HEAD
 
 // Quote evaluation types
 export interface QuoteEvaluationCriteria {
@@ -246,3 +278,5 @@ export interface QuoteAnalysis {
   recommendation: 'accept' | 'reject' | 'wait';
   reasoning: string[];
 }
+=======
+>>>>>>> origin/main

@@ -185,7 +185,7 @@ export class VerifierContract {
       }, 3, 2000);
 
       // The result should contain transaction hash
-      const txHash = (result as any)?.transaction?.hash || 'unknown';
+      const txHash = (result as any)?.transaction?.hash || (result as any)?.transaction_outcome?.id || 'unknown';
 
       return { success: true, data: txHash };
 

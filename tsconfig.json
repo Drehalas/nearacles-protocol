@@ -4,6 +4,10 @@
     "module": "commonjs",
     "lib": ["ES2020"],
     "outDir": "./dist",
+<<<<<<< HEAD
+=======
+    "rootDir": "./src",
+>>>>>>> origin/main
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
