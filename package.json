@@ -93,23 +93,6 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/tests/**/*.test.ts"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/*.d.ts"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html"
-    ]
-  },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
