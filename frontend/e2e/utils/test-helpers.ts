@@ -5,7 +5,7 @@ import { Page, Locator, expect } from '@playwright/test';
  */
 
 export class TestHelpers {
-  constructor(private page: Page) {}
+  constructor(protected page: Page) {}
 
   /**
    * Wait for the application to be fully loaded and ready
@@ -275,7 +275,7 @@ export class TestHelpers {
       userAgent: await this.page.evaluate(() => navigator.userAgent),
       performance: metrics,
       errors,
-      screenshot: await this.page.screenshot({ encoding: 'base64' }),
+      screenshot: await this.page.screenshot(),
     };
   }
 }

@@ -9,56 +9,78 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [22.x]
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Type check
       run: npm run type-check
-    
+
     - name: Run linter
       run: npm run lint
-    
+
     - name: Run tests
       run: npm test
       env:
         CI: true
-    
+
     - name: Run integration tests (optional)
       run: npm run test:integration || echo "Integration tests skipped - NEAR environment not available"
       continue-on-error: true
-    
+
     - name: Build project
       run: npm run build
 
   smart-contract-tests:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Use Node.js 22.x
       uses: actions/setup-node@v4
       with:
-        node-version: 22.x
+        node-{
+          "compilerOptions": {
+            "target": "ES2020",
+            "lib": ["dom", "dom.iterable", "ES6"],
+            "allowJs": true,
+            "skipLibCheck": true,
+            "strict": true,
+            "forceConsistentCasingInFileNames": true,
+            "noEmit": true,
+            "esModuleInterop": true,
+            "module": "esnext",
+            "moduleResolution": "node",
+            "resolveJsonModule": true,
+            "isolatedModules": true,
+            "jsx": "preserve",
+            "incremental": true,
+            "plugins": [{ "name": "next" }],
+            "baseUrl": ".",
+            "paths": { "@/*": ["./*"] }
+          },
+          "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+          "exclude": ["<<<<<s"]
+        }version: 22.x
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Check for smart contracts
       run: |
         if [ -d "./contracts" ] && [ "$(ls -A ./contracts)" ]; then
@@ -68,7 +90,7 @@ jobs:
           echo "No smart contracts found, skipping tests"
           echo "CONTRACTS_EXIST=false" >> $GITHUB_ENV
         fi
-    
+
     - name: Run smart contract tests
       run: |
         if [ "$CONTRACTS_EXIST" = "true" ]; then
