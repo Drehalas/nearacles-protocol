@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns=tests/smart-contracts/",
     "test:contracts": "jest tests/smart-contracts/",
     "test:integration": "jest tests/smart-contracts/integration.test.ts",
     "test:watch": "jest --watch",
