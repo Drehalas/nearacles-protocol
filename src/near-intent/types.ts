@@ -175,7 +175,7 @@ export interface IntentEvent {
 }
 
 // AI Agent Types (for NEAR AI integration)
-export interface AIAgentConfig {
+export interface IntentAIAgentConfig {
   model: 'gpt-4' | 'claude-3' | 'near-ai';
   api_key?: string;
   endpoint?: string;
@@ -184,7 +184,7 @@ export interface AIAgentConfig {
   context_window: number;
 }
 
-export interface AIDecision {
+export interface IntentAIDecision {
   action: 'execute' | 'wait' | 'cancel' | 'modify';
   confidence: number;
   reasoning: string;
@@ -224,4 +224,25 @@ export interface FilterParams {
   max_amount?: string;
   date_from?: number;
   date_to?: number;
+}
+
+// Quote evaluation types
+export interface QuoteEvaluationCriteria {
+  prefer_speed?: boolean;
+  prefer_cost?: boolean;
+  max_slippage?: number;
+  min_output?: string;
+  reputation_threshold?: number;
+}
+
+export interface QuoteAnalysis {
+  quote_id: string;
+  solver_reputation: number;
+  estimated_execution_time: number;
+  estimated_slippage: number;
+  estimated_output: string;
+  confidence_score: number;
+  risk_score: number;
+  recommendation: 'accept' | 'reject' | 'wait';
+  reasoning: string[];
 }
