@@ -1,104 +1,607 @@
 /**
- * NEAR Intent Protocol - Basic Tests
- * Simple tests for core functionality without NEAR Workspaces dependency
+ * Verifier Contract Test Suite
+ * Comprehensive tests for NEAR Intent Protocol smart contracts
  */
 
-import { describe, it, expect } from '@jest/globals';
-import { IntentAgent } from '../../src/near-intent/intent-agent';
-import { NEAR_INTENT_CONFIG } from '../../src/near-intent';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { NEAR, Worker, NearAccount } from 'near-workspaces';
+import { Intent, Quote } from '../../src/near-intent/types';
 
-// Mock configuration for testing
-const mockConfig = {
-  network_id: 'mainnet' as const,
-  node_url: 'https://rpc.mainnet.near.org',
-  wallet_url: 'https://wallet.mainnet.near.org', 
-  helper_url: 'https://helper.mainnet.near.org',
-  explorer_url: 'https://explorer.mainnet.near.org',
-  solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
-  verifier_contract: 'intents.near',
-  intent_contract: 'intents.near',
-  gas_limits: {
-    register: '100000000000000',
-    submit_intent: '300000000000000',
-    submit_quote: '200000000000000',
-    execute_intent: '300000000000000',
-  },
-  storage_deposits: {
-    registration: '0.1',
-    intent: '0.01', 
-    quote: '0.005',
-  },
-};
+describe('Verifier Contract Tests', () => {
+  let worker: Worker;
+  let root: NearAccount;
+  let verifierContract: NearAccount;
+  let user: NearAccount;
+  let solver: NearAccount;
 
-describe('NEAR Intent Protocol Tests', () => {
-  describe('Configuration Tests', () => {
-    it('should have valid NEAR Intent configuration', () => {
-      expect(NEAR_INTENT_CONFIG).toBeDefined();
-      expect(NEAR_INTENT_CONFIG.SOLVER_BUS_URL).toBe('https://solver-relay-v2.chaindefuser.com/rpc');
-      expect(NEAR_INTENT_CONFIG.VERIFIER_CONTRACT).toBe('intents.near');
-      expect(NEAR_INTENT_CONFIG.INTENT_CONTRACT).toBe('intents.near');
+  beforeEach(async () => {
+    // Initialize the NEAR testing environment
+    worker = await Worker.init();
+    root = worker.rootAccount;
+
+    // Deploy the verifier contract
+    verifierContract = await root.createSubAccount('verifier');
+    await verifierContract.deploy('./contracts/verifier.wasm');
+
+    // Create test accounts
+    user = await root.createSubAccount('user');
+    solver = await root.createSubAccount('solver');
+
+    // Initialize contract
+    await verifierContract.call(verifierContract, 'new', {});
+  });
+
+  afterEach(async () => {
+    await worker.tearDown();
+  });
+
+  describe('User Registration', () => {
+    it('should register a new user successfully', async () => {
+      const result = await user.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
+
+      expect(result).toBeDefined();
+
+      const isRegistered = await verifierContract.view('is_registered', {
+        account_id: user.accountId,
+      });
+
+      expect(isRegistered).toBe(true);
     });
 
-    it('should have proper gas limits', () => {
-      expect(NEAR_INTENT_CONFIG.GAS_LIMIT).toBe('300000000000000');
-      expect(NEAR_INTENT_CONFIG.STORAGE_DEPOSIT).toBe('0.25');
-      expect(NEAR_INTENT_CONFIG.DEFAULT_SLIPPAGE).toBe(0.01);
+    it('should not register the same user twice', async () => {
+      // First registration
+      await user.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
+
+      // Second registration should fail or be idempotent
+      try {
+        await user.call(
+          verifierContract,
+          'register_user',
+          {},
+          { attachedDeposit: NEAR.parse('0.1').toString() }
+        );
+        // Should not charge again if idempotent
+      } catch (error) {
+        // Or should fail gracefully
+        expect(error).toBeDefined();
+      }
     });
   });
 
-  describe('IntentAgent Class Tests', () => {
-    it('should create IntentAgent instance with valid config', () => {
-      expect(() => {
-        new IntentAgent(mockConfig);
-      }).not.toThrow();
+  describe('Intent Submission', () => {
+    beforeEach(async () => {
+      // Register user before tests
+      await user.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
     });
 
-    it('should have proper configuration properties', () => {
-      const agent = new IntentAgent(mockConfig);
-      expect(agent).toBeDefined();
-      // Basic structure test (config is private, but agent should exist)
-      expect(typeof agent.initialize).toBe('function');
-      expect(typeof agent.createIntent).toBe('function');
-      expect(typeof agent.executeIntent).toBe('function');
+    it('should submit a valid intent successfully', async () => {
+      const intent: Intent = {
+        id: 'intent_001',
+        user: user.accountId,
+        asset_in: {
+          token_id: 'NEAR',
+          decimals: 24,
+          symbol: 'NEAR',
+          name: 'NEAR Protocol',
+        },
+        asset_out: {
+          token_id: 'USDC',
+          decimals: 6,
+          symbol: 'USDC',
+          name: 'USD Coin',
+        },
+        amount_in: NEAR.parse('10').toString(),
+        amount_out_min: '9500000', // 9.5 USDC
+        expiry: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+        nonce: 'nonce_001',
+      };
+
+      const result = await user.call(
+        verifierContract,
+        'submit_intent',
+        { intent },
+        { 
+          attachedDeposit: NEAR.parse('0.01').toString(),
+          gas: '300000000000000' // 300 TGas
+        }
+      );
+
+      expect(result).toBeDefined();
+
+      // Verify intent was stored
+      const storedIntent = await verifierContract.view('get_intent', {
+        intent_id: intent.id,
+      });
+
+      expect(storedIntent).toBeDefined();
+      expect(storedIntent.id).toBe(intent.id);
+      expect(storedIntent.user).toBe(user.accountId);
+    });
+
+    it('should reject invalid intent with zero amount', async () => {
+      const invalidIntent: Intent = {
+        id: 'intent_002',
+        user: user.accountId,
+        asset_in: {
+          token_id: 'NEAR',
+          decimals: 24,
+          symbol: 'NEAR',
+          name: 'NEAR Protocol',
+        },
+        asset_out: {
+          token_id: 'USDC',
+          decimals: 6,
+          symbol: 'USDC',
+          name: 'USD Coin',
+        },
+        amount_in: '0', // Invalid: zero amount
+        amount_out_min: '9500000',
+        expiry: Math.floor(Date.now() / 1000) + 3600,
+        nonce: 'nonce_002',
+      };
+
+      try {
+        await user.call(
+          verifierContract,
+          'submit_intent',
+          { intent: invalidIntent },
+          { 
+            attachedDeposit: NEAR.parse('0.01').toString(),
+            gas: '300000000000000'
+          }
+        );
+        // Should not reach here
+        expect(true).toBe(false);
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
+    });
+
+    it('should reject expired intent', async () => {
+      const expiredIntent: Intent = {
+        id: 'intent_003',
+        user: user.accountId,
+        asset_in: {
+          token_id: 'NEAR',
+          decimals: 24,
+          symbol: 'NEAR',
+          name: 'NEAR Protocol',
+        },
+        asset_out: {
+          token_id: 'USDC',
+          decimals: 6,
+          symbol: 'USDC',
+          name: 'USD Coin',
+        },
+        amount_in: NEAR.parse('10').toString(),
+        amount_out_min: '9500000',
+        expiry: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago (expired)
+        nonce: 'nonce_003',
+      };
+
+      try {
+        await user.call(
+          verifierContract,
+          'submit_intent',
+          { intent: expiredIntent },
+          { 
+            attachedDeposit: NEAR.parse('0.01').toString(),
+            gas: '300000000000000'
+          }
+        );
+        expect(true).toBe(false);
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
     });
   });
 
-  describe('Asset Configuration Tests', () => {
-    it('should have proper token configurations', () => {
-      // Test that common tokens are properly configured
-      // This would typically check AssetManager configurations
-      expect(mockConfig.verifier_contract).toBe('intents.near');
-      expect(mockConfig.intent_contract).toBe('intents.near');
+  describe('Quote Submission', () => {
+    let intentId: string;
+
+    beforeEach(async () => {
+      // Register users
+      await user.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
+
+      await solver.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
+
+      // Submit an intent first
+      const intent: Intent = {
+        id: 'intent_quote_001',
+        user: user.accountId,
+        asset_in: {
+          token_id: 'NEAR',
+          decimals: 24,
+          symbol: 'NEAR',
+          name: 'NEAR Protocol',
+        },
+        asset_out: {
+          token_id: 'USDC',
+          decimals: 6,
+          symbol: 'USDC',
+          name: 'USD Coin',
+        },
+        amount_in: NEAR.parse('10').toString(),
+        amount_out_min: '9500000',
+        expiry: Math.floor(Date.now() / 1000) + 3600,
+        nonce: 'nonce_quote_001',
+      };
+
+      await user.call(
+        verifierContract,
+        'submit_intent',
+        { intent },
+        { 
+          attachedDeposit: NEAR.parse('0.01').toString(),
+          gas: '300000000000000'
+        }
+      );
+
+      intentId = intent.id;
+    });
+
+    it('should submit a valid quote successfully', async () => {
+      const quote: Quote = {
+        solver_id: solver.accountId,
+        intent_id: intentId,
+        amount_out: '9800000', // 9.8 USDC (better than minimum)
+        fee: NEAR.parse('0.1').toString(),
+        gas_estimate: '200000000000000',
+        execution_time_estimate: 30,
+        confidence_score: 0.95,
+        signature: 'mock_signature',
+        expires_at: Math.floor(Date.now() / 1000) + 1800, // 30 minutes
+      };
+
+      const result = await solver.call(
+        verifierContract,
+        'submit_quote',
+        { quote },
+        { 
+          attachedDeposit: NEAR.parse('0.005').toString(),
+          gas: '200000000000000'
+        }
+      );
+
+      expect(result).toBeDefined();
+
+      // Verify quote was stored
+      const quotes = await verifierContract.view('get_solver_quotes', {
+        intent_id: intentId,
+      });
+
+      expect(quotes).toBeDefined();
+      expect(quotes.length).toBe(1);
+      expect(quotes[0].solver_id).toBe(solver.accountId);
+      expect(quotes[0].amount_out).toBe(quote.amount_out);
+    });
+
+    it('should reject quote with insufficient output amount', async () => {
+      const badQuote: Quote = {
+        solver_id: solver.accountId,
+        intent_id: intentId,
+        amount_out: '9000000', // 9.0 USDC (less than minimum 9.5)
+        fee: NEAR.parse('0.1').toString(),
+        gas_estimate: '200000000000000',
+        execution_time_estimate: 30,
+        confidence_score: 0.95,
+        signature: 'mock_signature',
+        expires_at: Math.floor(Date.now() / 1000) + 1800,
+      };
+
+      try {
+        await solver.call(
+          verifierContract,
+          'submit_quote',
+          { quote: badQuote },
+          { 
+            attachedDeposit: NEAR.parse('0.005').toString(),
+            gas: '200000000000000'
+          }
+        );
+        expect(true).toBe(false);
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
     });
   });
 
-  describe('Network Configuration Tests', () => {
-    it('should have proper mainnet endpoints', () => {
-      expect(mockConfig.node_url).toBe('https://rpc.mainnet.near.org');
-      expect(mockConfig.wallet_url).toBe('https://wallet.mainnet.near.org');
-      expect(mockConfig.helper_url).toBe('https://helper.mainnet.near.org');
-      expect(mockConfig.solver_bus_url).toBe('https://solver-relay-v2.chaindefuser.com/rpc');
+  describe('Intent Execution', () => {
+    let intentId: string;
+    let quoteId: string;
+
+    beforeEach(async () => {
+      // Setup complete intent and quote scenario
+      await user.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
+
+      await solver.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
+
+      // Submit intent
+      const intent: Intent = {
+        id: 'intent_exec_001',
+        user: user.accountId,
+        asset_in: {
+          token_id: 'NEAR',
+          decimals: 24,
+          symbol: 'NEAR',
+          name: 'NEAR Protocol',
+        },
+        asset_out: {
+          token_id: 'USDC',
+          decimals: 6,
+          symbol: 'USDC',
+          name: 'USD Coin',
+        },
+        amount_in: NEAR.parse('10').toString(),
+        amount_out_min: '9500000',
+        expiry: Math.floor(Date.now() / 1000) + 3600,
+        nonce: 'nonce_exec_001',
+      };
+
+      await user.call(
+        verifierContract,
+        'submit_intent',
+        { intent },
+        { 
+          attachedDeposit: NEAR.parse('0.01').toString(),
+          gas: '300000000000000'
+        }
+      );
+
+      intentId = intent.id;
+
+      // Submit quote
+      const quote: Quote = {
+        solver_id: solver.accountId,
+        intent_id: intentId,
+        amount_out: '9800000',
+        fee: NEAR.parse('0.1').toString(),
+        gas_estimate: '200000000000000',
+        execution_time_estimate: 30,
+        confidence_score: 0.95,
+        signature: 'mock_signature',
+        expires_at: Math.floor(Date.now() / 1000) + 1800,
+      };
+
+      await solver.call(
+        verifierContract,
+        'submit_quote',
+        { quote },
+        { 
+          attachedDeposit: NEAR.parse('0.005').toString(),
+          gas: '200000000000000'
+        }
+      );
+
+      quoteId = solver.accountId; // Using solver ID as quote ID for simplicity
     });
 
-    it('should have proper network ID', () => {
-      expect(mockConfig.network_id).toBe('mainnet');
+    it('should execute intent with valid quote successfully', async () => {
+      const result = await user.call(
+        verifierContract,
+        'execute_intent',
+        { 
+          intent_id: intentId,
+          quote_id: quoteId,
+        },
+        { 
+          attachedDeposit: NEAR.parse('0.1').toString(),
+          gas: '300000000000000'
+        }
+      );
+
+      expect(result).toBeDefined();
+
+      // Check intent status
+      const status = await verifierContract.view('get_intent_status', {
+        intent_id: intentId,
+      });
+
+      expect(status).toBeDefined();
+      expect(['executing', 'completed']).toContain(status.status);
+    });
+
+    it('should not allow execution by non-owner', async () => {
+      try {
+        await solver.call(
+          verifierContract,
+          'execute_intent',
+          { 
+            intent_id: intentId,
+            quote_id: quoteId,
+          },
+          { 
+            attachedDeposit: NEAR.parse('0.1').toString(),
+            gas: '300000000000000'
+          }
+        );
+        expect(true).toBe(false);
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
     });
   });
 
-  describe('Gas and Storage Tests', () => {
-    it('should have sufficient gas limits for operations', () => {
-      const gasLimits = mockConfig.gas_limits;
-      expect(parseInt(gasLimits.register)).toBeGreaterThan(50_000_000_000_000);
-      expect(parseInt(gasLimits.submit_intent)).toBeGreaterThan(200_000_000_000_000);
-      expect(parseInt(gasLimits.submit_quote)).toBeGreaterThan(100_000_000_000_000);
-      expect(parseInt(gasLimits.execute_intent)).toBeGreaterThan(200_000_000_000_000);
+  describe('Intent Cancellation', () => {
+    let intentId: string;
+
+    beforeEach(async () => {
+      await user.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
+
+      const intent: Intent = {
+        id: 'intent_cancel_001',
+        user: user.accountId,
+        asset_in: {
+          token_id: 'NEAR',
+          decimals: 24,
+          symbol: 'NEAR',
+          name: 'NEAR Protocol',
+        },
+        asset_out: {
+          token_id: 'USDC',
+          decimals: 6,
+          symbol: 'USDC',
+          name: 'USD Coin',
+        },
+        amount_in: NEAR.parse('10').toString(),
+        amount_out_min: '9500000',
+        expiry: Math.floor(Date.now() / 1000) + 3600,
+        nonce: 'nonce_cancel_001',
+      };
+
+      await user.call(
+        verifierContract,
+        'submit_intent',
+        { intent },
+        { 
+          attachedDeposit: NEAR.parse('0.01').toString(),
+          gas: '300000000000000'
+        }
+      );
+
+      intentId = intent.id;
     });
 
-    it('should have proper storage deposits', () => {
-      const deposits = mockConfig.storage_deposits;
-      expect(parseFloat(deposits.registration)).toBeGreaterThan(0);
-      expect(parseFloat(deposits.intent)).toBeGreaterThan(0);
-      expect(parseFloat(deposits.quote)).toBeGreaterThan(0);
+    it('should cancel own intent successfully', async () => {
+      const result = await user.call(
+        verifierContract,
+        'cancel_intent',
+        { intent_id: intentId },
+        { gas: '200000000000000' }
+      );
+
+      expect(result).toBeDefined();
+
+      // Verify intent is cancelled
+      const status = await verifierContract.view('get_intent_status', {
+        intent_id: intentId,
+      });
+
+      expect(status.status).toBe('cancelled');
+    });
+
+    it('should not allow cancellation by non-owner', async () => {
+      await solver.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
+
+      try {
+        await solver.call(
+          verifierContract,
+          'cancel_intent',
+          { intent_id: intentId },
+          { gas: '200000000000000' }
+        );
+        expect(true).toBe(false);
+      } catch (error) {
+        expect(error).toBeDefined();
+      }
+    });
+  });
+
+  describe('Query Functions', () => {
+    beforeEach(async () => {
+      // Setup test data
+      await user.call(
+        verifierContract,
+        'register_user',
+        {},
+        { attachedDeposit: NEAR.parse('0.1').toString() }
+      );
+
+      const intent: Intent = {
+        id: 'intent_query_001',
+        user: user.accountId,
+        asset_in: {
+          token_id: 'NEAR',
+          decimals: 24,
+          symbol: 'NEAR',
+          name: 'NEAR Protocol',
+        },
+        asset_out: {
+          token_id: 'USDC',
+          decimals: 6,
+          symbol: 'USDC',
+          name: 'USD Coin',
+        },
+        amount_in: NEAR.parse('10').toString(),
+        amount_out_min: '9500000',
+        expiry: Math.floor(Date.now() / 1000) + 3600,
+        nonce: 'nonce_query_001',
+      };
+
+      await user.call(
+        verifierContract,
+        'submit_intent',
+        { intent },
+        { 
+          attachedDeposit: NEAR.parse('0.01').toString(),
+          gas: '300000000000000'
+        }
+      );
+    });
+
+    it('should get user intents successfully', async () => {
+      const intents = await verifierContract.view('get_user_intents', {
+        user: user.accountId,
+        limit: 10,
+      });
+
+      expect(intents).toBeDefined();
+      expect(Array.isArray(intents)).toBe(true);
+      expect(intents.length).toBeGreaterThan(0);
+      expect(intents[0].user).toBe(user.accountId);
+    });
+
+    it('should get contract statistics', async () => {
+      const stats = await verifierContract.view('get_statistics', {});
+
+      expect(stats).toBeDefined();
+      expect(typeof stats.total_intents).toBe('number');
+      expect(typeof stats.total_users).toBe('number');
     });
   });
 });

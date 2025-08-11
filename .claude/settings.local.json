@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__smithery-ai-github__search_repositories",
+      "mcp__smithery-ai-github__get_repository",
+      "mcp__exa__crawling_exa",
+      "Bash(gh pr view:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm install)",
+      "Bash(npx playwright:*)",
+      "Bash(timeout 30s npx playwright test:*)",
+      "mcp__exa__deep_researcher_start",
+      "mcp__exa__deep_researcher_check",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(rm:*)",
+      "Bash(grep:*)",
+      "mcp__smithery-ai-github__merge_pull_request",
+      "Bash(gh pr checkout:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": []
+  }
+}

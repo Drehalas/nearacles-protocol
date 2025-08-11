@@ -8,6 +8,9 @@ test.describe('User Workflow Tests', () => {
     
     // Verify landing page loads
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/main
     await expect(page.locator('div.min-h-screen')).toBeVisible();
     await expect(page.locator('text=Nearacles')).toBeVisible();
     
@@ -17,6 +20,8 @@ test.describe('User Workflow Tests', () => {
     
     // Step 3: Explore navigation options
     const navLinks = await page.locator('a[href*="/dashboard"], a[href*="/oracles"], a[href*="/analytics"], a[href*="/explorer"]').all();
+<<<<<<< HEAD
+=======
 =======
     await expect(page.locator('#root')).toBeVisible();
     await expect(page.locator('.App')).toBeVisible();
@@ -27,6 +32,7 @@ test.describe('User Workflow Tests', () => {
     
     // Step 3: Explore API documentation
     const operations = await page.locator('.swagger-ui .opblock').all();
+>>>>>>> origin/main
 >>>>>>> origin/main
     
     if (operations.length > 0) {
