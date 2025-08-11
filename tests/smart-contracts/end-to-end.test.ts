@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { NEAR } from 'near-workspaces';
+import { Worker } from 'near-workspaces';
 import { initTestEnvironment, cleanupTestEnvironment, TestContext, createMockIntent, createMockQuote } from './setup';
 
 describe('End-to-End Smart Contract Workflow Tests', () => {
@@ -30,8 +30,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         'submit_intent',
         { intent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -49,8 +49,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         'submit_quote',
         { quote },
         {
-          attachedDeposit: NEAR.parse('0.005').toString(),
-          gas: '200000000000000',
+          attachedDeposit: 5000000000000000000000n, // 0.005 NEAR
+          gas: 200000000000000n,
         }
       );
 
@@ -70,8 +70,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
           quote_id: solver.accountId,
         },
         {
-          attachedDeposit: NEAR.parse('0.1').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 100000000000000000000000n, // 0.1 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -101,8 +101,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         'submit_intent',
         { intent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -122,8 +122,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
           'submit_quote',
           { quote },
           {
-            attachedDeposit: NEAR.parse('0.005').toString(),
-            gas: '200000000000000',
+            attachedDeposit: 5000000000000000000000n, // 0.005 NEAR
+            gas: 200000000000000n,
           }
         );
       }
@@ -143,8 +143,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
           quote_id: solver2.accountId,
         },
         {
-          attachedDeposit: NEAR.parse('0.1').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 100000000000000000000000n, // 0.1 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -164,8 +164,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         'submit_intent',
         { intent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -174,7 +174,7 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         context.verifierContract,
         'cancel_intent',
         { intent_id: intent.id },
-        { gas: '200000000000000' }
+        { gas: 200000000000000n }
       );
 
       // Verify cancellation
@@ -193,8 +193,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
           'submit_quote',
           { quote },
           {
-            attachedDeposit: NEAR.parse('0.005').toString(),
-            gas: '200000000000000',
+            attachedDeposit: 5000000000000000000000n, // 0.005 NEAR
+            gas: 200000000000000n,
           }
         );
         expect(true).toBe(false); // Should not accept quotes for cancelled intent
@@ -215,8 +215,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
           'submit_intent',
           { intent },
           {
-            attachedDeposit: '1000', // Too low
-            gas: '300000000000000',
+            attachedDeposit: 1000n, // Too low
+            gas: 300000000000000n,
           }
         );
         expect(true).toBe(false);
@@ -240,8 +240,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         'submit_intent',
         { intent: shortLivedIntent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -257,8 +257,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
           'submit_quote',
           { quote },
           {
-            attachedDeposit: NEAR.parse('0.005').toString(),
-            gas: '200000000000000',
+            attachedDeposit: 5000000000000000000000n, // 0.005 NEAR
+            gas: 200000000000000n,
           }
         );
         expect(true).toBe(false);
@@ -279,8 +279,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         'submit_intent',
         { intent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -290,8 +290,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         'submit_quote',
         { quote },
         {
-          attachedDeposit: NEAR.parse('0.005').toString(),
-          gas: '200000000000000',
+          attachedDeposit: 5000000000000000000000n, // 0.005 NEAR
+          gas: 200000000000000n,
         }
       );
 
@@ -305,8 +305,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
             quote_id: solver.accountId,
           },
           {
-            attachedDeposit: NEAR.parse('0.1').toString(),
-            gas: '300000000000000',
+            attachedDeposit: 100000000000000000000000n, // 0.1 NEAR
+            gas: 300000000000000n,
           }
         );
         expect(true).toBe(false);
@@ -329,8 +329,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
             'submit_intent',
             { intent },
             {
-              attachedDeposit: NEAR.parse('0.01').toString(),
-              gas: '300000000000000',
+              attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+              gas: 300000000000000n,
             }
           )
         )
@@ -354,8 +354,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         'submit_intent',
         { intent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -374,8 +374,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
             'submit_quote',
             { quote },
             {
-              attachedDeposit: NEAR.parse('0.005').toString(),
-              gas: '200000000000000',
+              attachedDeposit: 5000000000000000000000n, // 0.005 NEAR
+              gas: 200000000000000n,
             }
           );
         }

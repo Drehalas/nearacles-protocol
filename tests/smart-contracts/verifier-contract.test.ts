@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { NEAR, Worker, NearAccount } from 'near-workspaces';
+import { Worker, NearAccount } from 'near-workspaces';
 import { Intent, Quote } from '../../src/near-intent/types';
 
 describe('Verifier Contract Tests', () => {
@@ -41,7 +41,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
 
       expect(result).toBeDefined();
@@ -59,7 +59,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
 
       // Second registration should fail or be idempotent
@@ -68,7 +68,7 @@ describe('Verifier Contract Tests', () => {
           verifierContract,
           'register_user',
           {},
-          { attachedDeposit: NEAR.parse('0.1').toString() }
+          { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
         );
         // Should not charge again if idempotent
       } catch (error) {
@@ -85,7 +85,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
     });
 
@@ -105,7 +105,7 @@ describe('Verifier Contract Tests', () => {
           symbol: 'USDC',
           name: 'USD Coin',
         },
-        amount_in: NEAR.parse('10').toString(),
+        amount_in: '10000000000000000000000000', // 10 NEAR
         amount_out_min: '9500000', // 9.5 USDC
         expiry: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
         nonce: 'nonce_001',
@@ -116,8 +116,8 @@ describe('Verifier Contract Tests', () => {
         'submit_intent',
         { intent },
         { 
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000' // 300 TGas
+          attachedDeposit: 10000000000000000000000n // 0.01 NEAR,
+          gas: 300000000000000n // 300 TGas
         }
       );
 
@@ -161,8 +161,8 @@ describe('Verifier Contract Tests', () => {
           'submit_intent',
           { intent: invalidIntent },
           { 
-            attachedDeposit: NEAR.parse('0.01').toString(),
-            gas: '300000000000000'
+            attachedDeposit: 10000000000000000000000n // 0.01 NEAR,
+            gas: 300000000000000n
           }
         );
         // Should not reach here
@@ -188,7 +188,7 @@ describe('Verifier Contract Tests', () => {
           symbol: 'USDC',
           name: 'USD Coin',
         },
-        amount_in: NEAR.parse('10').toString(),
+        amount_in: '10000000000000000000000000', // 10 NEAR
         amount_out_min: '9500000',
         expiry: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago (expired)
         nonce: 'nonce_003',
@@ -200,8 +200,8 @@ describe('Verifier Contract Tests', () => {
           'submit_intent',
           { intent: expiredIntent },
           { 
-            attachedDeposit: NEAR.parse('0.01').toString(),
-            gas: '300000000000000'
+            attachedDeposit: 10000000000000000000000n // 0.01 NEAR,
+            gas: 300000000000000n
           }
         );
         expect(true).toBe(false);
@@ -220,14 +220,14 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
 
       await solver.call(
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
 
       // Submit an intent first
@@ -246,7 +246,7 @@ describe('Verifier Contract Tests', () => {
           symbol: 'USDC',
           name: 'USD Coin',
         },
-        amount_in: NEAR.parse('10').toString(),
+        amount_in: '10000000000000000000000000', // 10 NEAR
         amount_out_min: '9500000',
         expiry: Math.floor(Date.now() / 1000) + 3600,
         nonce: 'nonce_quote_001',
@@ -257,8 +257,8 @@ describe('Verifier Contract Tests', () => {
         'submit_intent',
         { intent },
         { 
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000'
+          attachedDeposit: 10000000000000000000000n // 0.01 NEAR,
+          gas: 300000000000000n
         }
       );
 
@@ -270,7 +270,7 @@ describe('Verifier Contract Tests', () => {
         solver_id: solver.accountId,
         intent_id: intentId,
         amount_out: '9800000', // 9.8 USDC (better than minimum)
-        fee: NEAR.parse('0.1').toString(),
+        fee: '100000000000000000000000', // 0.1 NEAR
         gas_estimate: '200000000000000',
         execution_time_estimate: 30,
         confidence_score: 0.95,
@@ -283,8 +283,8 @@ describe('Verifier Contract Tests', () => {
         'submit_quote',
         { quote },
         { 
-          attachedDeposit: NEAR.parse('0.005').toString(),
-          gas: '200000000000000'
+          attachedDeposit: 5000000000000000000000n // 0.005 NEAR,
+          gas: 200000000000000n
         }
       );
 
@@ -306,7 +306,7 @@ describe('Verifier Contract Tests', () => {
         solver_id: solver.accountId,
         intent_id: intentId,
         amount_out: '9000000', // 9.0 USDC (less than minimum 9.5)
-        fee: NEAR.parse('0.1').toString(),
+        fee: '100000000000000000000000', // 0.1 NEAR
         gas_estimate: '200000000000000',
         execution_time_estimate: 30,
         confidence_score: 0.95,
@@ -320,8 +320,8 @@ describe('Verifier Contract Tests', () => {
           'submit_quote',
           { quote: badQuote },
           { 
-            attachedDeposit: NEAR.parse('0.005').toString(),
-            gas: '200000000000000'
+            attachedDeposit: 5000000000000000000000n // 0.005 NEAR,
+            gas: 200000000000000n
           }
         );
         expect(true).toBe(false);
@@ -341,14 +341,14 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
 
       await solver.call(
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
 
       // Submit intent
@@ -367,7 +367,7 @@ describe('Verifier Contract Tests', () => {
           symbol: 'USDC',
           name: 'USD Coin',
         },
-        amount_in: NEAR.parse('10').toString(),
+        amount_in: '10000000000000000000000000', // 10 NEAR
         amount_out_min: '9500000',
         expiry: Math.floor(Date.now() / 1000) + 3600,
         nonce: 'nonce_exec_001',
@@ -378,8 +378,8 @@ describe('Verifier Contract Tests', () => {
         'submit_intent',
         { intent },
         { 
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000'
+          attachedDeposit: 10000000000000000000000n // 0.01 NEAR,
+          gas: 300000000000000n
         }
       );
 
@@ -390,7 +390,7 @@ describe('Verifier Contract Tests', () => {
         solver_id: solver.accountId,
         intent_id: intentId,
         amount_out: '9800000',
-        fee: NEAR.parse('0.1').toString(),
+        fee: '100000000000000000000000', // 0.1 NEAR
         gas_estimate: '200000000000000',
         execution_time_estimate: 30,
         confidence_score: 0.95,
@@ -403,8 +403,8 @@ describe('Verifier Contract Tests', () => {
         'submit_quote',
         { quote },
         { 
-          attachedDeposit: NEAR.parse('0.005').toString(),
-          gas: '200000000000000'
+          attachedDeposit: 5000000000000000000000n // 0.005 NEAR,
+          gas: 200000000000000n
         }
       );
 
@@ -420,8 +420,8 @@ describe('Verifier Contract Tests', () => {
           quote_id: quoteId,
         },
         { 
-          attachedDeposit: NEAR.parse('0.1').toString(),
-          gas: '300000000000000'
+          attachedDeposit: 100000000000000000000000n // 0.1 NEAR,
+          gas: 300000000000000n
         }
       );
 
@@ -446,8 +446,8 @@ describe('Verifier Contract Tests', () => {
             quote_id: quoteId,
           },
           { 
-            attachedDeposit: NEAR.parse('0.1').toString(),
-            gas: '300000000000000'
+            attachedDeposit: 100000000000000000000000n // 0.1 NEAR,
+            gas: 300000000000000n
           }
         );
         expect(true).toBe(false);
@@ -465,7 +465,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
 
       const intent: Intent = {
@@ -483,7 +483,7 @@ describe('Verifier Contract Tests', () => {
           symbol: 'USDC',
           name: 'USD Coin',
         },
-        amount_in: NEAR.parse('10').toString(),
+        amount_in: '10000000000000000000000000', // 10 NEAR
         amount_out_min: '9500000',
         expiry: Math.floor(Date.now() / 1000) + 3600,
         nonce: 'nonce_cancel_001',
@@ -494,8 +494,8 @@ describe('Verifier Contract Tests', () => {
         'submit_intent',
         { intent },
         { 
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000'
+          attachedDeposit: 10000000000000000000000n // 0.01 NEAR,
+          gas: 300000000000000n
         }
       );
 
@@ -507,7 +507,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'cancel_intent',
         { intent_id: intentId },
-        { gas: '200000000000000' }
+        { gas: 200000000000000n }
       );
 
       expect(result).toBeDefined();
@@ -525,7 +525,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
 
       try {
@@ -533,7 +533,7 @@ describe('Verifier Contract Tests', () => {
           verifierContract,
           'cancel_intent',
           { intent_id: intentId },
-          { gas: '200000000000000' }
+          { gas: 200000000000000n }
         );
         expect(true).toBe(false);
       } catch (error) {
@@ -549,7 +549,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: NEAR.parse('0.1').toString() }
+        { attachedDeposit: 100000000000000000000000n // 0.1 NEAR }
       );
 
       const intent: Intent = {
@@ -567,7 +567,7 @@ describe('Verifier Contract Tests', () => {
           symbol: 'USDC',
           name: 'USD Coin',
         },
-        amount_in: NEAR.parse('10').toString(),
+        amount_in: '10000000000000000000000000', // 10 NEAR
         amount_out_min: '9500000',
         expiry: Math.floor(Date.now() / 1000) + 3600,
         nonce: 'nonce_query_001',
@@ -578,8 +578,8 @@ describe('Verifier Contract Tests', () => {
         'submit_intent',
         { intent },
         { 
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000'
+          attachedDeposit: 10000000000000000000000n // 0.01 NEAR,
+          gas: 300000000000000n
         }
       );
     });

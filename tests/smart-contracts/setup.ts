@@ -3,7 +3,7 @@
  * Provides common utilities and configuration for all contract tests
  */
 
-import { NEAR, Worker, NearAccount } from 'near-workspaces';
+import { Worker, NearAccount } from 'near-workspaces';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -51,24 +51,24 @@ export async function initTestEnvironment(): Promise<TestContext> {
 
   // Create test users
   const alice = await root.createSubAccount('alice', {
-    initialBalance: NEAR.parse('100').toString(),
+    initialBalance: 100000000000000000000000000n // 100 NEAR,
   });
   const bob = await root.createSubAccount('bob', {
-    initialBalance: NEAR.parse('100').toString(),
+    initialBalance: 100000000000000000000000000n // 100 NEAR,
   });
   const charlie = await root.createSubAccount('charlie', {
-    initialBalance: NEAR.parse('100').toString(),
+    initialBalance: 100000000000000000000000000n // 100 NEAR,
   });
 
   // Create test solvers
   const solver1 = await root.createSubAccount('solver1', {
-    initialBalance: NEAR.parse('50').toString(),
+    initialBalance: 50000000000000000000000000n // 50 NEAR,
   });
   const solver2 = await root.createSubAccount('solver2', {
-    initialBalance: NEAR.parse('50').toString(),
+    initialBalance: 50000000000000000000000000n // 50 NEAR,
   });
   const solver3 = await root.createSubAccount('solver3', {
-    initialBalance: NEAR.parse('50').toString(),
+    initialBalance: 50000000000000000000000000n // 50 NEAR,
   });
 
   // Register users and solvers
@@ -93,7 +93,7 @@ export async function initTestEnvironment(): Promise<TestContext> {
 
 async function deployContract(root: NearAccount, name: string, wasmPath: string): Promise<NearAccount> {
   const contract = await root.createSubAccount(name, {
-    initialBalance: NEAR.parse('10').toString(),
+    initialBalance: 10000000000000000000000000n // 10 NEAR,
   });
 
   // In a real setup, you would deploy the actual WASM file
@@ -109,8 +109,8 @@ async function registerUser(verifierContract: NearAccount, user: NearAccount): P
     'register_user',
     {},
     {
-      attachedDeposit: NEAR.parse('0.1').toString(),
-      gas: '100000000000000',
+      attachedDeposit: 100000000000000000000000n, // 0.1 NEAR
+      gas: 100000000000000n,
     }
   );
 }
@@ -131,8 +131,8 @@ async function registerSolver(
       fee_rate: 0.003, // 0.3%
     },
     {
-      attachedDeposit: NEAR.parse('1').toString(),
-      gas: '150000000000000',
+      attachedDeposit: 1000000000000000000000000n, // 1 NEAR
+      gas: 150000000000000n,
     }
   );
 }
@@ -174,7 +174,7 @@ export function createMockIntent(user: string, assetIn: string = 'NEAR', assetOu
     user,
     asset_in: TEST_ASSETS[assetIn as keyof typeof TEST_ASSETS],
     asset_out: TEST_ASSETS[assetOut as keyof typeof TEST_ASSETS],
-    amount_in: NEAR.parse('10').toString(),
+    amount_in: '10000000000000000000000000', // 10 NEAR
     amount_out_min: '9500000', // 9.5 USDC
     expiry: Math.floor(Date.now() / 1000) + 3600,
     nonce: `nonce_${Date.now()}`,
@@ -186,7 +186,7 @@ export function createMockQuote(solverId: string, intentId: string) {
     solver_id: solverId,
     intent_id: intentId,
     amount_out: '9800000', // 9.8 USDC
-    fee: NEAR.parse('0.1').toString(),
+    fee: '100000000000000000000000', // 0.1 NEAR
     gas_estimate: '200000000000000',
     execution_time_estimate: 30,
     confidence_score: 0.95,
