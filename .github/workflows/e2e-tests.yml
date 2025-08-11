@@ -36,6 +36,23 @@ jobs:
       working-directory: ./frontend
       run: npm run build
     
+    - name: Verify build output
+      working-directory: ./frontend
+      run: |
+        echo "Verifying out/ directory exists and has content..."
+        if [ ! -d "out" ]; then
+          echo "ERROR: out/ directory not found!"
+          exit 1
+        fi
+        echo "out/ directory contents:"
+        ls -la out/
+        echo "out/ file count: $(find out -type f | wc -l) files"
+        if [ ! -f "out/index.html" ]; then
+          echo "ERROR: out/index.html not found!"
+          exit 1
+        fi
+        echo "Build verification successful!"
+    
     - name: Run Playwright tests
       working-directory: ./frontend
       run: npx playwright test --project=${{ matrix.browser }}
@@ -77,6 +94,27 @@ jobs:
       working-directory: ./frontend
       run: npx playwright install --with-deps
     
+    - name: Build application
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Verify build output
+      working-directory: ./frontend
+      run: |
+        echo "Verifying out/ directory exists and has content..."
+        if [ ! -d "out" ]; then
+          echo "ERROR: out/ directory not found!"
+          exit 1
+        fi
+        echo "out/ directory contents:"
+        ls -la out/
+        echo "out/ file count: $(find out -type f | wc -l) files"
+        if [ ! -f "out/index.html" ]; then
+          echo "ERROR: out/index.html not found!"
+          exit 1
+        fi
+        echo "Build verification successful!"
+    
     - name: Run mobile tests
       working-directory: ./frontend
       run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
@@ -110,6 +148,27 @@ jobs:
       working-directory: ./frontend
       run: npx playwright install --with-deps
     
+    - name: Build application
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Verify build output
+      working-directory: ./frontend
+      run: |
+        echo "Verifying out/ directory exists and has content..."
+        if [ ! -d "out" ]; then
+          echo "ERROR: out/ directory not found!"
+          exit 1
+        fi
+        echo "out/ directory contents:"
+        ls -la out/
+        echo "out/ file count: $(find out -type f | wc -l) files"
+        if [ ! -f "out/index.html" ]; then
+          echo "ERROR: out/index.html not found!"
+          exit 1
+        fi
+        echo "Build verification successful!"
+    
     - name: Run accessibility tests
       working-directory: ./frontend
       run: npx playwright test accessibility.spec.ts
@@ -142,6 +201,27 @@ jobs:
     - name: Install Playwright Browsers
       working-directory: ./frontend
       run: npx playwright install --with-deps
+    
+    - name: Build application
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Verify build output
+      working-directory: ./frontend
+      run: |
+        echo "Verifying out/ directory exists and has content..."
+        if [ ! -d "out" ]; then
+          echo "ERROR: out/ directory not found!"
+          exit 1
+        fi
+        echo "out/ directory contents:"
+        ls -la out/
+        echo "out/ file count: $(find out -type f | wc -l) files"
+        if [ ! -f "out/index.html" ]; then
+          echo "ERROR: out/index.html not found!"
+          exit 1
+        fi
+        echo "Build verification successful!"
     
     - name: Run performance tests
       working-directory: ./frontend
