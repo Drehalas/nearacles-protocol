@@ -21,14 +21,14 @@ export class AssetManager {
    * Initialize default supported assets based on NEAR ecosystem
    */
   private initializeDefaultAssets(): void {
-    // NEAR native token
+    // NEAR native token (wrapped)
     this.assets.set('NEAR', {
       token_id: 'NEAR',
-      symbol: 'NEAR',
+      symbol: 'NEAR', 
       name: 'NEAR Protocol',
       decimals: 24,
-      contract_address: '',
-      is_native: true,
+      contract_address: 'wrap.near', // Python örneğiyle uyumlu
+      is_native: false, // Intent protocol için wrapped NEAR kullanılır
       icon: 'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png',
     });
 

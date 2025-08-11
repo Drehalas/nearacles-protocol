@@ -3,9 +3,9 @@
  * Main entry point for the NEAR Intent Protocol
  */
 
-// Export all NEAR Intent components
-export * from './near-intent';
-export * from './near-ai';
+// Export specific types to avoid conflicts
+export type { Intent, Quote, AssetInfo, SolverInfo, IntentRequestParams, IntentConfig, IntentError, AsyncResult } from './near-intent/types';
+export type { AIAgentConfig, AIDecision, MarketAnalysisResult } from './near-ai/types';
 export * from './utils/helpers';
 
 // Export main classes
@@ -30,7 +30,7 @@ export const DEFAULT_TESTNET_CONFIG = {
   wallet_url: 'https://wallet.testnet.near.org',
   helper_url: 'https://helper.testnet.near.org',
   explorer_url: 'https://explorer.testnet.near.org',
-  solver_bus_url: 'wss://solver-bus.testnet.near.org',
+  solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
   verifier_contract: 'verifier.testnet',
   intent_contract: 'intents.testnet',
   gas_limits: {
@@ -52,8 +52,8 @@ export const DEFAULT_MAINNET_CONFIG = {
   wallet_url: 'https://wallet.mainnet.near.org',
   helper_url: 'https://helper.mainnet.near.org',
   explorer_url: 'https://explorer.mainnet.near.org',
-  solver_bus_url: 'wss://solver-bus.near.org',
-  verifier_contract: 'verifier.near',
+  solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
+  verifier_contract: 'intents.near',
   intent_contract: 'intents.near',
   gas_limits: {
     register: '100000000000000',

@@ -3,25 +3,23 @@
  * Based on: https://github.com/near-examples/near-intents-agent-example
  */
 
-export * from './intent-request';
-export * from './quote-manager';
-export * from './solver-bus';
-export * from './verifier-contract';
-export * from './asset-manager';
-export * from './types';
+// Export specific types to avoid conflicts
+export type { Intent, Quote, AssetInfo, SolverInfo, IntentRequestParams, IntentConfig, IntentError, AsyncResult } from './types';
 
-// Re-export main components
-export { IntentAgent } from './intent-agent';
+// Export classes
 export { IntentRequest } from './intent-request';
-export { QuoteManager } from './quote-manager';
+export { QuoteManager } from './quote-manager';  
 export { SolverBus } from './solver-bus';
 export { VerifierContract } from './verifier-contract';
 export { AssetManager } from './asset-manager';
 
+// Re-export main component
+export { IntentAgent } from './intent-agent';
+
 // Constants
 export const NEAR_INTENT_CONFIG = {
-  SOLVER_BUS_URL: 'https://solver-bus.near.org',
-  VERIFIER_CONTRACT: 'verifier.intents.near',
+  SOLVER_BUS_URL: 'https://solver-relay-v2.chaindefuser.com/rpc',
+  VERIFIER_CONTRACT: 'intents.near',
   INTENT_CONTRACT: 'intents.near',
   STORAGE_DEPOSIT: '0.25', // NEAR
   GAS_LIMIT: '300000000000000', // 300 TGas
