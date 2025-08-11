@@ -3,9 +3,21 @@
  * Main entry point for the NEAR Intent Protocol
  */
 
-// Export all NEAR Intent components
-export * from './near-intent';
-export * from './near-ai';
+// Export specific NEAR Intent components
+export * from './near-intent/intent-request';
+export * from './near-intent/quote-manager';
+export * from './near-intent/solver-bus';
+export * from './near-intent/verifier-contract';
+export * from './near-intent/asset-manager';
+export * from './near-intent/types';
+
+// Export specific NEAR AI components  
+export * from './near-ai/ai-agent';
+export * from './near-ai/market-analyzer';
+export * from './near-ai/intent-optimizer';
+export * from './near-ai/risk-assessor';
+export * from './near-ai/sentiment-analyzer';
+export * from './near-ai/types';
 export * from './utils/helpers';
 
 // Export main classes
