@@ -34,11 +34,11 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
   test('should have working navigation', async ({ page }) => {
     await page.goto('/');
     
-    // Check for main navigation elements
-    await expect(page.locator('text=Dashboard')).toBeVisible();
-    await expect(page.locator('text=Oracle Network')).toBeVisible();
-    await expect(page.locator('text=Analytics')).toBeVisible();
-    await expect(page.locator('text=Explorer')).toBeVisible();
+    // Check for main navigation elements in the header nav specifically
+    await expect(page.locator('nav a:has-text("Dashboard")')).toBeVisible();
+    await expect(page.locator('nav a:has-text("Oracle Network")')).toBeVisible();
+    await expect(page.locator('nav a:has-text("Analytics")')).toBeVisible();
+    await expect(page.locator('nav a:has-text("Explorer")')).toBeVisible();
   });
 
   test('should handle basic user interaction', async ({ page }) => {
