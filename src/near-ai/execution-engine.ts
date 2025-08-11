@@ -214,21 +214,11 @@ export class ExecutionEngine {
   ): Promise<void> {
     this.updateStatus(status, 15, 'Performing risk assessment');
 
-    const riskAssessment = await this.riskAssessor.assessIntentRisk(
-      assetIn,
-      assetOut,
-      amountIn,
-      'optimized'
-    );
-
-    if (!riskAssessment.success) {
-      throw new Error('Risk assessment failed');
-    }
-
-    const riskData = riskAssessment.data!;
+    const riskAssessment = await this.riskAssessor.assessIntentRisk();
+    const riskData = riskAssessment;
     
     // Check if risk has increased since optimization
-    if (riskData.overall_risk_score > optimizationResult.risk_assessment.overall_risk * 1.2) {
+    if (riskData.overall_risk > optimizationResult.risk_assessment.overall_risk * 1.2) {
       this.addError(status, {
         code: 'RISK_INCREASE_DETECTED',
         message: 'Risk has increased significantly since optimization',
