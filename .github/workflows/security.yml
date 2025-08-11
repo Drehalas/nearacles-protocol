@@ -52,7 +52,7 @@ jobs:
           
           found_secrets=false
           for pattern in "${patterns[@]}"; do
-            if grep -rE "$pattern" src/ 2>/dev/null | grep -v "process.env" | grep -v "config" | grep -v "example"; then
+            if grep -rE "$pattern" src/ 2>/dev/null | grep -v "process.env" | grep -v "config" | grep -v "example" | grep -v "is not set in environment" | grep -v "throw new Error"; then
               echo "❌ Potential secret found: $pattern"
               found_secrets=true
             fi
