@@ -34,6 +34,7 @@
     "cross-env": "^7.0.3",
     "playwright": "^1.54.2",
     "postcss": "^8.5.5",
+    "serve": "^14.2.4",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
   }
