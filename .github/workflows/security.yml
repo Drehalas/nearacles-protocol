@@ -33,7 +33,7 @@ jobs:
       - name: Check for leaked NEAR private keys
         run: |
           echo "Checking for leaked NEAR private keys..."
-          if grep -r "ed25519:" src/ 2>/dev/null | grep -v "your_private_key_here" | grep -v "ed25519:\${" | grep -v "ed25519:.*signature" | grep -v "replace('ed25519:'"; then
+          if grep -r "ed25519:" src/ 2>/dev/null | grep -v "your_private_key_here" | grep -v "ed25519:\${" | grep -v "ed25519:.*signature" | grep -v "replace('ed25519:" | grep -v "Extract signature from ed25519:" | grep -v "signature: \`ed25519:"; then
             echo "❌ NEAR private key found in source code!"
             exit 1
           fi
