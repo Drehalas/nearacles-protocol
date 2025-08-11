@@ -13,7 +13,6 @@ import {
   CredibilityEvaluationIntent,
   OracleQuote,
   NEARIntentMessage,
-  SignedIntentData as _SignedIntentData,
 } from '../types/near-intent.js';
 
 export interface SolverBiddingStrategy {
@@ -166,10 +165,10 @@ export class OracleSolverNode {
       // Get pending intents from NEAR contract
       const pendingIntents = await this.nearIntegration.getIntent(''); // Get all pending
 
-      for (const intent of pendingIntents || []) {
+      for (const intent of (Array.isArray(pendingIntents) ? pendingIntents : []) as any[]) {
         if (
-          intent.intent_type === 'CredibilityEvaluation' &&
-          !this.activeExecutions.has(intent.intent_id)
+          (intent as any).intent_type === 'CredibilityEvaluation' &&
+          !this.activeExecutions.has((intent as any).intent_id)
         ) {
           await this.processNewIntent(intent);
 
@@ -186,7 +185,7 @@ export class OracleSolverNode {
   /**
    * Process a new intent by creating a bid
    */
-  private async processNewIntent(intent: any): Promise<void> {
+  private async processNewIntent(intent: CredibilityEvaluationIntent): Promise<void> {
     try {
       const credibilityIntent: CredibilityEvaluationIntent = {
         intent: 'credibility_evaluation',
@@ -200,14 +199,14 @@ export class OracleSolverNode {
       // Evaluate if we should bid on this intent
       const shouldBid = this.shouldBidOnIntent(credibilityIntent);
       if (!shouldBid) {
-        console.log(`⏭️  Skipping intent ${intent.intent_id} - doesn't match criteria`);
+        console.log(`⏭️  Skipping intent ${(intent as any).intent_id} - doesn't match criteria`);
         return;
       }
 
       // Create competitive quote
-      const quote = this.createQuote(intent.intent_id, credibilityIntent);
+      const quote = this.createQuote((intent as any).intent_id, credibilityIntent);
 
-      console.log(`💰 Bidding on intent ${intent.intent_id}`);
+      console.log(`💰 Bidding on intent ${(intent as any).intent_id}`);
       console.log(`   Question: ${credibilityIntent.question}`);
       console.log(`   Confidence: ${quote.confidence_guarantee}`);
       console.log(`   Stake: ${quote.required_stake}`);
@@ -215,17 +214,17 @@ export class OracleSolverNode {
 
       // Submit bid and start execution if accepted
       const execution: IntentExecution = {
-        intentId: intent.intent_id,
+        intentId: (intent as any).intent_id,
         status: 'bidding',
         startTime: Date.now(),
       };
 
-      this.activeExecutions.set(intent.intent_id, execution);
+      this.activeExecutions.set((intent as any).intent_id, execution);
 
       // Execute the intent directly (simplified - in production would wait for quote acceptance)
-      this.executeIntent(intent.intent_id, credibilityIntent);
+      this.executeIntent((intent as any).intent_id, credibilityIntent);
     } catch (error) {
-      console.error(`Error processing intent ${intent.intent_id}:`, error);
+      console.error(`Error processing intent ${(intent as any).intent_id}:`, error);
     }
   }
 
@@ -353,7 +352,7 @@ export class OracleSolverNode {
     try {
       const solverInfo = await this.nearIntegration.getSolverInfo();
       if (solverInfo) {
-        this.metrics.currentReputation = solverInfo.reputation_score || 1.0;
+        this.metrics.currentReputation = (solverInfo as any).reputation_score || 1.0;
       }
 
       this.metrics.activeIntentsCount = this.activeExecutions.size;

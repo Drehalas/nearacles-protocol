@@ -8,11 +8,10 @@ import {
   MarketData,
   TechnicalIndicators,
   MarketAnalysisResult,
-  SentimentAnalysisResult,
   AIResponse,
   AIError 
 } from './types';
-import { getCurrentTimestamp, retry } from '../utils/helpers';
+import { getCurrentTimestamp } from '../utils/helpers';
 
 export class MarketAnalyzer {
   private config: AIAgentConfig;
@@ -49,7 +48,7 @@ export class MarketAnalyzer {
       
       // Get sentiment analysis
       const sentimentResult = await this.getSentimentAnalysis(assetIn, assetOut);
-      const sentimentScore = sentimentResult.success ? sentimentResult.data!.overall_sentiment : 0.5;
+      const sentimentScore = sentimentResult.success ? (sentimentResult.data!.sentiment_score || 0.5) : 0.5;
 
       // Perform comprehensive analysis
       const analysis = await this.performMarketAnalysis(
@@ -97,13 +96,18 @@ export class MarketAnalyzer {
       // - DEX APIs (Ref Finance, etc.)
       // - Price oracles (Chainlink, Flux, Pyth)
 
+      const basePriceStr = this.generateMockPrice(assetIn, assetOut);
+      const basePrice = parseFloat(basePriceStr);
       const mockData: MarketData = {
-        asset_pair: `${assetIn}/${assetOut}`,
-        price: this.generateMockPrice(assetIn, assetOut),
+        symbol: `${assetIn}/${assetOut}`,
+        price: basePrice,
+        volume: parseFloat(this.generateMockVolume()),
+        high_24h: basePrice * 1.1,
+        low_24h: basePrice * 0.9,
+        change_24h: Math.random() * 20 - 10, // -10% to +10%
         volume_24h: this.generateMockVolume(),
         price_change_24h: Math.random() * 20 - 10, // -10% to +10%
-        price_change_7d: Math.random() * 50 - 25, // -25% to +25%
-        market_cap: this.generateMockMarketCap(assetIn),
+        market_cap: parseFloat(this.generateMockMarketCap(assetIn)),
         liquidity_score: Math.random() * 0.5 + 0.5, // 0.5 to 1.0
         volatility_index: Math.random() * 0.8 + 0.1, // 0.1 to 0.9
         timestamp: getCurrentTimestamp(),
@@ -131,8 +135,8 @@ export class MarketAnalyzer {
     // Mock technical indicators calculation
     // In production, this would use historical price data to calculate real indicators
 
-    const basePrice = parseFloat(marketData.price);
-    const volatility = marketData.volatility_index;
+    const basePrice = marketData.price;
+    const volatility = marketData.volatility_index || 0.5;
 
     return {
       rsi: 30 + Math.random() * 40, // 30-70 range
@@ -149,20 +153,15 @@ export class MarketAnalyzer {
       moving_averages: {
         sma_20: basePrice * (0.98 + Math.random() * 0.04),
         sma_50: basePrice * (0.95 + Math.random() * 0.1),
-        ema_12: basePrice * (0.99 + Math.random() * 0.02),
-        ema_26: basePrice * (0.97 + Math.random() * 0.06),
+        sma_200: basePrice * (0.92 + Math.random() * 0.16),
       },
-      support_resistance: {
-        support_levels: [
-          basePrice * 0.95,
-          basePrice * 0.90,
-          basePrice * 0.85,
-        ],
-        resistance_levels: [
-          basePrice * 1.05,
-          basePrice * 1.10,
-          basePrice * 1.15,
-        ],
+      volume_profile: {
+        support: basePrice * 0.95,
+        resistance: basePrice * 1.05,
+      },
+      momentum_indicators: {
+        stochastic: 30 + Math.random() * 40,
+        williams_r: -80 + Math.random() * 60,
       },
     };
   }
@@ -170,7 +169,7 @@ export class MarketAnalyzer {
   /**
    * Get sentiment analysis for asset pair
    */
-  private async getSentimentAnalysis(assetIn: string, assetOut: string): Promise<AIResponse<SentimentAnalysisResult>> {
+  private async getSentimentAnalysis(assetIn: string, assetOut: string): Promise<AIResponse<MarketAnalysisResult>> {
     try {
       // Mock sentiment analysis
       // In production, this would analyze:
@@ -179,28 +178,16 @@ export class MarketAnalyzer {
       // - Developer activity (GitHub)
       // - Community metrics
 
-      const sentimentResult: SentimentAnalysisResult = {
-        asset: `${assetIn}/${assetOut}`,
-        overall_sentiment: 0.3 + Math.random() * 0.4, // 0.3 to 0.7
-        sentiment_trend: Math.random() > 0.5 ? 'improving' : 'declining',
-        sentiment_breakdown: {
-          positive: 0.4 + Math.random() * 0.3,
-          negative: 0.1 + Math.random() * 0.3,
-          neutral: 0.3 + Math.random() * 0.2,
-        },
-        key_themes: [
-          'DeFi adoption',
-          'Market volatility',
-          'Institutional interest',
-          'Regulatory clarity',
-        ],
-        influencer_sentiment: 0.5 + Math.random() * 0.3,
-        news_sentiment: 0.4 + Math.random() * 0.4,
-        social_volume: Math.random() * 1000,
-        analysis_period: {
-          start: getCurrentTimestamp() - 86400, // 24 hours ago
-          end: getCurrentTimestamp(),
-        },
+      const sentimentResult: MarketAnalysisResult = {
+        asset_pair: `${assetIn}/${assetOut}`,
+        current_price: "1000.00",
+        price_trend: Math.random() > 0.5 ? 'up' : 'down',
+        volatility: Math.random() * 0.5,
+        liquidity: Math.random() * 0.8 + 0.2,
+        recommended_action: Math.random() > 0.5 ? 'buy' : 'hold',
+        confidence: 0.3 + Math.random() * 0.4,
+        analysis_timestamp: getCurrentTimestamp(),
+        sentiment_score: 0.3 + Math.random() * 0.4,
       };
 
       return { success: true, data: sentimentResult };
@@ -234,14 +221,15 @@ export class MarketAnalyzer {
     let confidence = 0.6;
 
     // Price trend analysis
-    if (marketData.price_change_24h > 5) {
+    const priceChange24h = marketData.price_change_24h || 0;
+    if (priceChange24h > 5) {
       trendDirection = 'bullish';
       strengthScore += 0.2;
-      reasoning.push(`Strong 24h price increase of ${marketData.price_change_24h.toFixed(2)}%`);
-    } else if (marketData.price_change_24h < -5) {
+      reasoning.push(`Strong 24h price increase of ${priceChange24h.toFixed(2)}%`);
+    } else if (priceChange24h < -5) {
       trendDirection = 'bearish';
       strengthScore -= 0.2;
-      reasoning.push(`Significant 24h price decline of ${marketData.price_change_24h.toFixed(2)}%`);
+      reasoning.push(`Significant 24h price decline of ${priceChange24h.toFixed(2)}%`);
     }
 
     // Technical indicators analysis
@@ -271,7 +259,7 @@ export class MarketAnalyzer {
     }
 
     // Moving averages analysis
-    const currentPrice = parseFloat(marketData.price);
+    const currentPrice = marketData.price;
     if (currentPrice > technicalIndicators.moving_averages.sma_20 && 
         technicalIndicators.moving_averages.sma_20 > technicalIndicators.moving_averages.sma_50) {
       reasoning.push('Price above key moving averages (bullish structure)');
@@ -280,15 +268,17 @@ export class MarketAnalyzer {
     }
 
     // Volatility analysis
-    if (marketData.volatility_index > 0.7) {
-      reasoning.push(`High volatility detected (${(marketData.volatility_index * 100).toFixed(1)}%) - exercise caution`);
+    const volatilityIndex = marketData.volatility_index || 0.5;
+    if (volatilityIndex > 0.7) {
+      reasoning.push(`High volatility detected (${(volatilityIndex * 100).toFixed(1)}%) - exercise caution`);
       confidence -= 0.1;
       if (recommendedAction === 'buy') recommendedAction = 'wait';
     }
 
     // Liquidity analysis
-    if (marketData.liquidity_score < 0.6) {
-      reasoning.push(`Low liquidity (${(marketData.liquidity_score * 100).toFixed(1)}%) may impact execution`);
+    const liquidityScore = marketData.liquidity_score || 0.5;
+    if (liquidityScore < 0.6) {
+      reasoning.push(`Low liquidity (${(liquidityScore * 100).toFixed(1)}%) may impact execution`);
       confidence -= 0.15;
       if (recommendedAction === 'buy') recommendedAction = 'wait';
     }
@@ -308,7 +298,7 @@ export class MarketAnalyzer {
 
     // Time horizon determination
     let timeHorizon: 'immediate' | 'short' | 'medium' | 'long' = 'short';
-    if (marketData.volatility_index > 0.6) {
+    if (volatilityIndex > 0.6) {
       timeHorizon = 'immediate';
     } else if (trendDirection === 'bullish' || trendDirection === 'bearish') {
       timeHorizon = 'medium';
@@ -316,12 +306,16 @@ export class MarketAnalyzer {
 
     return {
       asset_pair: assetPair,
+      current_price: marketData.price.toString(),
+      price_trend: trendDirection === 'bullish' ? 'up' : trendDirection === 'bearish' ? 'down' : 'stable',
+      volatility: volatilityIndex,
+      liquidity: liquidityScore,
       market_data: marketData,
       technical_indicators: technicalIndicators,
       sentiment_score: sentimentScore,
-      trend_direction: trendDirection,
+      trend_direction: trendDirection === 'bullish' ? 'up' : trendDirection === 'bearish' ? 'down' : 'sideways',
       strength_score: strengthScore,
-      recommended_action: recommendedAction,
+      recommended_action: recommendedAction === 'wait' ? 'hold' : recommendedAction,
       confidence,
       reasoning,
       time_horizon: timeHorizon,

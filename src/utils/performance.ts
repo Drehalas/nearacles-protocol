@@ -27,7 +27,7 @@ export class PerformanceMonitor {
   }
 
   getMetrics(): Record<string, { avg: number; count: number; min: number; max: number }> {
-    const result: Record<string, any> = {};
+    const result: Record<string, { avg: number; count: number; min: number; max: number }> = {};
     for (const [operation, values] of this.metrics.entries()) {
       result[operation] = {
         avg: values.reduce((a, b) => a + b, 0) / values.length,

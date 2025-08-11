@@ -37,7 +37,7 @@ describe('Intent Manager Contract Tests', () => {
       // Check intent status
       const status = await context.intentManagerContract.view('get_intent_status', {
         intent_id: intent.id,
-      });
+      }) as { status: string; intent_id: string };
 
       expect(status.status).toBe('pending');
       expect(status.intent_id).toBe(intent.id);
@@ -98,8 +98,8 @@ describe('Intent Manager Contract Tests', () => {
         intent_id: intent.id,
       });
 
-      expect(status.status).toBe('executing');
-      expect(status.solver_id).toBe(solver.accountId);
+      expect((status as { status: string; solver_id: string; intent_id: string }).status).toBe('executing');
+      expect((status as { status: string; solver_id: string; intent_id: string }).solver_id).toBe(solver.accountId);
     });
   });
 
@@ -120,9 +120,9 @@ describe('Intent Manager Contract Tests', () => {
       const stats = await context.intentManagerContract.view('get_statistics', {});
 
       expect(stats).toBeDefined();
-      expect(typeof stats.total_intents).toBe('number');
-      expect(typeof stats.active_intents).toBe('number');
-      expect(typeof stats.completed_intents).toBe('number');
+      expect(typeof (stats as { total_intents: number; active_intents: number; completed_intents: number }).total_intents).toBe('number');
+      expect(typeof (stats as { total_intents: number; active_intents: number; completed_intents: number }).active_intents).toBe('number');
+      expect(typeof (stats as { total_intents: number; active_intents: number; completed_intents: number }).completed_intents).toBe('number');
     });
   });
 
@@ -170,7 +170,7 @@ describe('Intent Manager Contract Tests', () => {
         intent_id: intent.id,
       });
 
-      expect(intentFromVerifier.id).toBe(statusFromManager.intent_id);
+      expect((intentFromVerifier as { id: string; user: string }).id).toBe((statusFromManager as { intent_id: string; status: string }).intent_id);
     });
   });
 });

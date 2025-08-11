@@ -13,9 +13,7 @@ import { OracleService } from './oracle.js';
 import {
   CredibilityEvaluationIntent,
   OracleEvaluationResult,
-  NEARRefutationResult as _NEARRefutationResult,
   NEARIntentMessage,
-  SignedIntentData as _SignedIntentData,
 } from '../types/near-intent.js';
 import { CredibilityEvaluation } from '../types/oracle.js';
 
@@ -67,7 +65,7 @@ export class NEAROracleIntegration {
    */
   private async initializeNearAccount(config: NEARConfig): Promise<Account> {
     const keyStore = new InMemoryKeyStore();
-    const keyPair = KeyPair.fromString(config.privateKey as any);
+    const keyPair = KeyPair.fromString(config.privateKey as string);
     await keyStore.setKey(config.networkId, config.accountId, keyPair);
 
     const provider = new JsonRpcProvider({ url: config.nodeUrl });
@@ -170,7 +168,7 @@ export class NEAROracleIntegration {
       });
 
       console.log(`Evaluation submitted to contract for intent ${intentId}`);
-      return result as any as string;
+      return result as unknown as string;
     } catch (error) {
       console.error('Failed to submit evaluation to contract:', error);
       throw error;
@@ -201,7 +199,7 @@ export class NEAROracleIntegration {
       });
 
       console.log(`Challenge submitted for evaluation ${evaluationId}`);
-      return result as any as string;
+      return result as unknown as string;
     } catch (error) {
       console.error('Failed to submit challenge:', error);
       throw error;
@@ -244,21 +242,21 @@ export class NEAROracleIntegration {
         args: {},
       });
 
-      for (const intent of pendingIntents as any[]) {
+      for (const intent of pendingIntents as Record<string, unknown>[]) {
         if (intent.intent_type === 'CredibilityEvaluation' && intent.question) {
           console.log(`Processing intent ${intent.intent_id}: ${intent.question}`);
 
           try {
             const credibilityIntent: CredibilityEvaluationIntent = {
               intent: 'credibility_evaluation',
-              question: intent.question,
+              question: (intent as any).question,
               required_sources: 3,
               confidence_threshold: 0.8,
             };
 
             const dummyMessage: NEARIntentMessage = {
-              signer_id: intent.initiator,
-              deadline: new Date(intent.deadline * 1000000).toISOString(),
+              signer_id: (intent as any).initiator,
+              deadline: new Date((intent as any).deadline * 1000000).toISOString(),
               intents: [credibilityIntent],
             };
 
@@ -267,7 +265,7 @@ export class NEAROracleIntegration {
               credibilityIntent
             );
 
-            await this.submitEvaluationToContract(intent.intent_id, evaluationResult);
+            await this.submitEvaluationToContract((intent as any).intent_id, evaluationResult);
           } catch (error) {
             console.error(`Failed to process intent ${intent.intent_id}:`, error);
           }
@@ -318,7 +316,7 @@ export class NEAROracleIntegration {
   /**
    * Get solver information
    */
-  async getSolverInfo(): Promise<any> {
+  async getSolverInfo(): Promise<Record<string, unknown>> {
     return await this.nearAccount.viewFunction({
       contractId: this.contractId,
       methodName: 'get_solver',
@@ -329,7 +327,7 @@ export class NEAROracleIntegration {
   /**
    * Get intent by ID
    */
-  async getIntent(intentId: string): Promise<any> {
+  async getIntent(intentId: string): Promise<Record<string, unknown>> {
     return await this.nearAccount.viewFunction({
       contractId: this.contractId,
       methodName: 'get_intent',
@@ -340,7 +338,7 @@ export class NEAROracleIntegration {
   /**
    * Get evaluation by ID
    */
-  async getEvaluation(evaluationId: string): Promise<any> {
+  async getEvaluation(evaluationId: string): Promise<Record<string, unknown>> {
     return await this.nearAccount.viewFunction({
       contractId: this.contractId,
       methodName: 'get_evaluation',

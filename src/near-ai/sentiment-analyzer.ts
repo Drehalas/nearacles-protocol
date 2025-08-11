@@ -2,7 +2,7 @@
  * Sentiment Analyzer for Social and News Analysis
  */
 
-import { AIAgentConfig, SentimentAnalysisResult, AIResponse } from './types';
+import { AIAgentConfig, MarketAnalysisResult, AIResponse } from './types';
 import { getCurrentTimestamp } from '../utils/helpers';
 
 export class SentimentAnalyzer {
@@ -12,25 +12,18 @@ export class SentimentAnalyzer {
     this.config = config;
   }
 
-  async analyzeSentiment(asset: string): Promise<AIResponse<SentimentAnalysisResult>> {
+  async analyzeSentiment(asset: string): Promise<AIResponse<MarketAnalysisResult>> {
     // Mock implementation for sentiment analysis
-    const result: SentimentAnalysisResult = {
-      asset,
-      overall_sentiment: 0.6 + Math.random() * 0.3,
-      sentiment_trend: 'improving',
-      sentiment_breakdown: {
-        positive: 0.5,
-        negative: 0.2,
-        neutral: 0.3,
-      },
-      key_themes: ['DeFi growth', 'Technical analysis', 'Market adoption'],
-      influencer_sentiment: 0.7,
-      news_sentiment: 0.6,
-      social_volume: 1500,
-      analysis_period: {
-        start: getCurrentTimestamp() - 86400,
-        end: getCurrentTimestamp(),
-      },
+    const result: MarketAnalysisResult = {
+      asset_pair: asset,
+      current_price: "1000.00",
+      price_trend: 'up',
+      volatility: 0.5,
+      liquidity: 0.7,
+      recommended_action: 'hold',
+      confidence: 0.6 + Math.random() * 0.3,
+      analysis_timestamp: getCurrentTimestamp(),
+      sentiment_score: 0.6 + Math.random() * 0.3,
     };
 
     return { success: true, data: result };

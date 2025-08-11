@@ -245,9 +245,9 @@ export class RiskMonitoringSystem {
       if (factor.severity === 'critical' || factor.severity === 'high') {
         this.createAlert({
           severity: factor.severity,
-          type: this.mapFactorToType(factor.factor),
+          type: this.mapFactorToType(factor.factor || 'unknown'),
           message: `${factor.factor}: ${factor.description}`,
-          recommendation: factor.mitigation.join('; '),
+          recommendation: (factor.mitigation_strategies || []).join('; '),
           affectedAssets: [asset]
         });
       }

@@ -108,7 +108,7 @@ export class ExecutionEngine {
         result = await this.executeDelayedOrder(
           executionId,
           optimizationResult.optimal_route,
-          optimizationResult.execution_strategy.conditions || [],
+          (optimizationResult.execution_strategy.conditions || []) as unknown as Record<string, unknown>[],
           status
         );
       } else {
@@ -200,11 +200,14 @@ export class ExecutionEngine {
   ): Promise<void> {
     this.updateStatus(status, 15, 'Performing risk assessment');
 
-    const riskAssessment = await this.riskAssessor.assessIntentRisk();
-    const riskData = riskAssessment;
+    const riskAssessment = await this.riskAssessor.assessIntentRisk('NEAR', 'USDC', '100', 'immediate');
+    if (!riskAssessment.success || !riskAssessment.data) {
+      throw new Error('Failed to perform risk assessment');
+    }
+    const riskData = riskAssessment.data;
     
     // Check if risk has increased since optimization
-    if (riskData.overall_risk > optimizationResult.risk_assessment.overall_risk * 1.2) {
+    if (riskData.overall_risk_score > optimizationResult.risk_assessment.overall_risk * 1.2) {
       this.addError(status, {
         code: 'RISK_INCREASE_DETECTED',
         message: 'Risk has increased significantly since optimization',
@@ -214,7 +217,7 @@ export class ExecutionEngine {
       });
 
       // If risk is critical, abort
-      if (riskData.overall_risk > 0.9) {
+      if (riskData.overall_risk_score > 0.9) {
         throw new Error('Critical risk level detected, aborting execution');
       }
     }
@@ -352,7 +355,7 @@ export class ExecutionEngine {
         }
 
         // Check conditions before execution
-        const conditionsMet = await this.checkExecutionConditions(splitOrder.conditions);
+        const conditionsMet = await this.checkExecutionConditions(splitOrder.conditions as unknown as Record<string, unknown>[]);
         if (!conditionsMet) {
           this.addError(status, {
             code: 'CONDITIONS_NOT_MET',
@@ -442,7 +445,7 @@ export class ExecutionEngine {
   private async executeDelayedOrder(
     executionId: string,
     route: ExecutionRoute,
-    conditions: any[],
+    conditions: Record<string, unknown>[],
     status: ExecutionStatus
   ): Promise<ExecutionResult> {
     this.updateStatus(status, 25, 'Monitoring conditions for delayed execution');
@@ -567,7 +570,7 @@ export class ExecutionEngine {
   /**
    * Check if execution conditions are met
    */
-  private async checkExecutionConditions(conditions: any[]): Promise<boolean> {
+  private async checkExecutionConditions(conditions: Record<string, unknown>[]): Promise<boolean> {
     for (const condition of conditions) {
       const conditionMet = await this.evaluateCondition(condition);
       if (!conditionMet) {
@@ -580,7 +583,7 @@ export class ExecutionEngine {
   /**
    * Evaluate a single execution condition
    */
-  private async evaluateCondition(condition: any): Promise<boolean> {
+  private async evaluateCondition(condition: Record<string, unknown>): Promise<boolean> {
     // In a real implementation, this would fetch current market data
     // and evaluate the condition against real-time values
     

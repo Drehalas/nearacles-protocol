@@ -5,7 +5,6 @@
 
 import { 
   Intent, 
-  Quote, 
   IntentRequestParams, 
   IntentExecutionStatus,
   QuoteEvaluationCriteria,
@@ -13,11 +12,7 @@ import {
   IntentConfig,
   IntentError,
   AsyncResult,
-<<<<<<< HEAD
-  IntentAIDecision,
-=======
   AIDecision,
->>>>>>> origin/main
   MarketAnalysis 
 } from './types';
 import { IntentRequest } from './intent-request';
@@ -26,7 +21,7 @@ import { SolverBus } from './solver-bus';
 import { QuoteManager } from './quote-manager';
 import { VerifierContract } from './verifier-contract';
 import { Account, connect, ConnectConfig, keyStores } from 'near-api-js';
-import { getCurrentTimestamp, retry } from '../utils/helpers';
+import { getCurrentTimestamp } from '../utils/helpers';
 
 export class IntentAgent {
   private account?: Account;
@@ -82,7 +77,8 @@ export class IntentAgent {
    */
   private async connectWithCredentials(accountId: string, privateKey: string): Promise<void> {
     const keyStore = new keyStores.InMemoryKeyStore();
-    const keyPair = require('near-api-js').utils.KeyPair.fromString(privateKey);
+    const { KeyPair } = await import('near-api-js/lib/utils');
+    const keyPair = KeyPair.fromString(privateKey);
     await keyStore.setKey(this.config.network_id, accountId, keyPair);
 
     const connectionConfig: ConnectConfig = {
@@ -257,7 +253,7 @@ export class IntentAgent {
   /**
    * Get asset balances
    */
-  async getBalances(): Promise<any[]> {
+  async getBalances(): Promise<Record<string, unknown>[]> {
     try {
       return await this.assetManager.getAllBalances();
     } catch (error) {
@@ -309,11 +305,7 @@ export class IntentAgent {
     intent: Intent;
     reasoning: string;
     quotes: QuoteAnalysis[];
-<<<<<<< HEAD
-    aiDecision: IntentAIDecision;
-=======
     aiDecision: AIDecision;
->>>>>>> origin/main
   }>> {
     // This would integrate with NEAR AI or external AI services
     // For now, implement a basic pattern matching system
@@ -333,7 +325,7 @@ export class IntentAgent {
       }
 
       // Apply preferences to criteria
-      const criteria = this.buildCriteriaFromPreferences(preferences);
+      this.buildCriteriaFromPreferences(preferences);
 
       // Create intent
       const intentResult = await this.createIntent(intentParams);
@@ -342,11 +334,7 @@ export class IntentAgent {
       }
 
       // Generate AI decision
-<<<<<<< HEAD
-      const aiDecision: IntentAIDecision = await this.generateAIDecision(
-=======
       const aiDecision: AIDecision = await this.generateAIDecision(
->>>>>>> origin/main
         intentResult.data.quotes,
         preferences
       );
@@ -413,7 +401,7 @@ export class IntentAgent {
   /**
    * Get agent statistics
    */
-  async getStatistics(): Promise<any> {
+  async getStatistics(): Promise<Record<string, unknown>> {
     const stats = {
       solver_bus: await this.solverBus.getStatistics(),
       verifier_contract: this.verifierContract ? 
@@ -431,19 +419,11 @@ export class IntentAgent {
    */
   private getDefaultQuoteCriteria(params: IntentRequestParams): QuoteEvaluationCriteria {
     return {
-<<<<<<< HEAD
-      max_slippage: params.slippage_tolerance || 1.0,
-      prefer_speed: params.user_preferences?.execution_speed === 'fast',
-      prefer_cost: params.user_preferences?.execution_speed === 'slow',
-      min_output: params.asset_out,
-      reputation_threshold: 0.7,
-=======
       maxSlippage: params.slippage_tolerance || 1.0,
       prioritize: params.user_preferences?.execution_speed === 'fast' ? 'speed' : 'balanced',
       riskTolerance: 'medium',
       maxFee: params.user_preferences?.max_fee,
       preferredSolvers: params.user_preferences?.preferred_solvers,
->>>>>>> origin/main
     };
   }
 
@@ -470,18 +450,11 @@ export class IntentAgent {
   /**
    * Helper: Build criteria from preferences
    */
-  private buildCriteriaFromPreferences(preferences?: any): QuoteEvaluationCriteria {
+  private buildCriteriaFromPreferences(preferences?: Record<string, unknown>): QuoteEvaluationCriteria {
     return {
-<<<<<<< HEAD
-      prefer_speed: preferences?.speedPreference === 'fast',
-      prefer_cost: preferences?.speedPreference === 'cost',
-      max_slippage: preferences?.maxSlippage || 1.0,
-      reputation_threshold: 0.7,
-=======
-      riskTolerance: preferences?.riskTolerance || 'medium',
+      riskTolerance: (preferences?.riskTolerance as 'low' | 'medium' | 'high') || 'medium',
       prioritize: preferences?.speedPreference === 'fast' ? 'speed' : 'balanced',
-      maxSlippage: preferences?.maxSlippage || 1.0,
->>>>>>> origin/main
+      maxSlippage: (preferences?.maxSlippage as number) || 1.0,
     };
   }
 
@@ -490,12 +463,8 @@ export class IntentAgent {
    */
   private async generateAIDecision(
     quotes: QuoteAnalysis[], 
-    preferences?: any
-<<<<<<< HEAD
-  ): Promise<IntentAIDecision> {
-=======
+    _preferences?: Record<string, unknown>
   ): Promise<AIDecision> {
->>>>>>> origin/main
     if (quotes.length === 0) {
       return {
         action: 'wait',
@@ -510,17 +479,6 @@ export class IntentAgent {
 
     const bestQuote = quotes[0];
     
-<<<<<<< HEAD
-    if (bestQuote.recommendation === 'accept' && bestQuote.confidence_score > 0.7) {
-      return {
-        action: 'execute',
-        confidence: bestQuote.confidence_score,
-        reasoning: `Best quote offers good value with confidence ${(bestQuote.confidence_score * 100).toFixed(1)}%`,
-        parameters: { quoteId: bestQuote.quote_id },
-        risk_assessment: {
-          level: bestQuote.risk_score > 0.7 ? 'high' : bestQuote.risk_score > 0.4 ? 'medium' : 'low',
-          factors: bestQuote.reasoning
-=======
     if (bestQuote.recommendation === 'accept' && bestQuote.score > 70) {
       return {
         action: 'execute',
@@ -530,7 +488,6 @@ export class IntentAgent {
         risk_assessment: {
           level: bestQuote.riskLevel,
           factors: bestQuote.cons
->>>>>>> origin/main
         }
       };
     }

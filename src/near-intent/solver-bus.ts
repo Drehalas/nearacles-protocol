@@ -3,10 +3,7 @@
  * Handles communication with the off-chain solver network
  */
 
-<<<<<<< HEAD
 import WebSocket from 'ws';
-=======
->>>>>>> origin/main
 import { 
   Quote, 
   SolverInfo, 
@@ -17,10 +14,6 @@ import {
   AsyncResult 
 } from './types';
 import { retry, sleep, getCurrentTimestamp } from '../utils/helpers';
-<<<<<<< HEAD
-=======
-import WebSocket from 'ws';
->>>>>>> origin/main
 
 export class SolverBus {
   private baseUrl: string;
@@ -54,30 +47,16 @@ export class SolverBus {
         }
       };
 
-<<<<<<< HEAD
-      this.wsConnection.onmessage = (event) => {
-        try {
-          const data = typeof event.data === 'string' ? event.data : 
-            (event.data instanceof ArrayBuffer ? new TextDecoder().decode(event.data) : 
-             Array.isArray(event.data) ? new TextDecoder().decode(event.data[0]) : 
-             String(event.data));
-          const message: SolverBusMessage = JSON.parse(data);
-=======
       this.wsConnection.onmessage = (event: WebSocket.MessageEvent) => {
         try {
           const message: SolverBusMessage = JSON.parse(event.data.toString());
->>>>>>> origin/main
           this.handleMessage(message);
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
         }
       };
 
-<<<<<<< HEAD
-      this.wsConnection.onerror = (error) => {
-=======
       this.wsConnection.onerror = (error: WebSocket.ErrorEvent) => {
->>>>>>> origin/main
         console.error('WebSocket error:', error);
       };
 
@@ -106,7 +85,7 @@ export class SolverBus {
   /**
    * Send a message through WebSocket
    */
-  private send(data: any): void {
+  private send(data: Record<string, unknown>): void {
     if (this.wsConnection && this.wsConnection.readyState === WebSocket.OPEN) {
       this.wsConnection.send(JSON.stringify(data));
     }
@@ -145,7 +124,7 @@ export class SolverBus {
    */
   async publishIntent(intent: Intent): Promise<AsyncResult<string>> {
     try {
-      const response = await this.httpRequest('POST', '/intents', intent);
+      const response = await this.httpRequest('POST', '/intents', intent as unknown as Record<string, unknown>);
       
       if (response.success) {
         // Also send via WebSocket for real-time processing
@@ -158,7 +137,7 @@ export class SolverBus {
 
         return { success: true, data: intent.id };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -173,14 +152,14 @@ export class SolverBus {
   /**
    * Get quotes for an intent
    */
-  async getQuotes(intentId: string, timeout: number = 30000): Promise<AsyncResult<Quote[]>> {
+  async getQuotes(intentId: string, _timeout: number = 30000): Promise<AsyncResult<Quote[]>> {
     try {
       const response = await this.httpRequest('GET', `/intents/${intentId}/quotes`);
       
       if (response.success) {
-        return { success: true, data: response.data.quotes || [] };
+        return { success: true, data: (response as any).data.quotes || [] };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -232,7 +211,7 @@ export class SolverBus {
     if (quotes.length === 0) return null;
 
     // Filter quotes based on criteria
-    let filteredQuotes = quotes.filter(quote => {
+    const filteredQuotes = quotes.filter(quote => {
       if (criteria.maxFee && BigInt(quote.fee) > BigInt(criteria.maxFee)) {
         return false;
       }
@@ -278,7 +257,7 @@ export class SolverBus {
    */
   async submitQuote(quote: Quote): Promise<AsyncResult<void>> {
     try {
-      const response = await this.httpRequest('POST', '/quotes', quote);
+      const response = await this.httpRequest('POST', '/quotes', quote as unknown as Record<string, unknown>);
       
       if (response.success) {
         // Send via WebSocket
@@ -291,7 +270,7 @@ export class SolverBus {
 
         return { success: true, data: undefined };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -311,9 +290,9 @@ export class SolverBus {
       const response = await this.httpRequest('GET', `/intents/${intentId}/status`);
       
       if (response.success) {
-        return { success: true, data: response.data };
+        return { success: true, data: (response as any).data };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -333,9 +312,9 @@ export class SolverBus {
       const response = await this.httpRequest('GET', '/solvers');
       
       if (response.success) {
-        return { success: true, data: response.data.solvers || [] };
+        return { success: true, data: (response as any).data.solvers || [] };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -355,7 +334,7 @@ export class SolverBus {
     status: IntentExecutionStatus
   ): Promise<AsyncResult<void>> {
     try {
-      const response = await this.httpRequest('PUT', `/intents/${intentId}/status`, status);
+      const response = await this.httpRequest('PUT', `/intents/${intentId}/status`, status as unknown as Record<string, unknown>);
       
       if (response.success) {
         // Send update via WebSocket
@@ -368,7 +347,7 @@ export class SolverBus {
 
         return { success: true, data: undefined };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -386,10 +365,10 @@ export class SolverBus {
   private async httpRequest(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     endpoint: string,
-    data?: any
-  ): Promise<any> {
+    data?: Record<string, unknown>
+  ): Promise<Record<string, unknown>> {
     const url = `${this.baseUrl}${endpoint}`;
-    const headers: any = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
 
@@ -415,7 +394,7 @@ export class SolverBus {
       }
       
       return await response.json();
-    }, 3, 1000);
+    }, 3, 1000) as Promise<Record<string, unknown>>;
   }
 
   /**
@@ -434,14 +413,14 @@ export class SolverBus {
   /**
    * Get Solver Bus statistics
    */
-  async getStatistics(): Promise<AsyncResult<any>> {
+  async getStatistics(): Promise<AsyncResult<Record<string, unknown>>> {
     try {
       const response = await this.httpRequest('GET', '/stats');
       
       if (response.success) {
-        return { success: true, data: response.data };
+        return { success: true, data: (response as any).data };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {

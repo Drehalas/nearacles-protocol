@@ -39,7 +39,7 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
       const storedIntent = await context.verifierContract.view('get_intent', {
         intent_id: intent.id,
       });
-      expect(storedIntent.id).toBe(intent.id);
+      expect((storedIntent as { id: string; user: string }).id).toBe(intent.id);
 
       // Step 2: Solver submits quote
       const quote = createMockQuote(solver.accountId, intent.id);
@@ -58,8 +58,8 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
       const quotes = await context.verifierContract.view('get_solver_quotes', {
         intent_id: intent.id,
       });
-      expect(quotes.length).toBe(1);
-      expect(quotes[0].solver_id).toBe(solver.accountId);
+      expect((quotes as Array<{ solver_id: string; amount_out: string }>).length).toBe(1);
+      expect((quotes as Array<{ solver_id: string; amount_out: string }>)[0].solver_id).toBe(solver.accountId);
 
       // Step 3: User executes intent with selected quote
       await user.call(
@@ -79,13 +79,13 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
       const status = await context.intentManagerContract.view('get_intent_status', {
         intent_id: intent.id,
       });
-      expect(['executing', 'completed']).toContain(status.status);
+      expect(['executing', 'completed']).toContain((status as { status: string; intent_id: string }).status);
 
       // Step 5: Verify solver performance was recorded
       const performance = await context.solverRegistryContract.view('get_solver_performance', {
         solver_id: solver.accountId,
       });
-      expect(performance.total_executions).toBeGreaterThan(0);
+      expect((performance as { total_executions: number; successful_executions: number; success_rate: number }).total_executions).toBeGreaterThan(0);
     });
 
     it('should handle multiple competing quotes', async () => {
@@ -132,7 +132,7 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
       const allQuotes = await context.verifierContract.view('get_solver_quotes', {
         intent_id: intent.id,
       });
-      expect(allQuotes.length).toBe(3);
+      expect((allQuotes as Array<{ solver_id: string; amount_out: string }>).length).toBe(3);
 
       // User selects best quote (solver2 with highest amount_out)
       await user.call(
@@ -151,7 +151,7 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
       const status = await context.intentManagerContract.view('get_intent_status', {
         intent_id: intent.id,
       });
-      expect(status.solver_id).toBe(solver2.accountId);
+      expect((status as { status: string; solver_id: string; intent_id: string }).solver_id).toBe(solver2.accountId);
     });
 
     it('should handle intent cancellation workflow', async () => {
@@ -181,7 +181,7 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
       const status = await context.intentManagerContract.view('get_intent_status', {
         intent_id: intent.id,
       });
-      expect(status.status).toBe('cancelled');
+      expect((status as { status: string; intent_id: string }).status).toBe('cancelled');
 
       // Verify quotes are no longer accepted
       const solver = context.testSolvers.solver1;
@@ -341,7 +341,7 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
         const storedIntent = await context.verifierContract.view('get_intent', {
           intent_id: intent.id,
         });
-        expect(storedIntent.id).toBe(intent.id);
+        expect((storedIntent as { id: string; user: string }).id).toBe(intent.id);
       }
     });
 
@@ -385,7 +385,7 @@ describe('End-to-End Smart Contract Workflow Tests', () => {
       const quotes = await context.verifierContract.view('get_solver_quotes', {
         intent_id: intent.id,
       });
-      expect(quotes.length).toBe(9); // 3 solvers × 3 quotes each
+      expect((quotes as Array<{ solver_id: string; amount_out: string }>).length).toBe(9); // 3 solvers × 3 quotes each
     });
   });
 });

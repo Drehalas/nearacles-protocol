@@ -3,8 +3,8 @@
  * Manages supported tokens and asset metadata
  */
 
-import { TokenMetadata, AssetBalance, AssetInfo, IntentError } from './types';
-import { Account } from 'near-api-js';
+import { TokenMetadata, AssetBalance, AssetInfo } from './types';
+import { Account, Contract } from 'near-api-js';
 import { formatTokenAmount, parseTokenAmount, stringToBigInt } from '../utils/helpers';
 
 export class AssetManager {
@@ -21,7 +21,6 @@ export class AssetManager {
    * Initialize default supported assets based on NEAR ecosystem
    */
   private initializeDefaultAssets(): void {
-<<<<<<< HEAD
     // NEAR native token
     this.assets.set('NEAR', {
       token_id: 'NEAR',
@@ -29,17 +28,8 @@ export class AssetManager {
       name: 'NEAR Protocol',
       decimals: 24,
       contract_address: '',
+      total_supply: '1000000000',
       is_native: true,
-=======
-    // NEAR native token (wrapped)
-    this.assets.set('NEAR', {
-      token_id: 'NEAR',
-      symbol: 'NEAR', 
-      name: 'NEAR Protocol',
-      decimals: 24,
-      contract_address: 'wrap.near', // Python örneğiyle uyumlu
-      is_native: false, // Intent protocol için wrapped NEAR kullanılır
->>>>>>> origin/main
       icon: 'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png',
     });
 
@@ -173,7 +163,7 @@ export class AssetManager {
         locked = '0';
       } else {
         // Get FT balance
-        const contract = new (require('near-api-js').Contract)(
+        const contract = new Contract(
           this.account!,
           asset.contract_address,
           {
@@ -285,7 +275,7 @@ export class AssetManager {
     const targetAccountId = accountId || this.account!.accountId;
 
     try {
-      const contract = new (require('near-api-js').Contract)(
+      const contract = new Contract(
         this.account!,
         asset.contract_address,
         {
@@ -319,7 +309,7 @@ export class AssetManager {
     }
 
     try {
-      const contract = new (require('near-api-js').Contract)(
+      const contract = new Contract(
         this.account,
         asset.contract_address,
         {
@@ -389,7 +379,7 @@ export class AssetManager {
   /**
    * Get asset price from external oracle (placeholder)
    */
-  async getAssetPrice(tokenId: string, quoteCurrency: string = 'USD'): Promise<number | null> {
+  async getAssetPrice(tokenId: string, _quoteCurrency: string = 'USD'): Promise<number | null> {
     // Placeholder implementation
     // In production, this would integrate with price oracles like:
     // - Chainlink

@@ -102,6 +102,22 @@ export class IntentOptimizer {
   }
 
   /**
+   * Optimize intent (alias for optimizeIntentExecution)
+   */
+  async optimizeIntent(
+    assetIn: string,
+    assetOut: string,
+    amount: string,
+    userPreferences: Record<string, unknown> = {}
+  ): Promise<OptimizationResult> {
+    const result = await this.optimizeIntentExecution(assetIn, assetOut, amount, userPreferences as any);
+    if (result.success && result.data) {
+      return result.data;
+    }
+    throw new Error(result.error?.message || 'Optimization failed');
+  }
+
+  /**
    * Optimize intent execution strategy
    */
   async optimizeIntentExecution(
@@ -139,7 +155,7 @@ export class IntentOptimizer {
       // Optimize execution strategy (timing, splitting, conditions)
       const executionStrategy = await this.optimizeExecutionStrategy(
         rankedRoutes[0],
-        marketData
+        marketData as unknown as Record<string, unknown>
       );
       
       // Calculate optimization metrics
@@ -231,11 +247,11 @@ export class IntentOptimizer {
       if (!dexInfo) return null;
 
       const marketData = await this.marketDataProviders.fetchMarketData(`${assetIn}/${assetOut}`);
-      const price = parseFloat(marketData.price);
+      const price = marketData.price;
       
       const estimatedOutput = (amountIn * price * (1 - dexInfo.fee)).toString();
       const estimatedGas = this.estimateGasCost(dexName, 1); // Single hop
-      const expectedSlippage = this.calculateExpectedSlippage(amountIn, marketData.liquidity_score);
+      const expectedSlippage = this.calculateExpectedSlippage(amountIn, marketData.liquidity_score || 0.5);
       
       return {
         id: `direct_${dexName}_${Date.now()}`,
@@ -279,17 +295,17 @@ export class IntentOptimizer {
 
       // Calculate first hop
       const firstHopData = await this.marketDataProviders.fetchMarketData(`${assetIn}/${intermediate}`);
-      const firstHopPrice = parseFloat(firstHopData.price);
+      const firstHopPrice = firstHopData.price;
       const firstHopOutput = amountIn * firstHopPrice * (1 - firstHopDex.fee);
 
       // Calculate second hop
       const secondHopData = await this.marketDataProviders.fetchMarketData(`${intermediate}/${assetOut}`);
-      const secondHopPrice = parseFloat(secondHopData.price);
+      const secondHopPrice = secondHopData.price;
       const finalOutput = firstHopOutput * secondHopPrice * (1 - secondHopDex.fee);
 
       const estimatedGas = this.estimateGasCost(firstHopDex.name, 2) + this.estimateGasCost(secondHopDex.name, 2);
-      const expectedSlippage = this.calculateExpectedSlippage(amountIn, firstHopData.liquidity_score) +
-                              this.calculateExpectedSlippage(firstHopOutput, secondHopData.liquidity_score);
+      const expectedSlippage = this.calculateExpectedSlippage(amountIn, firstHopData.liquidity_score || 0.5) +
+                              this.calculateExpectedSlippage(firstHopOutput, secondHopData.liquidity_score || 0.5);
 
       return {
         id: `multihop_${firstHopDex.name}_${secondHopDex.name}_${Date.now()}`,
@@ -367,11 +383,11 @@ export class IntentOptimizer {
         if (!dex) return null;
 
         const marketData = await this.marketDataProviders.fetchMarketData(`${assetFrom}/${assetTo}`);
-        const price = parseFloat(marketData.price);
+        const price = marketData.price;
         
         currentAmount = currentAmount * price * (1 - dex.fee);
         totalGas += this.estimateGasCost(dex.name, path.length - 1);
-        totalSlippage += this.calculateExpectedSlippage(currentAmount, marketData.liquidity_score);
+        totalSlippage += this.calculateExpectedSlippage(currentAmount, marketData.liquidity_score || 0.5);
         totalExecutionTime += dex.averageExecutionTime;
         totalFees += currentAmount * dex.fee;
         
@@ -414,7 +430,7 @@ export class IntentOptimizer {
     const priority = userPreferences?.priority || 'balanced';
     
     // Filter routes based on user constraints
-    let filteredRoutes = routes.filter(route => {
+    const filteredRoutes = routes.filter(route => {
       if (userPreferences?.maxSlippage && route.expectedSlippage > userPreferences.maxSlippage) {
         return false;
       }
@@ -535,12 +551,12 @@ export class IntentOptimizer {
     for (const [dexName, dexInfo] of this.dexRegistry) {
       try {
         const marketData = await this.marketDataProviders.fetchMarketData(`${assetIn}/${assetOut}`);
-        const price = parseFloat(marketData.price);
+        const price = marketData.price;
         
         dexPrices.set(dexName, {
           buy: price * (1 + dexInfo.fee),
           sell: price * (1 - dexInfo.fee),
-          liquidity: marketData.liquidity_score
+          liquidity: marketData.liquidity_score || 0.5
         });
       } catch (error) {
         console.error(`Error fetching price for ${dexName}:`, error);
@@ -627,7 +643,7 @@ export class IntentOptimizer {
    */
   private async optimizeExecutionStrategy(
     route: ExecutionRoute,
-    marketData: any
+    marketData: Record<string, unknown>
   ): Promise<{
     timing: 'immediate' | 'delayed' | 'split';
     split_orders?: SplitOrder[];
@@ -647,7 +663,7 @@ export class IntentOptimizer {
     }
     
     // If market is volatile, add conditions
-    if (marketData.volatility_24h > 0.05) {
+    if ((marketData as any).volatility_24h > 0.05) {
       conditions = [
         {
           type: 'volatility',

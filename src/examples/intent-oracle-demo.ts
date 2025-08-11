@@ -6,7 +6,7 @@
 import { IntentBroadcaster } from '../services/intent-broadcaster.js';
 // import { NEAROracleIntegration } from '../services/near-oracle-integration.js';
 import { OracleSolverNode } from '../services/oracle-solver-node.js';
-import { CredibilityEvaluationIntent as _CredibilityEvaluationIntent } from '../types/near-intent.js';
+// import { CredibilityEvaluationIntent } from '../types/near-intent.js';
 
 // Demo configuration
 const DEMO_CONFIG = {

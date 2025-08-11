@@ -18,7 +18,13 @@ describe('Risk Assessor Tests', () => {
 
   beforeEach(() => {
     aiConfig = {
-      model: 'near-ai',
+      model: {
+        name: 'near-ai',
+        provider: 'near-ai',
+        version: '1.0.0',
+        capabilities: ['risk-assessment'],
+        max_tokens: 4096,
+      },
       api_key: 'test-key',
       endpoint: 'https://api.near.ai',
       max_tokens: 4096,

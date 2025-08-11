@@ -107,12 +107,12 @@ export class NEAROracleIntegration {
   }
 
   // Demo implementations for blockchain operations
-  async submitResult(result: OracleEvaluationResult): Promise<any> {
+  async submitResult(result: OracleEvaluationResult): Promise<Record<string, unknown>> {
     console.log('Demo: Would submit result to blockchain:', result.evaluation_hash);
     return { result: 'submitted' };
   }
 
-  async getSolverMetrics(solverId: string): Promise<any> {
+  async getSolverMetrics(solverId: string): Promise<Record<string, unknown>> {
     console.log('Demo: Would fetch solver metrics for:', solverId);
     return {
       reputation: 0.95,

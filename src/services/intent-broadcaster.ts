@@ -100,11 +100,11 @@ export class IntentBroadcaster {
 
     try {
       const response = await this.makeRPCCall(requestBody);
-      const quotes: OracleQuote[] = response.result?.quotes || [];
+      const quotes: OracleQuote[] = (response.result as any)?.quotes || [];
 
       return {
         quotes,
-        total_solvers: response.result?.total_solvers || 0,
+        total_solvers: (response.result as any)?.total_solvers || 0,
         response_time: Date.now() - startTime,
       };
     } catch (error) {
@@ -144,9 +144,9 @@ export class IntentBroadcaster {
       }
 
       return {
-        intent_id: response.result.intent_id,
-        status: response.result.status || 'published',
-        quotes: response.result.quotes,
+        intent_id: (response.result as any).intent_id,
+        status: (response.result as any).status || 'published',
+        quotes: (response.result as any).quotes,
       };
     } catch (error) {
       console.error('Error publishing intent:', error);
@@ -273,7 +273,7 @@ export class IntentBroadcaster {
   /**
    * Makes RPC call to solver relay
    */
-  private async makeRPCCall(requestBody: any): Promise<any> {
+  private async makeRPCCall(requestBody: Record<string, unknown>): Promise<Record<string, unknown>> {
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < this.solverRelayConfig.maxRetries; attempt++) {
@@ -291,10 +291,10 @@ export class IntentBroadcaster {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const json = (await response.json()) as any;
+        const json = (await response.json()) as Record<string, unknown>;
 
         if (json.error) {
-          throw new Error(`RPC Error: ${json.error.message || json.error}`);
+          throw new Error(`RPC Error: ${(json.error as any)?.message || json.error}`);
         }
 
         return json;

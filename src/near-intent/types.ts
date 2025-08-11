@@ -3,7 +3,7 @@
  * Based on the NEAR Intents specification
  */
 
-import { Account, Contract } from 'near-api-js';
+// import { Account, Contract } from 'near-api-js';
 
 // Core Intent Types
 export interface Intent {
@@ -50,8 +50,6 @@ export interface SolverInfo {
   active: boolean;
 }
 
-<<<<<<< HEAD
-=======
 // Quote Analysis Types  
 export interface QuoteEvaluationCriteria {
   maxSlippage?: number; // percentage
@@ -71,8 +69,6 @@ export interface QuoteAnalysis {
   pros: string[];
   cons: string[];
 }
-
->>>>>>> origin/main
 // Request and Response Types
 export interface IntentRequestParams {
   asset_in: string;
@@ -96,7 +92,7 @@ export interface SolverBusMessage {
   type: 'intent_request' | 'quote_response' | 'execution_update' | 'settlement';
   id: string;
   timestamp: number;
-  data: any;
+  data: Record<string, unknown>;
   signature?: string;
 }
 
@@ -120,7 +116,7 @@ export interface VerifierContractMethods {
   is_registered: (args: { account_id: string }) => Promise<boolean>;
   
   // Change methods
-  register_user: (args: {}, gas?: string, deposit?: string) => Promise<void>;
+  register_user: (args: Record<string, never>, gas?: string, deposit?: string) => Promise<void>;
   submit_intent: (args: { intent: Intent }, gas?: string, deposit?: string) => Promise<string>;
   submit_quote: (args: { quote: Quote }, gas?: string, deposit?: string) => Promise<void>;
   execute_intent: (args: { intent_id: string, quote_id: string }, gas?: string, deposit?: string) => Promise<void>;
@@ -145,6 +141,7 @@ export interface AssetBalance {
   available: string;
   locked: string;
   decimals: number;
+  [key: string]: unknown;
 }
 
 // Configuration Types
@@ -174,7 +171,7 @@ export interface IntentConfig {
 export interface IntentError {
   code: string;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
   timestamp: number;
 }
 
@@ -194,15 +191,11 @@ export interface IntentEvent {
   type: 'intent_created' | 'quote_received' | 'intent_matched' | 'execution_started' | 'execution_completed' | 'intent_failed';
   intent_id: string;
   timestamp: number;
-  data: any;
+  data: Record<string, unknown>;
 }
 
 // AI Agent Types (for NEAR AI integration)
-<<<<<<< HEAD
-export interface IntentAIAgentConfig {
-=======
 export interface AIAgentConfig {
->>>>>>> origin/main
   model: 'gpt-4' | 'claude-3' | 'near-ai';
   api_key?: string;
   endpoint?: string;
@@ -211,15 +204,11 @@ export interface AIAgentConfig {
   context_window: number;
 }
 
-<<<<<<< HEAD
-export interface IntentAIDecision {
-=======
 export interface AIDecision {
->>>>>>> origin/main
   action: 'execute' | 'wait' | 'cancel' | 'modify';
   confidence: number;
   reasoning: string;
-  parameters?: any;
+  parameters?: Record<string, unknown>;
   risk_assessment: {
     level: 'low' | 'medium' | 'high';
     factors: string[];
@@ -256,27 +245,3 @@ export interface FilterParams {
   date_from?: number;
   date_to?: number;
 }
-<<<<<<< HEAD
-
-// Quote evaluation types
-export interface QuoteEvaluationCriteria {
-  prefer_speed?: boolean;
-  prefer_cost?: boolean;
-  max_slippage?: number;
-  min_output?: string;
-  reputation_threshold?: number;
-}
-
-export interface QuoteAnalysis {
-  quote_id: string;
-  solver_reputation: number;
-  estimated_execution_time: number;
-  estimated_slippage: number;
-  estimated_output: string;
-  confidence_score: number;
-  risk_score: number;
-  recommendation: 'accept' | 'reject' | 'wait';
-  reasoning: string[];
-}
-=======
->>>>>>> origin/main

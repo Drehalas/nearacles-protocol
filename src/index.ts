@@ -22,8 +22,7 @@ export { IntentOptimizer } from './near-ai/intent-optimizer';
 // Configuration and constants
 export const NEARACLES_VERSION = '1.0.0';
 export const PROTOCOL_VERSION = 'v1';
-<<<<<<< HEAD
-// Default configurations
+
 export const DEFAULT_TESTNET_CONFIG = {
   network_id: 'testnet' as const,
   node_url: 'https://rpc.testnet.near.org',
@@ -31,7 +30,7 @@ export const DEFAULT_TESTNET_CONFIG = {
   helper_url: 'https://helper.testnet.near.org',
   explorer_url: 'https://explorer.testnet.near.org',
   solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
-  verifier_contract: 'verifier.testnet',
+  verifier_contract: 'intents.testnet',
   intent_contract: 'intents.testnet',
   gas_limits: {
     register: '100000000000000',
@@ -46,32 +45,6 @@ export const DEFAULT_TESTNET_CONFIG = {
   },
 };
 
-=======
-
-// Default configurations
-export const DEFAULT_TESTNET_CONFIG = {
-  network_id: 'testnet' as const,
-  node_url: 'https://rpc.testnet.near.org',
-  wallet_url: 'https://wallet.testnet.near.org',
-  helper_url: 'https://helper.testnet.near.org',
-  explorer_url: 'https://explorer.testnet.near.org',
-  solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
-  verifier_contract: 'verifier.testnet',
-  intent_contract: 'intents.testnet',
-  gas_limits: {
-    register: '100000000000000',
-    submit_intent: '300000000000000',
-    submit_quote: '200000000000000',
-    execute_intent: '300000000000000',
-  },
-  storage_deposits: {
-    registration: '0.1',
-    intent: '0.01',
-    quote: '0.005',
-  },
-};
-
->>>>>>> origin/main
 export const DEFAULT_MAINNET_CONFIG = {
   network_id: 'mainnet' as const,
   node_url: 'https://rpc.mainnet.near.org',
@@ -116,11 +89,7 @@ export async function initializeNearIntentProtocol(
       max_tokens: 4096,
     },
     temperature: 0.7,
-    max_tokens: 4096,
     context_window: 8192,
-    enable_reasoning: true,
-    enable_memory: true,
-    risk_tolerance: 'moderate',
   });
 
   // Initialize agents

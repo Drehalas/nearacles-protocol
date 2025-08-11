@@ -68,7 +68,16 @@ export class AdvancedMarketAnalyzer {
   ) {
     this.config = config;
     this.analysisConfig = analysisConfig;
-    this.dataProviders = new MarketDataProviders(priceOracleConfig);
+    
+    // Convert PriceOracleConfig to MarketDataConfig
+    const marketDataConfig = {
+      providers: priceOracleConfig.fallback_providers,
+      cache_duration: priceOracleConfig.update_frequency * 1000,
+      fallback_enabled: true,
+      timeout_ms: 10000
+    };
+    
+    this.dataProviders = new MarketDataProviders(marketDataConfig);
     this.analysisCache = new LRUCache<MarketAnalysisResult>(100);
     this.patternCache = new LRUCache<PatternRecognitionResult[]>(50);
   }
@@ -98,7 +107,7 @@ export class AdvancedMarketAnalyzer {
       // Step 3: Generate ML prediction if enabled
       let mlPrediction: MLPrediction | undefined;
       if (this.analysisConfig.enableMLPredictions) {
-        mlPrediction = await this.generateMLPrediction(assetPair, marketData, technicalIndicators);
+        mlPrediction = await this.generateMLPrediction(assetPair, marketData, technicalIndicators as unknown as TechnicalIndicators);
       }
 
       // Step 4: Get on-chain metrics if enabled
@@ -111,7 +120,7 @@ export class AdvancedMarketAnalyzer {
       const marketAnalysis = await this.synthesizeAnalysis(
         assetPair,
         marketData,
-        technicalIndicators,
+        technicalIndicators as unknown as TechnicalIndicators,
         patterns,
         mlPrediction,
         onChainMetrics
@@ -166,13 +175,13 @@ export class AdvancedMarketAnalyzer {
     const patterns: PatternRecognitionResult[] = [];
 
     // Candlestick pattern recognition
-    patterns.push(...this.recognizeCandlestickPatterns(historicalData));
+    patterns.push(...this.recognizeCandlestickPatterns(historicalData as unknown as Record<string, unknown>[]));
 
     // Chart pattern recognition
-    patterns.push(...this.recognizeChartPatterns(historicalData));
+    patterns.push(...this.recognizeChartPatterns(historicalData as unknown as Record<string, unknown>[]));
 
     // Volume pattern recognition
-    patterns.push(...this.recognizeVolumePatterns(historicalData));
+    patterns.push(...this.recognizeVolumePatterns(historicalData as unknown as Record<string, unknown>[]));
 
     this.patternCache.set(cacheKey, patterns, 300000); // 5 minutes TTL
     return patterns;
@@ -189,22 +198,28 @@ export class AdvancedMarketAnalyzer {
     // In a real implementation, this would use trained ML models
     // For now, we'll create a sophisticated heuristic prediction
 
-    const currentPrice = parseFloat(marketData.price);
+    const currentPrice = marketData.price;
     const rsi = technicalIndicators.rsi;
     const macd = technicalIndicators.macd;
     
-    // Feature engineering
+    // Feature engineering for ML model
     const features = {
-      price_momentum: marketData.price_change_24h / 100,
+      price_momentum: (marketData.price_change_24h || 0) / 100,
       rsi_divergence: (rsi - 50) / 50,
       macd_momentum: macd.macd > macd.signal ? 1 : -1,
-      volatility: marketData.volatility_index,
+      volatility: marketData.volatility_index || 0.1,
       volume_strength: 0.5, // Mock value
     };
 
-    // Prediction logic
-    let pricePrediction = currentPrice;
-    let confidence = 0.6;
+    // Apply feature weights to prediction
+    const featureScore = (features.price_momentum * 0.3) + 
+                        (features.rsi_divergence * 0.2) + 
+                        (features.macd_momentum * 0.3) + 
+                        (features.volatility * 0.2);
+
+    // Prediction logic with feature integration
+    let pricePrediction = currentPrice * (1 + featureScore * 0.1); // Apply feature score
+    let confidence = Math.min(0.9, 0.6 + Math.abs(featureScore) * 0.2);
     const factors: MLPrediction['factors'] = [];
 
     // RSI influence
@@ -238,7 +253,7 @@ export class AdvancedMarketAnalyzer {
     }
 
     // Volatility adjustment
-    if (marketData.volatility_index > 0.7) {
+    if ((marketData.volatility_index || 0) > 0.7) {
       confidence -= 0.2; // High volatility reduces confidence
       factors.push({
         factor: 'High Volatility',
@@ -258,7 +273,7 @@ export class AdvancedMarketAnalyzer {
   /**
    * Fetch on-chain metrics for analysis
    */
-  private async fetchOnChainMetrics(asset: string): Promise<OnChainMetrics> {
+  private async fetchOnChainMetrics(_asset: string): Promise<OnChainMetrics> {
     // In a real implementation, this would fetch from blockchain APIs
     // For NEAR, this could integrate with NEAR Explorer API, Flipside Crypto, etc.
 
@@ -320,7 +335,7 @@ export class AdvancedMarketAnalyzer {
 
     // ML prediction reasoning
     if (mlPrediction && mlPrediction.confidence > this.analysisConfig.confidenceThreshold) {
-      const priceChange = ((mlPrediction.predicted_price / parseFloat(marketData.price)) - 1) * 100;
+      const priceChange = ((mlPrediction.predicted_price / marketData.price) - 1) * 100;
       reasoning.push(`ML model predicts ${priceChange.toFixed(2)}% price change (confidence: ${(mlPrediction.confidence * 100).toFixed(1)}%)`);
       
       if (priceChange > 2) {
@@ -348,12 +363,21 @@ export class AdvancedMarketAnalyzer {
     strengthScore = Math.max(0, Math.min(1, strengthScore));
     confidence = Math.max(0.1, Math.min(0.95, confidence));
 
+    // Map trend direction to expected values
+    const mappedTrendDirection: 'up' | 'down' | 'sideways' = 
+      trendDirection === 'bullish' ? 'up' : 
+      trendDirection === 'bearish' ? 'down' : 'sideways';
+
     return {
       asset_pair: assetPair,
+      current_price: marketData.price.toString(),
+      price_trend: mappedTrendDirection === 'up' ? 'up' : mappedTrendDirection === 'down' ? 'down' : 'stable',
+      volatility: marketData.volatility_index || 0.1,
+      liquidity: marketData.liquidity_score || 0.5,
       market_data: marketData,
       technical_indicators: technicalIndicators,
       sentiment_score: 0.5 + (strengthScore - 0.5) * 0.5,
-      trend_direction: trendDirection,
+      trend_direction: mappedTrendDirection,
       strength_score: strengthScore,
       recommended_action: recommendedAction,
       confidence,
@@ -366,7 +390,7 @@ export class AdvancedMarketAnalyzer {
   /**
    * Recognize candlestick patterns
    */
-  private recognizeCandlestickPatterns(data: any[]): PatternRecognitionResult[] {
+  private recognizeCandlestickPatterns(data: Record<string, unknown>[]): PatternRecognitionResult[] {
     const patterns: PatternRecognitionResult[] = [];
     
     if (data.length < 2) return patterns;
@@ -375,10 +399,10 @@ export class AdvancedMarketAnalyzer {
     const previous = data[data.length - 2];
 
     // Bullish Engulfing
-    if (previous.close < previous.open && // Previous red candle
-        last.close > last.open && // Current green candle
-        last.open < previous.close && // Opens below previous close
-        last.close > previous.open) { // Closes above previous open
+    if ((previous.close as number) < (previous.open as number) && // Previous red candle
+        (last.close as number) > (last.open as number) && // Current green candle
+        (last.open as number) < (previous.close as number) && // Opens below previous close
+        (last.close as number) > (previous.open as number)) { // Closes above previous open
       
       patterns.push({
         pattern: 'bullish_engulfing',
@@ -390,9 +414,9 @@ export class AdvancedMarketAnalyzer {
     }
 
     // Hammer pattern
-    const bodySize = Math.abs(last.close - last.open);
-    const lowerShadow = last.open > last.close ? last.close - last.low : last.open - last.low;
-    const upperShadow = last.high - Math.max(last.open, last.close);
+    const bodySize = Math.abs((last.close as number) - (last.open as number));
+    const lowerShadow = (last.open as number) > (last.close as number) ? (last.close as number) - (last.low as number) : (last.open as number) - (last.low as number);
+    const upperShadow = (last.high as number) - Math.max((last.open as number), (last.close as number));
 
     if (lowerShadow > bodySize * 2 && upperShadow < bodySize * 0.5) {
       patterns.push({
@@ -410,21 +434,21 @@ export class AdvancedMarketAnalyzer {
   /**
    * Recognize chart patterns
    */
-  private recognizeChartPatterns(data: any[]): PatternRecognitionResult[] {
+  private recognizeChartPatterns(data: Record<string, unknown>[]): PatternRecognitionResult[] {
     const patterns: PatternRecognitionResult[] = [];
     
     if (data.length < 20) return patterns;
 
-    const recentHighs = data.slice(-20).map(d => d.high);
-    const recentLows = data.slice(-20).map(d => d.low);
+    const recentHighs = data.slice(-20).map(d => d.high as number);
+    const recentLows = data.slice(-20).map(d => d.low as number);
 
     // Simple triangle pattern detection
-    const highTrend = this.calculateTrendSlope(recentHighs.slice(-10));
-    const lowTrend = this.calculateTrendSlope(recentLows.slice(-10));
+    const highTrend = this.calculateTrendSlope(recentHighs.slice(-10) as number[]);
+    const lowTrend = this.calculateTrendSlope(recentLows.slice(-10) as number[]);
 
     if (Math.abs(highTrend) < 0.01 && Math.abs(lowTrend) < 0.01 && 
-        Math.max(...recentHighs.slice(-5)) - Math.min(...recentLows.slice(-5)) < 
-        Math.max(...recentHighs.slice(-15, -10)) - Math.min(...recentLows.slice(-15, -10))) {
+        Math.max(...(recentHighs.slice(-5) as number[])) - Math.min(...(recentLows.slice(-5) as number[])) < 
+        Math.max(...(recentHighs.slice(-15, -10) as number[])) - Math.min(...(recentLows.slice(-15, -10) as number[]))) {
       
       patterns.push({
         pattern: 'triangle',
@@ -441,17 +465,17 @@ export class AdvancedMarketAnalyzer {
   /**
    * Recognize volume patterns
    */
-  private recognizeVolumePatterns(data: any[]): PatternRecognitionResult[] {
+  private recognizeVolumePatterns(data: Record<string, unknown>[]): PatternRecognitionResult[] {
     const patterns: PatternRecognitionResult[] = [];
     
     if (data.length < 10) return patterns;
 
-    const recentVolumes = data.slice(-10).map(d => d.volume);
-    const avgVolume = recentVolumes.reduce((sum, vol) => sum + vol, 0) / recentVolumes.length;
-    const lastVolume = recentVolumes[recentVolumes.length - 1];
+    const recentVolumes = data.slice(-10).map(d => d.volume as number);
+    const avgVolume = recentVolumes.reduce((sum, vol) => (sum as number) + (vol as number), 0) / recentVolumes.length;
+    const lastVolume = recentVolumes[recentVolumes.length - 1] as number;
 
     // Volume surge detection
-    if (lastVolume > avgVolume * 2) {
+    if ((lastVolume as number) > avgVolume * 2) {
       patterns.push({
         pattern: 'bullish_engulfing', // Using as volume surge indicator
         confidence: 0.7,
@@ -474,11 +498,11 @@ export class AdvancedMarketAnalyzer {
   ): string[] {
     const risks: string[] = [];
 
-    if (marketData.volatility_index > 0.7) {
+    if ((marketData.volatility_index || 0) > 0.7) {
       risks.push('High volatility may lead to significant price swings');
     }
 
-    if (marketData.liquidity_score < 0.5) {
+    if ((marketData.liquidity_score || 1) < 0.5) {
       risks.push('Low liquidity may result in poor execution and high slippage');
     }
 
@@ -513,12 +537,12 @@ export class AdvancedMarketAnalyzer {
       opportunities.push(`${bullishPatterns.length} bullish patterns suggest upward potential`);
     }
 
-    if (marketData.price_change_24h < -5) {
+    if ((marketData.price_change_24h || 0) < -5) {
       opportunities.push('Recent price decline may present buying opportunity');
     }
 
     if (mlPrediction && mlPrediction.confidence > 0.8) {
-      const priceChange = ((mlPrediction.predicted_price / parseFloat(marketData.price)) - 1) * 100;
+      const priceChange = ((mlPrediction.predicted_price / marketData.price) - 1) * 100;
       if (priceChange > 1) {
         opportunities.push(`ML model predicts ${priceChange.toFixed(1)}% upside with high confidence`);
       }

@@ -45,8 +45,8 @@ describe('Solver Registry Contract Tests', () => {
       });
 
       expect(solverInfo).toBeDefined();
-      expect(solverInfo.name).toBe('New Solver');
-      expect(solverInfo.active).toBe(true);
+      expect((solverInfo as { name: string; active: boolean; fee_rate: number }).name).toBe('New Solver');
+      expect((solverInfo as { name: string; active: boolean; fee_rate: number }).active).toBe(true);
     });
 
     it('should not allow duplicate solver registration', async () => {
@@ -117,8 +117,8 @@ describe('Solver Registry Contract Tests', () => {
         solver_id: solver.accountId,
       });
 
-      expect(solverInfo.name).toBe('Updated Solver Name');
-      expect(solverInfo.fee_rate).toBe(0.004);
+      expect((solverInfo as { name: string; active: boolean; fee_rate: number }).name).toBe('Updated Solver Name');
+      expect((solverInfo as { name: string; active: boolean; fee_rate: number }).fee_rate).toBe(0.004);
     });
 
     it('should allow solver to deactivate themselves', async () => {
@@ -135,7 +135,7 @@ describe('Solver Registry Contract Tests', () => {
         solver_id: solver.accountId,
       });
 
-      expect(solverInfo.active).toBe(false);
+      expect((solverInfo as { name: string; active: boolean; fee_rate: number }).active).toBe(false);
     });
 
     it('should allow solver to reactivate themselves', async () => {
@@ -161,7 +161,7 @@ describe('Solver Registry Contract Tests', () => {
         solver_id: solver.accountId,
       });
 
-      expect(solverInfo.active).toBe(true);
+      expect((solverInfo as { name: string; active: boolean; fee_rate: number }).active).toBe(true);
     });
   });
 
@@ -186,9 +186,9 @@ describe('Solver Registry Contract Tests', () => {
         solver_id: solver.accountId,
       });
 
-      expect(performance.total_executions).toBe(1);
-      expect(performance.successful_executions).toBe(1);
-      expect(performance.success_rate).toBe(1.0);
+      expect((performance as { total_executions: number; successful_executions: number; success_rate: number }).total_executions).toBe(1);
+      expect((performance as { total_executions: number; successful_executions: number; success_rate: number }).successful_executions).toBe(1);
+      expect((performance as { total_executions: number; successful_executions: number; success_rate: number }).success_rate).toBe(1.0);
     });
 
     it('should update reputation based on performance', async () => {
@@ -213,8 +213,8 @@ describe('Solver Registry Contract Tests', () => {
         solver_id: solver.accountId,
       });
 
-      expect(solverInfo.reputation).toBeGreaterThan(0.8);
-      expect(solverInfo.reputation).toBeLessThan(1.0);
+      expect((solverInfo as { name: string; active: boolean; reputation: number }).reputation).toBeGreaterThan(0.8);
+      expect((solverInfo as { name: string; active: boolean; reputation: number }).reputation).toBeLessThan(1.0);
     });
 
     it('should penalize poor performance', async () => {
@@ -239,7 +239,7 @@ describe('Solver Registry Contract Tests', () => {
         solver_id: solver.accountId,
       });
 
-      expect(solverInfo.reputation).toBeLessThan(0.5);
+      expect((solverInfo as { name: string; active: boolean; reputation: number }).reputation).toBeLessThan(0.5);
     });
   });
 
@@ -251,10 +251,10 @@ describe('Solver Registry Contract Tests', () => {
       });
 
       expect(Array.isArray(solvers)).toBe(true);
-      expect(solvers.length).toBeGreaterThan(0);
+      expect((solvers as Array<{ active: boolean; solver_id: string }>).length).toBeGreaterThan(0);
       
       // All returned solvers should be active
-      solvers.forEach((solver: any) => {
+      (solvers as Array<{ active: boolean; solver_id: string }>).forEach((solver) => {
         expect(solver.active).toBe(true);
       });
     });
@@ -267,8 +267,9 @@ describe('Solver Registry Contract Tests', () => {
       expect(Array.isArray(solvers)).toBe(true);
       
       // Should be sorted by reputation (highest first)
-      for (let i = 1; i < solvers.length; i++) {
-        expect(solvers[i - 1].reputation).toBeGreaterThanOrEqual(solvers[i].reputation);
+      const typedSolvers = solvers as Array<{ reputation: number; solver_id: string }>;
+      for (let i = 1; i < typedSolvers.length; i++) {
+        expect(typedSolvers[i - 1].reputation).toBeGreaterThanOrEqual(typedSolvers[i].reputation);
       }
     });
 
@@ -280,7 +281,7 @@ describe('Solver Registry Contract Tests', () => {
 
       expect(Array.isArray(solvers)).toBe(true);
       
-      solvers.forEach((solver: any) => {
+      (solvers as Array<{ reputation: number; solver_id: string }>).forEach((solver) => {
         expect(solver.reputation).toBeGreaterThanOrEqual(0.8);
       });
     });
@@ -304,7 +305,7 @@ describe('Solver Registry Contract Tests', () => {
         solver_id: solver.accountId,
       });
 
-      expect(solverInfo.suspended).toBe(true);
+      expect((solverInfo as { name: string; active: boolean; suspended: boolean }).suspended).toBe(true);
     });
 
     it('should not allow non-admin to suspend solver', async () => {
@@ -360,7 +361,7 @@ describe('Solver Registry Contract Tests', () => {
       );
 
       const finalBalance = await solver.balance();
-      expect(BigInt(finalBalance.total)).toBeGreaterThan(BigInt(initialBalance.total));
+      expect(BigInt(finalBalance.total.toString())).toBeGreaterThan(BigInt(initialBalance.total.toString()));
     });
   });
 });

@@ -3,7 +3,7 @@
  * Provides sophisticated risk analysis and assessment capabilities
  */
 
-import { AIAgentConfig } from './types';
+import { AIAgentConfig, RiskFactor } from './types';
 import { MarketDataProviders } from './market-data-providers';
 
 export interface RiskAssessmentConfig {
@@ -56,14 +56,7 @@ export interface RiskAssessment {
   risk_level: 'low' | 'medium' | 'high' | 'critical';
   confidence: number;
   metrics: RiskMetrics;
-  risk_factors: Array<{
-    factor: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
-    impact: number; // 0-1
-    probability: number; // 0-1
-    description: string;
-    mitigation: string[];
-  }>;
+  risk_factors: RiskFactor[];
   recommendations: Array<{
     action: string;
     priority: 'low' | 'medium' | 'high' | 'urgent';
@@ -116,8 +109,8 @@ export class AdvancedRiskAssessor {
         assetIn,
         assetOut,
         amount,
-        marketDataIn,
-        marketDataOut
+        marketDataIn as unknown as Record<string, unknown>,
+        marketDataOut as unknown as Record<string, unknown>
       );
 
       // Assess individual risk factors
@@ -181,8 +174,8 @@ export class AdvancedRiskAssessor {
     assetIn: string,
     assetOut: string,
     amount: string,
-    _marketDataIn: any,
-    _marketDataOut: any
+    _marketDataIn: Record<string, unknown>,
+    _marketDataOut: Record<string, unknown>
   ): Promise<RiskMetrics> {
     const [volatilityMetrics, liquidityMetrics, marketMetrics, operationalMetrics, counterpartyMetrics] = await Promise.all([
       this.calculateVolatilityMetrics(assetIn, assetOut),
@@ -248,14 +241,14 @@ export class AdvancedRiskAssessor {
     const bidAskSpread = 0.001; // 0.1% default
     
     // Estimate market depth and slippage
-    const marketDepth = marketData.liquidity_score * 1000000; // Simulated depth
+    const marketDepth = (marketData.liquidity_score || 0.5) * 1000000; // Simulated depth
     const slippageEstimate = Math.min(amountNum / marketDepth * 0.1, 0.05); // Max 5% slippage
 
     return {
       bid_ask_spread: bidAskSpread,
       market_depth: marketDepth,
       slippage_estimate: slippageEstimate,
-      liquidity_score: marketData.liquidity_score
+      liquidity_score: marketData.liquidity_score || 0.5
     };
   }
 
@@ -360,12 +353,13 @@ export class AdvancedRiskAssessor {
     // High volatility risk
     if (metrics.volatility.historical_volatility > 0.5) {
       riskFactors.push({
+        type: 'High Volatility',
         factor: 'High Volatility',
         severity: metrics.volatility.historical_volatility > 0.8 ? 'critical' as const : 'high' as const,
         impact: metrics.volatility.historical_volatility,
         probability: 0.8,
         description: `Asset pair shows high historical volatility of ${(metrics.volatility.historical_volatility * 100).toFixed(1)}%`,
-        mitigation: [
+        mitigation_strategies: [
           'Consider reducing position size',
           'Implement dynamic slippage tolerance',
           'Use gradual execution strategy'
@@ -376,12 +370,13 @@ export class AdvancedRiskAssessor {
     // Liquidity risk
     if (metrics.liquidity.liquidity_score < 0.3) {
       riskFactors.push({
+        type: 'Low Liquidity',
         factor: 'Low Liquidity',
         severity: metrics.liquidity.liquidity_score < 0.1 ? 'critical' as const : 'high' as const,
         impact: 1 - metrics.liquidity.liquidity_score,
         probability: 0.9,
         description: `Low liquidity may result in high slippage (estimated ${(metrics.liquidity.slippage_estimate * 100).toFixed(2)}%)`,
-        mitigation: [
+        mitigation_strategies: [
           'Split large orders into smaller chunks',
           'Wait for better market conditions',
           'Consider alternative execution venues'
@@ -392,12 +387,13 @@ export class AdvancedRiskAssessor {
     // Smart contract risk
     if (metrics.operational.smart_contract_risk > 0.15) {
       riskFactors.push({
+        type: 'Smart Contract Risk',
         factor: 'Smart Contract Risk',
         severity: metrics.operational.smart_contract_risk > 0.25 ? 'critical' as const : 'medium' as const,
         impact: metrics.operational.smart_contract_risk,
         probability: 0.3,
         description: 'Elevated smart contract risk due to complexity or audit status',
-        mitigation: [
+        mitigation_strategies: [
           'Verify contract audit status',
           'Use only well-established protocols',
           'Consider insurance options'
@@ -408,12 +404,13 @@ export class AdvancedRiskAssessor {
     // Market stress
     if (metrics.market.market_stress_indicator > 0.2) {
       riskFactors.push({
+        type: 'Market Stress',
         factor: 'Market Stress',
         severity: 'medium' as const,
         impact: metrics.market.market_stress_indicator,
         probability: 0.6,
         description: 'Elevated market stress may increase execution risks',
-        mitigation: [
+        mitigation_strategies: [
           'Delay non-urgent transactions',
           'Increase monitoring frequency',
           'Prepare contingency plans'
@@ -427,7 +424,7 @@ export class AdvancedRiskAssessor {
   /**
    * Generate risk-based recommendations
    */
-  private async generateRecommendations(riskFactors: any[], metrics: RiskMetrics, _executionStrategy: string) {
+  private async generateRecommendations(riskFactors: RiskFactor[], metrics: RiskMetrics, _executionStrategy: string) {
     const recommendations = [];
 
     const overallRisk = this.calculateOverallRiskScore(metrics, riskFactors);
@@ -511,7 +508,7 @@ export class AdvancedRiskAssessor {
   /**
    * Calculate overall risk score
    */
-  private calculateOverallRiskScore(metrics: RiskMetrics, riskFactors: any[]): number {
+  private calculateOverallRiskScore(metrics: RiskMetrics, riskFactors: RiskFactor[]): number {
     const weights = {
       volatility: 0.25,
       liquidity: 0.25,
