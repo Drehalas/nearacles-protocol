@@ -130,7 +130,7 @@ describe('Market Analyzer Tests', () => {
         const validActions = ['buy', 'sell', 'hold', 'wait'];
         expect(validActions).toContain(result.data!.marketAnalysis.recommended_action);
 
-        const validTrends = ['bullish', 'bearish', 'neutral', 'sideways'];
+        const validTrends = ['up', 'down', 'sideways'];
         expect(validTrends).toContain(result.data!.marketAnalysis.trend_direction);
       }
     });
