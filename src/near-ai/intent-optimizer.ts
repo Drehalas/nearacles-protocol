@@ -3,9 +3,7 @@
  * Provides intelligent optimization for intent execution strategies
  */
 
-import { AIAgentConfig } from './types';
 import { MarketDataProviders } from './market-data-providers';
-import { AdvancedRiskAssessor } from './advanced-risk-assessor';
 
 export interface OptimizationConfig {
   enableRouteOptimization: boolean;
@@ -90,21 +88,15 @@ export interface ExecutionCondition {
 }
 
 export class IntentOptimizer {
-  private aiConfig: AIAgentConfig;
   private marketDataProviders: MarketDataProviders;
-  private riskAssessor: AdvancedRiskAssessor;
   private optimizationConfig: OptimizationConfig;
   private dexRegistry: Map<string, DexInfo> = new Map();
 
   constructor(
-    aiConfig: AIAgentConfig,
     marketDataProviders: MarketDataProviders,
-    riskAssessor: AdvancedRiskAssessor,
     optimizationConfig: OptimizationConfig
   ) {
-    this.aiConfig = aiConfig;
     this.marketDataProviders = marketDataProviders;
-    this.riskAssessor = riskAssessor;
     this.optimizationConfig = optimizationConfig;
     this.initializeDexRegistry();
   }
@@ -251,15 +243,15 @@ export class IntentOptimizer {
         path: [assetIn, assetOut],
         dexes: [dexName],
         estimatedOutput,
-        estimatedGas,
+        estimatedGas: estimatedGas.toString(),
         expectedSlippage,
         executionTime: dexInfo.averageExecutionTime,
         confidence: 0.9,
         fees: {
           protocol_fee: (amountIn * dexInfo.fee).toString(),
-          gas_fee: estimatedGas,
+          gas_fee: estimatedGas.toString(),
           slippage_cost: (amountIn * expectedSlippage).toString(),
-          total_cost: (amountIn * (dexInfo.fee + expectedSlippage) + parseFloat(estimatedGas)).toString()
+          total_cost: (amountIn * (dexInfo.fee + expectedSlippage) + estimatedGas).toString()
         }
       };
     } catch (error) {
@@ -670,8 +662,8 @@ export class IntentOptimizer {
 
     return {
       timing,
-      split_orders: splitOrders,
-      conditions
+      ...(splitOrders && { split_orders: splitOrders }),
+      ...(conditions && { conditions })
     };
   }
 
