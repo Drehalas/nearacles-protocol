@@ -90,6 +90,9 @@ public
 tmp/
 temp/
 
+# GitHub issue templates (kept local for reference)
+.github/ISSUE_TEMPLATE/
+
 # Ide
 CLAUDE.local.md
 CLAUDE.md

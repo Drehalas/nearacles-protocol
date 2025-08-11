@@ -93,3 +93,50 @@ export interface AIError {
   message: string;
   details?: any;
 }
+
+// Additional types from main branch
+export interface OptimizationCriteria {
+  priority: 'speed' | 'cost' | 'security' | 'balanced';
+  max_slippage: number;
+  max_execution_time: number;
+  min_confidence: number;
+}
+
+export interface OptimizationResult {
+  optimal_route: any;
+  alternative_routes: any[];
+  arbitrage_opportunities: any[];
+  optimization_metrics: {
+    gas_savings: string;
+    slippage_reduction: number;
+    time_optimization: number;
+    profit_enhancement: number;
+  };
+  execution_strategy: {
+    timing: 'immediate' | 'delayed' | 'split';
+    split_orders?: any[];
+    conditions?: any[];
+  };
+  risk_assessment: {
+    overall_risk: number;
+    execution_risk: number;
+    market_risk: number;
+    recommendations: string[];
+  };
+}
+
+export interface TradingStrategy {
+  id: string;
+  name: string;
+  type: 'arbitrage' | 'market_making' | 'trend_following' | 'mean_reversion';
+  parameters: Record<string, any>;
+  risk_profile: 'low' | 'medium' | 'high';
+}
+
+export interface StrategyRecommendation {
+  strategy: TradingStrategy;
+  confidence: number;
+  expected_return: number;
+  risk_score: number;
+  reasoning: string;
+}
