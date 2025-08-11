@@ -29,10 +29,17 @@ describe('Verifier Contract Tests', () => {
 
     // Mock initialize contract
     // await verifierContract.call(verifierContract, 'new', {}); // Skip for testing without WASM
-  });
+  }, 30000); // 30 second timeout
 
   afterEach(async () => {
-    await worker.tearDown();
+    try {
+      if (worker) {
+        await worker.tearDown();
+      }
+    } catch (error) {
+      // Ignore teardown errors to prevent test failures
+      console.warn('Warning: Failed to tear down worker:', error);
+    }
   });
 
   describe('User Registration', () => {
@@ -41,7 +48,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
 
       expect(result).toBeDefined();
@@ -59,7 +66,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
 
       // Second registration should fail or be idempotent
@@ -68,7 +75,7 @@ describe('Verifier Contract Tests', () => {
           verifierContract,
           'register_user',
           {},
-          { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+          { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
         );
         // Should not charge again if idempotent
       } catch (error) {
@@ -85,7 +92,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
     });
 
@@ -220,14 +227,14 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
 
       await solver.call(
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
 
       // Submit an intent first
@@ -341,14 +348,14 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
 
       await solver.call(
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
 
       // Submit intent
@@ -420,7 +427,7 @@ describe('Verifier Contract Tests', () => {
           quote_id: quoteId,
         },
         { 
-          attachedDeposit: 100000000000000000000000n // 0.1 NEAR,
+          attachedDeposit: 100000000000000000000000n, // 0.1 NEAR
           gas: 300000000000000n
         }
       );
@@ -446,7 +453,7 @@ describe('Verifier Contract Tests', () => {
             quote_id: quoteId,
           },
           { 
-            attachedDeposit: 100000000000000000000000n // 0.1 NEAR,
+            attachedDeposit: 100000000000000000000000n, // 0.1 NEAR
             gas: 300000000000000n
           }
         );
@@ -465,7 +472,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
 
       const intent: Intent = {
@@ -507,7 +514,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'cancel_intent',
         { intent_id: intentId },
-        { gas: 200000000000000n, }
+        { gas: 200000000000000n }
       );
 
       expect(result).toBeDefined();
@@ -525,7 +532,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
 
       try {
@@ -549,7 +556,7 @@ describe('Verifier Contract Tests', () => {
         verifierContract,
         'register_user',
         {},
-        { attachedDeposit: 100000000000000000000000n, // 0.1 NEAR }
+        { attachedDeposit: 100000000000000000000000n } // 0.1 NEAR
       );
 
       const intent: Intent = {

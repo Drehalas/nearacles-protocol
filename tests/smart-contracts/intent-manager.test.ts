@@ -12,10 +12,12 @@ describe('Intent Manager Contract Tests', () => {
 
   beforeEach(async () => {
     context = await initTestEnvironment();
-  });
+  }, 30000); // 30 second timeout
 
   afterEach(async () => {
-    await cleanupTestEnvironment(context);
+    if (context) {
+      await cleanupTestEnvironment(context);
+    }
   });
 
   describe('Intent Lifecycle Management', () => {

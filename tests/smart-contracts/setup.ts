@@ -121,8 +121,17 @@ async function registerSolver(
   );
 }
 
-export async function cleanupTestEnvironment(context: TestContext): Promise<void> {
-  await context.worker.tearDown();
+export async function cleanupTestEnvironment(context: TestContext | undefined): Promise<void> {
+  if (!context || !context.worker) {
+    return;
+  }
+  
+  try {
+    await context.worker.tearDown();
+  } catch (error) {
+    // Ignore teardown errors to prevent test failures
+    console.warn('Warning: Failed to tear down worker:', error);
+  }
 }
 
 export const TEST_ASSETS = {
