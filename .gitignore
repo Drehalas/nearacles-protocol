@@ -93,6 +93,7 @@ temp/
 # GitHub issue templates (kept local for reference)
 .github/ISSUE_TEMPLATE/
 
+# IDE
 CLAUDE.local.md
 CLAUDE.md
 myDocs
