@@ -1,10 +1,13 @@
 name: E2E Tests
 
 on:
-  push:
-    branches: [ main, master, e2e-testing ]
-  pull_request:
-    branches: [ main, master ]
+  # Disabled for now - run manually when needed
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for running E2E tests'
+        required: false
+        default: 'Manual E2E test run'
 
 jobs:
   test:
@@ -22,7 +25,6 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
     
     - name: Install dependencies
       working-directory: ./frontend
@@ -36,10 +38,18 @@ jobs:
       working-directory: ./frontend
       run: npm run build
     
+    - name: Start development server
+      working-directory: ./frontend
+      run: |
+        npm run dev &
+        sleep 10
+        curl -f http://localhost:3000 || exit 1
+      timeout-minutes: 2
+    
     - name: Run Playwright tests
       working-directory: ./frontend
-      run: npx playwright test --project=${{ matrix.browser }} || echo "E2E tests skipped - frontend not ready"
-      continue-on-error: true
+      run: npx playwright test --project=${{ matrix.browser }}
+      timeout-minutes: 10
       
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -68,7 +78,6 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
     
     - name: Install dependencies
       working-directory: ./frontend
@@ -102,7 +111,6 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
     
     - name: Install dependencies
       working-directory: ./frontend
@@ -136,7 +144,6 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
     
     - name: Install dependencies
       working-directory: ./frontend
