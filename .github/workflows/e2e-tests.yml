@@ -30,7 +30,7 @@ jobs:
     
     - name: Install Playwright Browsers
       working-directory: ./frontend
-      run: npx playwright install --with-deps ${{ matrix.browser }}
+      run: npx playwright install --with-deps
     
     - name: Build application
       working-directory: ./frontend
@@ -75,7 +75,7 @@ jobs:
     
     - name: Install Playwright Browsers
       working-directory: ./frontend
-      run: npx playwright install --with-deps chromium
+      run: npx playwright install --with-deps
     
     - name: Run mobile tests
       working-directory: ./frontend
@@ -108,7 +108,7 @@ jobs:
     
     - name: Install Playwright Browsers
       working-directory: ./frontend
-      run: npx playwright install --with-deps chromium
+      run: npx playwright install --with-deps
     
     - name: Run accessibility tests
       working-directory: ./frontend
@@ -141,7 +141,7 @@ jobs:
     
     - name: Install Playwright Browsers
       working-directory: ./frontend
-      run: npx playwright install --with-deps chromium
+      run: npx playwright install --with-deps
     
     - name: Run performance tests
       working-directory: ./frontend
