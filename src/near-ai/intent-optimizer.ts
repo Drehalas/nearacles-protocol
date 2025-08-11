@@ -134,13 +134,12 @@ export class IntentOptimizer {
         : [];
       
       // Perform risk assessment for the optimal route
-      const riskAssessment = await this.assessExecutionRisk(rankedRoutes[0], amountIn);
+      const riskAssessment = await this.assessExecutionRisk(rankedRoutes[0]);
       
       // Optimize execution strategy (timing, splitting, conditions)
       const executionStrategy = await this.optimizeExecutionStrategy(
         rankedRoutes[0],
-        marketData,
-        userPreferences
+        marketData
       );
       
       // Calculate optimization metrics
@@ -584,7 +583,7 @@ export class IntentOptimizer {
   /**
    * Assess execution risk for a route
    */
-  private async assessExecutionRisk(route: ExecutionRoute, amountIn: string): Promise<{
+  private async assessExecutionRisk(route: ExecutionRoute): Promise<{
     overall_risk: number;
     execution_risk: number;
     market_risk: number;
@@ -628,8 +627,7 @@ export class IntentOptimizer {
    */
   private async optimizeExecutionStrategy(
     route: ExecutionRoute,
-    marketData: any,
-    userPreferences?: any
+    marketData: any
   ): Promise<{
     timing: 'immediate' | 'delayed' | 'split';
     split_orders?: SplitOrder[];
@@ -739,7 +737,7 @@ export class IntentOptimizer {
     let bestDex: DexInfo | null = null;
     let bestScore = 0;
     
-    for (const [name, dexInfo] of this.dexRegistry) {
+    for (const [, dexInfo] of this.dexRegistry) {
       if (dexInfo.supportedPairs.includes(pair)) {
         const score = dexInfo.reputation * (1 - dexInfo.fee) * dexInfo.liquidity;
         if (score > bestScore) {
