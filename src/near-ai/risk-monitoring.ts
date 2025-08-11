@@ -48,7 +48,7 @@ export class RiskMonitoringSystem {
   private riskAssessor: AdvancedRiskAssessor;
   private config: MonitoringConfig;
   private isMonitoring: boolean = false;
-  private monitoringInterval?: NodeJS.Timeout;
+  private monitoringInterval: NodeJS.Timeout | undefined = undefined;
   private alerts: RiskAlert[] = [];
   private riskHistory: RiskMetrics[] = [];
   private subscribedAssets: Set<string> = new Set();
@@ -197,7 +197,7 @@ export class RiskMonitoringSystem {
   /**
    * Record risk metrics for historical tracking
    */
-  private recordRiskMetrics(asset: string, assessment: RiskAssessment, timestamp: number): void {
+  private recordRiskMetrics(_asset: string, assessment: RiskAssessment, timestamp: number): void {
     const metrics: RiskMetrics = {
       timestamp,
       overall_risk: assessment.overall_risk_score,

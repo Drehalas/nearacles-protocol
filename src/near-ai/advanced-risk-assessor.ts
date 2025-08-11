@@ -12,7 +12,7 @@ export interface RiskAssessmentConfig {
   enableCounterpartyRisk: boolean;
   enableMarketRisk: boolean;
   enableOperationalRisk: boolean;
-  enableRegulatory Risk: boolean;
+  enableRegulatoryRisk: boolean;
   riskHorizon: number; // hours
   confidenceThreshold: number;
   maxAcceptableRisk: number; // 0-1 scale
@@ -79,16 +79,14 @@ export interface RiskAssessment {
 }
 
 export class AdvancedRiskAssessor {
-  private aiConfig: AIAgentConfig;
   private marketDataProviders: MarketDataProviders;
   private assessmentConfig: RiskAssessmentConfig;
 
   constructor(
-    aiConfig: AIAgentConfig,
+    _aiConfig: AIAgentConfig,
     marketDataProviders: MarketDataProviders,
     assessmentConfig: RiskAssessmentConfig
   ) {
-    this.aiConfig = aiConfig;
     this.marketDataProviders = marketDataProviders;
     this.assessmentConfig = assessmentConfig;
   }
@@ -183,8 +181,8 @@ export class AdvancedRiskAssessor {
     assetIn: string,
     assetOut: string,
     amount: string,
-    marketDataIn: any,
-    marketDataOut: any
+    _marketDataIn: any,
+    _marketDataOut: any
   ): Promise<RiskMetrics> {
     const [volatilityMetrics, liquidityMetrics, marketMetrics, operationalMetrics, counterpartyMetrics] = await Promise.all([
       this.calculateVolatilityMetrics(assetIn, assetOut),
@@ -264,7 +262,7 @@ export class AdvancedRiskAssessor {
   /**
    * Calculate market-related risk metrics
    */
-  private async calculateMarketMetrics(assetIn: string, assetOut: string) {
+  private async calculateMarketMetrics(_assetIn: string, _assetOut: string) {
     // Correlation with major assets (simplified)
     const correlationRisk = Math.random() * 0.3 + 0.1; // 0.1-0.4 range
     
@@ -308,7 +306,7 @@ export class AdvancedRiskAssessor {
   /**
    * Calculate counterparty risk metrics
    */
-  private async calculateCounterpartyMetrics(assetIn: string, assetOut: string) {
+  private async calculateCounterpartyMetrics(_assetIn: string, _assetOut: string) {
     // Protocol risk (depends on the specific protocol being used)
     const protocolRisk = Math.random() * 0.2 + 0.05; // 0.05-0.25 range
     
@@ -332,7 +330,7 @@ export class AdvancedRiskAssessor {
   /**
    * Assess smart contract specific risks
    */
-  private assessSmartContractRisk(assetIn: string, assetOut: string): number {
+  private assessSmartContractRisk(_assetIn: string, _assetOut: string): number {
     // In a real implementation, this would analyze:
     // - Contract audit status
     // - Time since deployment
@@ -351,10 +349,10 @@ export class AdvancedRiskAssessor {
    * Identify specific risk factors
    */
   private async identifyRiskFactors(
-    assetIn: string,
-    assetOut: string,
-    amount: string,
-    executionStrategy: string,
+    _assetIn: string,
+    _assetOut: string,
+    _amount: string,
+    _executionStrategy: string,
     metrics: RiskMetrics
   ) {
     const riskFactors = [];
@@ -429,7 +427,7 @@ export class AdvancedRiskAssessor {
   /**
    * Generate risk-based recommendations
    */
-  private async generateRecommendations(riskFactors: any[], metrics: RiskMetrics, executionStrategy: string) {
+  private async generateRecommendations(riskFactors: any[], metrics: RiskMetrics, _executionStrategy: string) {
     const recommendations = [];
 
     const overallRisk = this.calculateOverallRiskScore(metrics, riskFactors);
@@ -475,8 +473,8 @@ export class AdvancedRiskAssessor {
    * Perform stress testing scenarios
    */
   private async performStressTesting(
-    assetIn: string,
-    assetOut: string,
+    _assetIn: string,
+    _assetOut: string,
     amount: string,
     metrics: RiskMetrics
   ) {
@@ -537,14 +535,15 @@ export class AdvancedRiskAssessor {
 
     // Factor in identified risk factors
     const riskFactorImpact = riskFactors.reduce((total, factor) => {
-      const severityMultiplier = {
+      const severityMultiplier: Record<string, number> = {
         'low': 0.1,
         'medium': 0.25,
         'high': 0.5,
         'critical': 1.0
-      }[factor.severity];
+      };
+      const multiplier = severityMultiplier[factor.severity] || 0.5;
       
-      return total + (factor.impact * factor.probability * severityMultiplier);
+      return total + (factor.impact * factor.probability * multiplier);
     }, 0);
 
     return Math.min(baseScore + riskFactorImpact * 0.3, 1);
