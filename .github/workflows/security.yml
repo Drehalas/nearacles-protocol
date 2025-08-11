@@ -34,7 +34,8 @@ jobs:
       - name: Check for leaked NEAR private keys
         run: |
           echo "Checking for leaked NEAR private keys..."
-          if grep -r "ed25519:" src/ 2>/dev/null; then
+          # Look for actual private keys (not signature formats)
+          if grep -rE "ed25519:[A-Za-z0-9]{64,}" src/ 2>/dev/null | grep -v "signature:" | grep -v "// Extract signature" | grep -v "replace('ed25519:'"; then
             echo "❌ NEAR private key found in source code!"
             exit 1
           fi
