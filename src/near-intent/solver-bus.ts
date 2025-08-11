@@ -3,6 +3,7 @@
  * Handles communication with the off-chain solver network
  */
 
+import WebSocket from 'ws';
 import { 
   Quote, 
   SolverInfo, 
@@ -48,7 +49,11 @@ export class SolverBus {
 
       this.wsConnection.onmessage = (event) => {
         try {
-          const message: SolverBusMessage = JSON.parse(event.data);
+          const data = typeof event.data === 'string' ? event.data : 
+            (event.data instanceof ArrayBuffer ? new TextDecoder().decode(event.data) : 
+             Array.isArray(event.data) ? new TextDecoder().decode(event.data[0]) : 
+             String(event.data));
+          const message: SolverBusMessage = JSON.parse(data);
           this.handleMessage(message);
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
