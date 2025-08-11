@@ -7,6 +7,17 @@ test.describe('User Workflow Tests', () => {
     await page.waitForLoadState('networkidle');
     
     // Verify landing page loads
+<<<<<<< HEAD
+    await expect(page.locator('div.min-h-screen')).toBeVisible();
+    await expect(page.locator('text=Nearacles')).toBeVisible();
+    
+    // Step 2: Wait for main navigation to load
+    await expect(page.locator('text=Dashboard')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('text=Oracle Network')).toBeVisible();
+    
+    // Step 3: Explore navigation options
+    const navLinks = await page.locator('a[href*="/dashboard"], a[href*="/oracles"], a[href*="/analytics"], a[href*="/explorer"]').all();
+=======
     await expect(page.locator('#root')).toBeVisible();
     await expect(page.locator('.App')).toBeVisible();
     
@@ -16,6 +27,7 @@ test.describe('User Workflow Tests', () => {
     
     // Step 3: Explore API documentation
     const operations = await page.locator('.swagger-ui .opblock').all();
+>>>>>>> origin/main
     
     if (operations.length > 0) {
       // Expand first API operation

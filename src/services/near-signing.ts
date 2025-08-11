@@ -5,7 +5,7 @@
 
 import { KeyPair } from 'near-api-js';
 import { createHash } from 'node:crypto';
-import { encode as bs58Encode, decode as bs58Decode } from 'bs58';
+import bs58 from 'bs58';
 import { NEARIntentMessage } from '../types/near-intent.js';
 
 export interface NEP413Payload {
@@ -91,7 +91,7 @@ export class NEARSigningService {
         nonce,
         recipient,
       },
-      signature: `ed25519:${bs58Encode(signature)}`,
+      signature: `ed25519:${bs58.encode(signature)}`,
       public_key: publicKey,
     };
   }
@@ -115,8 +115,7 @@ export class NEARSigningService {
       const intentData = this.serializeIntent(payload.message, payload.recipient, payload.nonce);
 
       // Extract signature from ed25519: prefix
-      const signatureBytes = bs58Decode(signature.replace('ed25519:', ''));
-
+      const signatureBytes = bs58.decode(signature.replace('ed25519:', ''));
       // Create KeyPair from public key for verification
       const publicKeyPair = KeyPair.fromString(public_key as any);
 
