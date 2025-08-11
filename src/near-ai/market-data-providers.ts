@@ -112,7 +112,14 @@ export class MarketDataProviders {
       throw new Error(`Flux API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as {
+      price: string;
+      volume_24h?: string;
+      price_change_24h?: number;
+      price_change_7d?: number;
+      liquidity_score?: number;
+      volatility?: number;
+    };
     
     return {
       asset_pair: assetPair,
@@ -145,7 +152,9 @@ export class MarketDataProviders {
       throw new Error(`Pyth API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as Array<{
+      price: { price: number; expo: number; };
+    }>;
     const priceData = data[0];
 
     return {
@@ -188,7 +197,7 @@ export class MarketDataProviders {
       throw new Error(`CoinGecko API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as Record<string, Record<string, number>>;
     const coinData = data[coinId];
 
     return {
