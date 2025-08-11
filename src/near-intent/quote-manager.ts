@@ -9,30 +9,14 @@ import {
   SolverInfo, 
   IntentError,
   AsyncResult,
-  UserPreferences 
+  UserPreferences,
+  QuoteEvaluationCriteria,
+  QuoteAnalysis
 } from './types';
 import { SolverBus } from './solver-bus';
 import { AssetManager } from './asset-manager';
 import { getCurrentTimestamp, stringToBigInt } from '../utils/helpers';
 
-export interface QuoteEvaluationCriteria {
-  maxSlippage?: number; // percentage
-  maxFee?: string;
-  maxExecutionTime?: number; // seconds
-  minConfidence?: number; // 0-1
-  preferredSolvers?: string[];
-  prioritize?: 'amount' | 'fee' | 'speed' | 'reputation' | 'balanced';
-  riskTolerance?: 'low' | 'medium' | 'high';
-}
-
-export interface QuoteAnalysis {
-  quote: Quote;
-  score: number;
-  pros: string[];
-  cons: string[];
-  riskLevel: 'low' | 'medium' | 'high';
-  recommendation: 'accept' | 'consider' | 'reject';
-}
 
 export class QuoteManager {
   private solverBus: SolverBus;
@@ -159,8 +143,8 @@ export class QuoteManager {
       analyses.push(analysis);
     }
 
-    // Sort by score (highest first)
-    analyses.sort((a, b) => b.score - a.score);
+    // Sort by confidence score (highest first)
+    analyses.sort((a, b) => b.confidence_score - a.confidence_score);
 
     return analyses;
   }
@@ -257,22 +241,11 @@ export class QuoteManager {
 
     // Apply criteria adjustments
     if (criteria) {
-      if (criteria.maxSlippage && slippage > criteria.maxSlippage) {
+      if (criteria.max_slippage && slippage > criteria.max_slippage) {
         score -= 50;
       }
-      if (criteria.maxFee && stringToBigInt(quote.fee) > stringToBigInt(criteria.maxFee)) {
-        score -= 30;
-      }
-      if (criteria.maxExecutionTime && quote.execution_time_estimate > criteria.maxExecutionTime) {
-        score -= 20;
-      }
-      if (criteria.minConfidence && quote.confidence_score < criteria.minConfidence) {
-        score -= 25;
-      }
-      if (criteria.preferredSolvers?.includes(quote.solver_id)) {
-        score += 10;
-        pros.push('Preferred solver');
-      }
+      // Additional criteria-based scoring would go here
+      // For now, keep basic scoring logic
     }
 
     // Determine recommendation
@@ -284,12 +257,15 @@ export class QuoteManager {
     }
 
     return {
-      quote,
-      score,
-      pros,
-      cons,
-      riskLevel,
-      recommendation,
+      quote_id: `${quote.solver_id}_${quote.intent_id}`,
+      solver_reputation: 0.8, // Mock value - should come from solver registry
+      estimated_execution_time: quote.expires_at - getCurrentTimestamp(),
+      estimated_slippage: (Number(stringToBigInt(intent.amount_out_min)) - Number(stringToBigInt(quote.amount_out))) / Number(stringToBigInt(intent.amount_out_min)),
+      estimated_output: quote.amount_out,
+      confidence_score: score / 100,
+      risk_score: riskLevel === 'low' ? 0.2 : riskLevel === 'medium' ? 0.5 : 0.8,
+      recommendation: recommendation === 'consider' ? 'wait' : recommendation,
+      reasoning: [...pros, ...cons],
     };
   }
 
@@ -305,47 +281,25 @@ export class QuoteManager {
     // Filter by recommendation
     let candidates = analyses.filter(a => a.recommendation === 'accept');
     if (candidates.length === 0) {
-      candidates = analyses.filter(a => a.recommendation === 'consider');
+      candidates = analyses.filter(a => a.recommendation === 'wait');
     }
     if (candidates.length === 0) {
       return null; // All quotes rejected
     }
 
-    // Apply prioritization
-    if (criteria?.prioritize) {
-      switch (criteria.prioritize) {
-        case 'amount':
-          candidates.sort((a, b) => 
-            Number(stringToBigInt(b.quote.amount_out) - stringToBigInt(a.quote.amount_out))
-          );
-          break;
-        case 'fee':
-          candidates.sort((a, b) => 
-            Number(stringToBigInt(a.quote.fee) - stringToBigInt(b.quote.fee))
-          );
-          break;
-        case 'speed':
-          candidates.sort((a, b) => 
-            a.quote.execution_time_estimate - b.quote.execution_time_estimate
-          );
-          break;
-        case 'reputation':
-          candidates.sort((a, b) => b.quote.confidence_score - a.quote.confidence_score);
-          break;
-        case 'balanced':
-        default:
-          // Already sorted by score
-          break;
-      }
+    // Apply prioritization based on criteria
+    if (criteria?.prefer_speed) {
+      candidates.sort((a, b) => a.estimated_execution_time - b.estimated_execution_time);
+    } else if (criteria?.prefer_cost) {
+      candidates.sort((a, b) => parseFloat(a.estimated_output) - parseFloat(b.estimated_output));
+    } else {
+      // Default: sort by confidence score
+      candidates.sort((a, b) => b.confidence_score - a.confidence_score);
     }
 
-    // Apply risk tolerance
-    if (criteria?.riskTolerance) {
-      if (criteria.riskTolerance === 'low') {
-        candidates = candidates.filter(a => a.riskLevel === 'low');
-      } else if (criteria.riskTolerance === 'medium') {
-        candidates = candidates.filter(a => a.riskLevel !== 'high');
-      }
+    // Apply reputation threshold
+    if (criteria?.reputation_threshold) {
+      candidates = candidates.filter(a => a.solver_reputation >= criteria.reputation_threshold!);
     }
 
     return candidates[0] || null;
@@ -432,8 +386,7 @@ export class QuoteManager {
   /**
    * Generate quote summary for user
    */
-  generateQuoteSummary(analysis: QuoteAnalysis, intent: Intent): string {
-    const quote = analysis.quote;
+  generateQuoteSummary(analysis: QuoteAnalysis, quote: Quote, intent: Intent): string {
     const solver = this.getSolver(quote.solver_id);
     
     const outputAmount = this.assetManager.formatAmount(
@@ -450,15 +403,12 @@ export class QuoteManager {
     summary += `Fee: ${fee} ${intent.asset_in.symbol}\n`;
     summary += `Execution Time: ~${quote.execution_time_estimate}s\n`;
     summary += `Confidence: ${(quote.confidence_score * 100).toFixed(1)}%\n`;
-    summary += `Score: ${analysis.score}/100\n`;
+    summary += `Confidence Score: ${(analysis.confidence_score * 100).toFixed(1)}%\n`;
+    summary += `Risk Score: ${(analysis.risk_score * 100).toFixed(1)}%\n`;
     summary += `Recommendation: ${analysis.recommendation.toUpperCase()}\n`;
 
-    if (analysis.pros.length > 0) {
-      summary += `\nAdvantages:\n${analysis.pros.map(p => `• ${p}`).join('\n')}`;
-    }
-
-    if (analysis.cons.length > 0) {
-      summary += `\nConcerns:\n${analysis.cons.map(c => `• ${c}`).join('\n')}`;
+    if (analysis.reasoning.length > 0) {
+      summary += `\nReasoning:\n${analysis.reasoning.map((r: string) => `• ${r}`).join('\n')}`;
     }
 
     return summary;
