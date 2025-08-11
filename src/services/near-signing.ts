@@ -110,20 +110,15 @@ export class NEARSigningService {
   verifySignedIntent(signedData: NEP413SignedIntentData): boolean {
     try {
       const { payload, signature, public_key } = signedData;
-      
+
       // Reconstruct the original intent data
-      const intentData = this.serializeIntent(
-        payload.message,
-        payload.recipient,
-        payload.nonce
-      );
+      const intentData = this.serializeIntent(payload.message, payload.recipient, payload.nonce);
 
       // Extract signature from ed25519: prefix
       const signatureBytes = bs58.decode(signature.replace('ed25519:', ''));
-      
       // Create KeyPair from public key for verification
       const publicKeyPair = KeyPair.fromString(public_key as any);
-      
+
       // Verify signature
       return publicKeyPair.verify(intentData, signatureBytes);
     } catch (error) {

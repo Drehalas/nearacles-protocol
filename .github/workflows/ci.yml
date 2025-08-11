@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: CI/CD Pipeline
 
 on:
@@ -8,10 +9,23 @@ on:
 
 jobs:
   test:
+=======
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+>>>>>>> origin/main
     runs-on: ubuntu-latest
     
     strategy:
       matrix:
+<<<<<<< HEAD
         node-version: [18.x, 20.x]
     
     steps:
@@ -55,3 +69,39 @@ jobs:
     
     - name: Run smart contract tests
       run: npm run test:contracts
+=======
+        node-version: [18.x, 20.x, 21.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Type check
+        run: npm run type-check
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Run tests
+        run: npm test
+        env:
+          CI: true
+      
+      - name: Cache build artifacts
+        if: matrix.node-version == '18.x'
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist/
+            node_modules/
+          key: ${{ runner.os }}-build-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+>>>>>>> origin/main
