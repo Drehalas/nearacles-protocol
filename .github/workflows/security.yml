@@ -44,26 +44,18 @@ jobs:
       - name: Check for leaked API keys
         run: |
           echo "Checking for leaked API keys..."
-          patterns=(
-            "PRIVATE_KEY"
-            "SECRET_KEY" 
-            "API_KEY"
-            "OPENAI_API_KEY"
-            "sk-[A-Za-z0-9]{40,}"
-          )
-          
-          found_secrets=false
-          for pattern in "${patterns[@]}"; do
-            if grep -rE "$pattern" src/ 2>/dev/null | grep -v "process.env" | grep -v "config" | grep -v "example"; then
-              echo "❌ Potential secret found: $pattern"
-              found_secrets=true
-            fi
-          done
-          
-          if [ "$found_secrets" = true ]; then
-            echo "❌ Secrets found in source code!"
+          # Look for actual hardcoded API keys (not environment variable references)
+          if grep -rE "(sk-[A-Za-z0-9]{40,}|pk_[A-Za-z0-9]{40,})" src/ 2>/dev/null | grep -v "process.env" | grep -v "example" | grep -v "your_key_here"; then
+            echo "❌ Hardcoded API keys found in source code!"
             exit 1
           fi
+          
+          # Check for suspicious hardcoded secrets (not env var usage)
+          if grep -rE "(SECRET_KEY|PRIVATE_KEY).*(=|:).*['\"][A-Za-z0-9]{20,}['\"]" src/ 2>/dev/null; then
+            echo "❌ Hardcoded secrets found in source code!"
+            exit 1
+          fi
+          
           echo "✅ No hardcoded secrets found in source code"
       
       - name: Check file permissions
