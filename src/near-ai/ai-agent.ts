@@ -97,8 +97,8 @@ export class AIAgent {
     try {
       // Step 1: Analyze market conditions
       const marketAnalysis = await this.marketAnalyzer.analyzeMarket(
-        (intent as any).asset_in?.token_id || 'unknown',
-        (intent as any).asset_out?.token_id || 'unknown'
+        intent.asset_in?.token_id || 'unknown',
+        intent.asset_out?.token_id || 'unknown'
       );
 
       // Step 2: Assess risks
@@ -129,7 +129,7 @@ export class AIAgent {
         quotes,
         marketAnalysis.data!,
         riskAssessment.data!,
-        optimization as any,
+        optimization,
         context,
         historicalPattern
       );
@@ -189,7 +189,7 @@ export class AIAgent {
 
     // Market analysis reasoning
     if (marketAnalysis.recommended_action === 'buy' && marketAnalysis.confidence > 0.7) {
-      reasoning.push(`Market analysis suggests favorable conditions for ${(intent as any).asset_out?.symbol || 'target asset'} (confidence: ${(marketAnalysis.confidence * 100).toFixed(1)}%)`);
+      reasoning.push(`Market analysis suggests favorable conditions for ${intent.asset_out?.symbol || 'target asset'} (confidence: ${(marketAnalysis.confidence * 100).toFixed(1)}%)`);
       confidence += 0.1;
       action = 'execute';
     } else if (marketAnalysis.recommended_action === 'hold') {
@@ -208,9 +208,9 @@ export class AIAgent {
     }
 
     // Quote quality analysis
-    const bestQuote = quotes.find(q => (q as any).recommendation === 'accept');
+    const bestQuote = quotes.find(q => 'recommendation' in q && (q as Quote & { recommendation: string }).recommendation === 'accept');
     if (bestQuote) {
-      reasoning.push(`High-quality quote available from ${(bestQuote as any).solver_id || 'unknown'} with score ${(bestQuote as any).score || 0}/100`);
+      reasoning.push(`High-quality quote available from ${bestQuote.solver_id || 'unknown'} with score ${('score' in bestQuote ? (bestQuote as Quote & { score: number }).score : 0)}/100`);
       confidence += 0.1;
     } else {
       reasoning.push(`No high-quality quotes available`);
@@ -263,7 +263,7 @@ export class AIAgent {
         success_probability: confidence * 0.9, // Slightly more conservative
         estimated_return: bestQuote ? 
           this.calculateEstimatedReturn(intent, bestQuote) : undefined,
-        time_to_completion: bestQuote ? (bestQuote as any).execution_time_estimate : undefined,
+        time_to_completion: bestQuote ? bestQuote.execution_time_estimate : undefined,
       },
       alternative_strategies: this.generateAlternativeStrategies(intent, marketAnalysis),
       monitoring_points: [
@@ -273,8 +273,8 @@ export class AIAgent {
         'Market sentiment shifts',
       ],
       execution_params: action === 'execute' && bestQuote ? {
-        quote_id: (bestQuote as any).solver_id || 'unknown',
-        max_slippage: (riskAssessment as any).suggested_slippage || 0.01,
+        quote_id: bestQuote?.solver_id || 'unknown',
+        max_slippage: ('suggested_slippage' in riskAssessment ? (riskAssessment as { suggested_slippage: number }).suggested_slippage : null) || 0.01,
         timeout: 300,
       } : undefined,
     };
@@ -351,8 +351,8 @@ export class AIAgent {
     return relevantMemories.find(m => {
       try {
         const content = typeof m.content === 'string' ? JSON.parse(m.content) : m.content;
-        return content?.intent?.asset_in?.token_id === (intent as any).asset_in?.token_id &&
-               content?.intent?.asset_out?.token_id === (intent as any).asset_out?.token_id;
+        return content?.intent?.asset_in?.token_id === intent.asset_in?.token_id &&
+               content?.intent?.asset_out?.token_id === intent.asset_out?.token_id;
       } catch {
         return false;
       }
@@ -432,9 +432,9 @@ export class AIAgent {
    */
   private calculateEstimatedReturn(intent: IntentRequestParams, quote: Quote): string {
     try {
-      const inputAmount = BigInt((intent as any).amount_in || '0');
-      const outputAmount = BigInt((quote as any).amount_out || '0');
-      const fee = BigInt((quote as any).fee || '0');
+      const inputAmount = BigInt(intent.amount_in || '0');
+      const outputAmount = BigInt(quote.amount_out || '0');
+      const fee = BigInt(quote.fee || '0');
       
       // Simple return calculation (output - input - fee) / input
       const netGain = outputAmount - inputAmount - fee;
