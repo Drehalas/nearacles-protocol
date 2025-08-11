@@ -25,7 +25,7 @@ export class NEARSigningService {
   private keyPair: KeyPair;
 
   constructor(privateKey: string) {
-    this.keyPair = KeyPair.fromString(privateKey as string);
+    this.keyPair = KeyPair.fromString(privateKey as any);
   }
 
   /**
@@ -122,7 +122,7 @@ export class NEARSigningService {
       const signatureBytes = bs58.decode(signature.replace('ed25519:', ''));
       
       // Create KeyPair from public key for verification
-      const publicKeyPair = KeyPair.fromString(public_key as string);
+      const publicKeyPair = KeyPair.fromString(public_key as any);
       
       // Verify signature
       return publicKeyPair.verify(intentData, signatureBytes);

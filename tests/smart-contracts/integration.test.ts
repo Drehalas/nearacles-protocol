@@ -3,7 +3,7 @@
  * End-to-end testing of the complete protocol
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import { IntentAgent } from '../../src/near-intent/intent-agent';
 import { AIAgent } from '../../src/near-ai/ai-agent';
 import { NEAR_INTENT_CONFIG } from '../../src/near-intent';

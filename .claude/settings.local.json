@@ -17,7 +17,8 @@
       "Bash(grep:*)",
       "mcp__smithery-ai-github__merge_pull_request",
       "Bash(gh pr checkout:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(gh run view:*)"
     ],
     "deny": []
   }
