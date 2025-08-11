@@ -11,6 +11,7 @@
     "test:contracts": "jest tests/smart-contracts/",
     "test:integration": "jest tests/smart-contracts/integration.test.ts",
     "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.{ts,js,json}\"",
@@ -57,25 +58,8 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/tests/**/*.test.ts"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/*.d.ts"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html"
-    ]
-  },
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=22.0.0",
     "npm": ">=8.0.0"
   },
   "repository": {
