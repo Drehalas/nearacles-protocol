@@ -12,7 +12,7 @@ import {
   IntentConfig,
   IntentError,
   AsyncResult,
-  AIDecision,
+  IntentAIDecision,
   MarketAnalysis 
 } from './types';
 import { IntentRequest } from './intent-request';
@@ -305,7 +305,7 @@ export class IntentAgent {
     intent: Intent;
     reasoning: string;
     quotes: QuoteAnalysis[];
-    aiDecision: AIDecision;
+    aiDecision: IntentAIDecision;
   }>> {
     // This would integrate with NEAR AI or external AI services
     // For now, implement a basic pattern matching system
@@ -334,7 +334,7 @@ export class IntentAgent {
       }
 
       // Generate AI decision
-      const aiDecision: AIDecision = await this.generateAIDecision(
+      const aiDecision: IntentAIDecision = await this.generateAIDecision(
         intentResult.data.quotes,
         preferences
       );
@@ -464,7 +464,7 @@ export class IntentAgent {
   private async generateAIDecision(
     quotes: QuoteAnalysis[], 
     _preferences?: Record<string, unknown>
-  ): Promise<AIDecision> {
+  ): Promise<IntentAIDecision> {
     if (quotes.length === 0) {
       return {
         action: 'wait',
