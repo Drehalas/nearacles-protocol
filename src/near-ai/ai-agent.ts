@@ -15,7 +15,7 @@ import {
   LearningEvent,
   AIPerformanceMetrics
 } from './types';
-import { Quote, IntentRequestParams } from '../near-intent/types';
+import { Quote, Intent, IntentRequestParams } from '../near-intent/types';
 import { OptimizationResult } from './intent-optimizer';
 import { getCurrentTimestamp } from '../utils/helpers';
 import { MarketAnalyzer } from './market-analyzer';
@@ -189,7 +189,7 @@ export class AIAgent {
 
     // Market analysis reasoning
     if (marketAnalysis.recommended_action === 'buy' && marketAnalysis.confidence > 0.7) {
-      const assetOutSymbol = typeof intent.asset_out === 'string' ? intent.asset_out : intent.asset_out?.symbol || 'target asset';
+      const assetOutSymbol = typeof intent.asset_out === 'string' ? intent.asset_out : (intent.asset_out as any)?.symbol || 'target asset';
       reasoning.push(`Market analysis suggests favorable conditions for ${assetOutSymbol} (confidence: ${(marketAnalysis.confidence * 100).toFixed(1)}%)`);
       confidence += 0.1;
       action = 'execute';
@@ -352,8 +352,8 @@ export class AIAgent {
     return relevantMemories.find(m => {
       try {
         const content = typeof m.content === 'string' ? JSON.parse(m.content) : m.content;
-        const intentAssetIn = typeof intent.asset_in === 'string' ? intent.asset_in : intent.asset_in?.token_id;
-        const intentAssetOut = typeof intent.asset_out === 'string' ? intent.asset_out : intent.asset_out?.token_id;
+        const intentAssetIn = typeof intent.asset_in === 'string' ? intent.asset_in : (intent.asset_in as any)?.token_id;
+        const intentAssetOut = typeof intent.asset_out === 'string' ? intent.asset_out : (intent.asset_out as any)?.token_id;
         return content?.intent?.asset_in?.token_id === intentAssetIn &&
                content?.intent?.asset_out?.token_id === intentAssetOut;
       } catch {
