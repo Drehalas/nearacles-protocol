@@ -85,6 +85,20 @@ export class AIAgent {
   }
 
   /**
+   * Convert Intent to IntentRequestParams for internal methods
+   */
+  private convertIntentToParams(intent: Intent): IntentRequestParams {
+    return {
+      asset_in: intent.asset_in.token_id,
+      asset_out: intent.asset_out.token_id,
+      amount_in: intent.amount_in,
+      min_amount_out: intent.amount_out_min,
+      slippage_tolerance: 0.01, // Default 1%
+      deadline: intent.expiry,
+    };
+  }
+
+  /**
    * Make an AI-powered decision
    */
   async makeDecision(
@@ -102,7 +116,8 @@ export class AIAgent {
       );
 
       // Step 2: Assess risks
-      const riskAssessment = await this.riskAssessor.assessRisk(intent, quotes);
+      const intentParams = this.convertIntentToParams(intent);
+      const riskAssessment = await this.riskAssessor.assessRisk(intentParams, quotes);
 
       // Step 3: Optimize intent if needed
       const optimization = await this.intentOptimizer.optimizeIntent(
@@ -121,11 +136,11 @@ export class AIAgent {
       });
 
       // Step 4: Apply learned patterns
-      const historicalPattern = this.findSimilarHistoricalDecisions(intent);
+      const historicalPattern = this.findSimilarHistoricalDecisions(intentParams);
       
       // Step 5: Generate decision
       const decision = await this.generateDecision(
-        intent,
+        intentParams,
         quotes,
         marketAnalysis.data!,
         riskAssessment.data!,
@@ -149,7 +164,7 @@ export class AIAgent {
         data: decision,
         metadata: {
           model_used: this.config.model.name,
-          tokens_consumed: this.estimateTokenUsage(intent, quotes),
+          tokens_consumed: this.estimateTokenUsage(intentParams, quotes),
           processing_time: processingTime,
           confidence: decision.confidence,
         },
