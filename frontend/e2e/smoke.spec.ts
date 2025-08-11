@@ -6,8 +6,8 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
     await page.goto('/');
     
     // Critical elements must be present
-    await expect(page.locator('div.min-h-screen')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('text=Nearacles')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('div.min-h-screen').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Nearacles').first()).toBeVisible({ timeout: 5000 });
     
     // Page should load without critical errors
     const title = await page.title();
@@ -54,7 +54,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
       await page.waitForTimeout(1000);
       
       // App should remain stable
-      await expect(page.locator('div.min-h-screen')).toBeVisible();
+      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
     }
   });
 
@@ -68,7 +68,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
     await page.keyboard.press('Escape');
     
     // App should handle keyboard input without crashes
-    await expect(page.locator('div.min-h-screen')).toBeVisible();
+    await expect(page.locator('div.min-h-screen').first()).toBeVisible();
   });
 
   test('should work on mobile viewport', async ({ page }) => {
@@ -77,7 +77,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
     await page.goto('/');
     
     // Core elements should be visible on mobile
-    await expect(page.locator('div.min-h-screen')).toBeVisible();
+    await expect(page.locator('div.min-h-screen').first()).toBeVisible();
     await expect(page.locator('text=Nearacles')).toBeVisible();
     
     // Should be responsive
@@ -94,7 +94,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
     await page.waitForLoadState('domcontentloaded');
     
     // Core functionality should be restored
-    await expect(page.locator('div.min-h-screen')).toBeVisible();
+    await expect(page.locator('div.min-h-screen').first()).toBeVisible();
   });
 
   test('should not have critical JavaScript errors', async ({ page }) => {
@@ -151,7 +151,7 @@ test.describe('Smoke Tests - Critical Path Validation', () => {
       await page.waitForLoadState('domcontentloaded');
       
       // App should load regardless of entry point
-      await expect(page.locator('div.min-h-screen')).toBeVisible();
+      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
     }
   });
 });
