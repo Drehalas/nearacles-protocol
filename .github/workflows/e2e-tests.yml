@@ -1,0 +1,156 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, master, e2e-testing ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps ${{ matrix.browser }}
+    
+    - name: Build application
+      working-directory: ./frontend
+      run: npm run build
+    
+    - name: Run Playwright tests
+      working-directory: ./frontend
+      run: npx playwright test --project=${{ matrix.browser }}
+      
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-${{ matrix.browser }}
+        path: frontend/playwright-report/
+        retention-days: 30
+        
+    - name: Upload screenshots
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: screenshots-${{ matrix.browser }}
+        path: frontend/test-results/
+        retention-days: 30
+
+  mobile-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run mobile tests
+      working-directory: ./frontend
+      run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
+      
+    - name: Upload mobile test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: mobile-test-report
+        path: frontend/playwright-report/
+        retention-days: 30
+
+  accessibility-tests:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run accessibility tests
+      working-directory: ./frontend
+      run: npx playwright test accessibility.spec.ts
+      
+    - name: Upload accessibility results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: accessibility-report
+        path: frontend/playwright-report/
+        retention-days: 30
+
+  performance-tests:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run performance tests
+      working-directory: ./frontend
+      run: npx playwright test performance.spec.ts
+      
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-report
+        path: frontend/playwright-report/
+        retention-days: 30
