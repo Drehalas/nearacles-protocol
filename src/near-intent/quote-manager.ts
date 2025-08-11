@@ -15,24 +15,8 @@ import { SolverBus } from './solver-bus';
 import { AssetManager } from './asset-manager';
 import { getCurrentTimestamp, stringToBigInt } from '../utils/helpers';
 
-export interface QuoteEvaluationCriteria {
-  maxSlippage?: number; // percentage
-  maxFee?: string;
-  maxExecutionTime?: number; // seconds
-  minConfidence?: number; // 0-1
-  preferredSolvers?: string[];
-  prioritize?: 'amount' | 'fee' | 'speed' | 'reputation' | 'balanced';
-  riskTolerance?: 'low' | 'medium' | 'high';
-}
-
-export interface QuoteAnalysis {
-  quote: Quote;
-  score: number;
-  pros: string[];
-  cons: string[];
-  riskLevel: 'low' | 'medium' | 'high';
-  recommendation: 'accept' | 'consider' | 'reject';
-}
+// Import from types instead of redefining
+import type { QuoteEvaluationCriteria, QuoteAnalysis } from './types';
 
 export class QuoteManager {
   private solverBus: SolverBus;
