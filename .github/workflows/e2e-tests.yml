@@ -1,19 +1,43 @@
 name: E2E Tests
 
 on:
-  push:
-    branches: [ main, master, e2e-testing ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - desktop
+          - mobile
+          - accessibility
+          - performance
+      browser:
+        description: 'Browser to test (for desktop tests)'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
 
 jobs:
   test:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'desktop' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     
     strategy:
       matrix:
-        browser: [chromium, firefox, webkit]
+        browser: ${{ 
+          github.event.inputs.browser == 'all' ? fromJson('["chromium", "firefox", "webkit"]') : 
+          github.event.inputs.browser ? fromJson(format('["{0}"]', github.event.inputs.browser)) : 
+          fromJson('["chromium"]')
+        }}
         
     steps:
     - uses: actions/checkout@v4
@@ -74,6 +98,7 @@ jobs:
         retention-days: 30
 
   mobile-tests:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'mobile' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     
@@ -128,6 +153,7 @@ jobs:
         retention-days: 30
 
   accessibility-tests:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'accessibility' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     
@@ -182,6 +208,7 @@ jobs:
         retention-days: 30
 
   performance-tests:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'performance' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     
