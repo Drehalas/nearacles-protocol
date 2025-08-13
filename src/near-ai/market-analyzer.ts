@@ -296,7 +296,7 @@ export class MarketAnalyzer {
     strengthScore = Math.max(0, Math.min(1, strengthScore));
     confidence = Math.max(0.1, Math.min(0.95, confidence));
 
-    // Time horizon determination
+    // Time horizon determination - improved logic from main branch
     let timeHorizon: 'immediate' | 'short' | 'medium' | 'long' = 'short';
     if (volatilityIndex > 0.6) {
       timeHorizon = 'immediate';

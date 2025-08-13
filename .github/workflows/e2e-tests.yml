@@ -34,20 +34,11 @@ jobs:
       working-directory: ./frontend
       run: npx playwright install --with-deps ${{ matrix.browser }}
     
-    - name: Build application
+    - name: Run Playwright tests (starts dev server automatically)
       working-directory: ./frontend
-      run: npm run build
-    
-    - name: Start development server
-      working-directory: ./frontend
-      run: |
-        npm run dev &
-        sleep 10
-        curl -f http://localhost:3000 || exit 1
-      timeout-minutes: 2
-    
-    - name: Run Playwright tests
-      working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
       run: npx playwright test --project=${{ matrix.browser }}
       timeout-minutes: 10
       
@@ -89,7 +80,10 @@ jobs:
     
     - name: Run mobile tests
       working-directory: ./frontend
-      run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari" || echo "Mobile tests skipped - frontend not ready"
+      env:
+        CI: true
+        NODE_ENV: development
+      run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
       continue-on-error: true
       
     - name: Upload mobile test results
@@ -122,7 +116,10 @@ jobs:
     
     - name: Run accessibility tests
       working-directory: ./frontend
-      run: npx playwright test accessibility.spec.ts || echo "Accessibility tests skipped - frontend not ready"
+      env:
+        CI: true
+        NODE_ENV: development
+      run: npx playwright test accessibility.spec.ts
       continue-on-error: true
       
     - name: Upload accessibility results
@@ -155,7 +152,10 @@ jobs:
     
     - name: Run performance tests
       working-directory: ./frontend
-      run: npx playwright test performance.spec.ts || echo "Performance tests skipped - frontend not ready"
+      env:
+        CI: true
+        NODE_ENV: development
+      run: npx playwright test performance.spec.ts
       continue-on-error: true
       
     - name: Upload performance results

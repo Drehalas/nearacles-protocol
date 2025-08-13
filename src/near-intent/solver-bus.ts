@@ -14,12 +14,13 @@ import {
   AsyncResult 
 } from './types';
 import { retry, sleep, getCurrentTimestamp } from '../utils/helpers';
+import * as WS from 'ws';
 
 export class SolverBus {
   private baseUrl: string;
   private apiKey?: string;
   private subscribers: Map<string, (message: SolverBusMessage) => void> = new Map();
-  private wsConnection?: WebSocket;
+  private wsConnection?: WS.WebSocket;
 
   constructor(baseUrl: string, apiKey?: string) {
     this.baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
@@ -33,7 +34,7 @@ export class SolverBus {
     const wsUrl = this.baseUrl.replace('http', 'ws') + '/ws';
     
     try {
-      this.wsConnection = new WebSocket(wsUrl);
+      this.wsConnection = new WS.WebSocket(wsUrl);
       
       this.wsConnection.onopen = () => {
         console.log('Connected to Solver Bus');
@@ -85,6 +86,7 @@ export class SolverBus {
   /**
    * Send a message through WebSocket
    */
+
   private send(data: Record<string, unknown>): void {
     if (this.wsConnection && this.wsConnection.readyState === WebSocket.OPEN) {
       this.wsConnection.send(JSON.stringify(data));

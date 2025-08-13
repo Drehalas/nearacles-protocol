@@ -28,7 +28,7 @@ test.describe('Load Testing', () => {
     
     // Verify all pages loaded successfully
     for (const page of pages) {
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
     
     // Cleanup
@@ -39,9 +39,9 @@ test.describe('Load Testing', () => {
 
   test('should handle rapid page interactions', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    await page.waitForSelector('header', { timeout: 15000 });
     
-    const operations = await page.locator('.swagger-ui .opblock-summary').all();
+    const operations = await page.locator('header .opblock-summary').all();
     
     if (operations.length > 0) {
       const startTime = Date.now();
@@ -58,7 +58,7 @@ test.describe('Load Testing', () => {
       expect(endTime - startTime).toBeLessThan(5000);
       
       // App should remain stable
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
   });
 
@@ -99,7 +99,7 @@ test.describe('Load Testing', () => {
     expect(memoryTest).toBeLessThan(5000);
     
     // App should remain responsive
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle continuous scrolling', async ({ page }) => {
@@ -126,7 +126,7 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeLessThan(7000);
     
     // App should remain functional
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle rapid resize operations', async ({ page }) => {
@@ -156,7 +156,7 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeLessThan(3000);
     
     // App should remain stable after resizing
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should maintain performance with large DOM', async ({ page }) => {
@@ -169,7 +169,16 @@ test.describe('Load Testing', () => {
       
       for (let i = 0; i < 1000; i++) {
         const element = document.createElement('div');
-        element.innerHTML = `<span>Item ${i}</span><p>Description for item ${i}</p>`;
+        
+        // Create elements safely without innerHTML to prevent XSS
+        const spanElement = document.createElement('span');
+        spanElement.textContent = `Item ${i}`;
+        
+        const pElement = document.createElement('p');
+        pElement.textContent = `Description for item ${i}`;
+        
+        element.appendChild(spanElement);
+        element.appendChild(pElement);
         container.appendChild(element);
       }
       
@@ -193,7 +202,7 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeLessThan(2000);
     
     // Original app should still be functional
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle network throttling', async ({ page, context }) => {
@@ -212,7 +221,7 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeGreaterThan(1000);
     
     // App should still load completely
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle browser tab switching simulation', async ({ page }) => {
@@ -239,7 +248,7 @@ test.describe('Load Testing', () => {
     }
     
     // App should remain stable after visibility changes
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle stress testing of API calls', async ({ page }) => {
@@ -247,7 +256,7 @@ test.describe('Load Testing', () => {
     
     // Make multiple concurrent API calls
     const apiCalls = Array.from({ length: 10 }, () => 
-      page.request.get('/swagger.json')
+      page.request.get('/dashboard.json')
     );
     
     const startTime = Date.now();
@@ -263,6 +272,6 @@ test.describe('Load Testing', () => {
     expect(endTime - startTime).toBeLessThan(5000);
     
     // App should remain functional
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 });

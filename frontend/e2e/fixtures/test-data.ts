@@ -272,8 +272,8 @@ export const accessibilityConfig = {
   },
   tags: ['wcag2a', 'wcag2aa', 'wcag21aa'],
   exclude: [
-    '.swagger-ui .highlight-code', // Third-party syntax highlighting
-    '.swagger-ui .model-example'   // Generated content
+    'header .highlight-code', // Third-party syntax highlighting
+    'header .model-example'   // Generated content
   ]
 };
 

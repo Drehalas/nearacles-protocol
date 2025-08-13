@@ -37,7 +37,7 @@ test.describe('Error Handling Tests', () => {
     
     // App should still load even without CSS
     await expect(page.locator('#root')).toBeVisible();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle network connectivity issues', async ({ page, context }) => {
@@ -76,16 +76,16 @@ test.describe('Error Handling Tests', () => {
       await page.waitForTimeout(500);
       
       // App should remain functional at all sizes
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
   });
 
   test('should handle rapid user interactions', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 10000 });
+    await page.waitForSelector('header', { timeout: 10000 });
     
     // Test rapid clicks on expandable elements
-    const expandableElements = await page.locator('.swagger-ui .opblock-summary').all();
+    const expandableElements = await page.locator('header .opblock-summary').all();
     
     if (expandableElements.length > 0) {
       // Rapidly click elements
@@ -97,7 +97,7 @@ test.describe('Error Handling Tests', () => {
       }
       
       // App should remain stable
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
   });
 
@@ -130,25 +130,25 @@ test.describe('Error Handling Tests', () => {
     
     // Test browser back
     await page.goBack();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
     
     await page.goBack();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
     
     // Test browser forward
     await page.goForward();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle page refresh at any time', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 10000 });
+    await page.waitForSelector('header', { timeout: 10000 });
     
     // Refresh multiple times during different states
     for (let i = 0; i < 3; i++) {
       await page.reload();
       await page.waitForLoadState('networkidle');
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
       await page.waitForTimeout(1000);
     }
   });
@@ -164,7 +164,7 @@ test.describe('Error Handling Tests', () => {
     await page.goto('/');
     
     // App should work without stored data
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle memory pressure gracefully', async ({ page }) => {
@@ -177,7 +177,7 @@ test.describe('Error Handling Tests', () => {
     });
     
     // App should remain responsive
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
     
     // Cleanup
     await page.evaluate(() => {

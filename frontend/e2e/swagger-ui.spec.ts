@@ -6,35 +6,41 @@ test.describe('Dashboard Navigation Tests', () => {
   });
 
   test('should render main navigation', async ({ page }) => {
-    // Check for main navigation elements
+    // Check for header and branding
+    await expect(page.locator('header')).toBeVisible();
+    await expect(page.locator('text=Nearacles')).toBeVisible();
+    
+    // Check for main navigation elements (actual links from Header.tsx)
     await expect(page.locator('text=Dashboard')).toBeVisible();
-    await expect(page.locator('text=Oracle Network')).toBeVisible();
+    await expect(page.locator('text=Oracles')).toBeVisible();
     await expect(page.locator('text=Analytics')).toBeVisible();
     await expect(page.locator('text=Explorer')).toBeVisible();
+    await expect(page.locator('text=Connect Wallet')).toBeVisible();
   });
 
-  test('should navigate to dashboard', async ({ page }) => {
+  test('should navigate to dashboard v1', async ({ page }) => {
     // Navigate to dashboard
     await page.click('text=Dashboard');
-    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page).toHaveURL(/.*v1\/dashboard/);
+    await expect(page.locator('text=Oracle Network Dashboard')).toBeVisible();
   });
 
-  test('should navigate to oracles section', async ({ page }) => {
+  test('should navigate to oracles v1', async ({ page }) => {
     // Navigate to oracles
-    await page.click('text=Oracle Network');
-    await expect(page).toHaveURL(/.*oracles/);
+    await page.click('text=Oracles');
+    await expect(page).toHaveURL(/.*v1\/oracles/);
   });
 
-  test('should navigate to analytics', async ({ page }) => {
+  test('should navigate to analytics v1', async ({ page }) => {
     // Navigate to analytics
     await page.click('text=Analytics');
-    await expect(page).toHaveURL(/.*analytics/);
+    await expect(page).toHaveURL(/.*v1\/analytics/);
   });
 
-  test('should navigate to explorer', async ({ page }) => {
+  test('should navigate to explorer v1', async ({ page }) => {
     // Navigate to explorer
     await page.click('text=Explorer');
-    await expect(page).toHaveURL(/.*explorer/);
+    await expect(page).toHaveURL(/.*v1\/explorer/);
   });
 
   test('should have responsive navigation', async ({ page }) => {

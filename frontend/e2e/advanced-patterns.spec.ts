@@ -4,23 +4,23 @@ import testConfig from '../test.config.js';
 
 test.describe('Advanced Testing Patterns', () => {
   let helpers: TestHelpers;
-  let swaggerHelpers: SwaggerHelpers;
+  let dashboardHelpers: SwaggerHelpers;
 
   test.beforeEach(async ({ page }) => {
     helpers = new TestHelpers(page);
-    swaggerHelpers = new SwaggerHelpers(page);
+    dashboardHelpers = new SwaggerHelpers(page);
   });
 
   test('should demonstrate page object pattern usage', async ({ page }) => {
     await helpers.waitForAppReady();
-    await swaggerHelpers.waitForSwaggerUI();
+    await dashboardHelpers.waitForHeader();
     
     // Use helper methods for consistent interactions
-    const operations = await swaggerHelpers.getOperations();
+    const operations = await dashboardHelpers.getOperations();
     expect(operations.length).toBeGreaterThan(0);
     
     // Expand all operations using helper
-    await swaggerHelpers.expandAllOperations();
+    await dashboardHelpers.expandAllOperations();
     
     // Take screenshot using helper
     await helpers.takeScreenshot('expanded-operations', { fullPage: true });
@@ -66,21 +66,21 @@ test.describe('Advanced Testing Patterns', () => {
 
   test('should demonstrate custom assertion patterns', async ({ page }) => {
     await helpers.waitForAppReady();
-    await swaggerHelpers.waitForSwaggerUI();
+    await dashboardHelpers.waitForHeader();
     
     // Custom assertion helper
-    const assertSwaggerUILoaded = async () => {
-      const swaggerContainer = page.locator('.swagger-ui');
-      await expect(swaggerContainer).toBeVisible();
+    const assertHeaderLoaded = async () => {
+      const dashboardContainer = page.locator('header');
+      await expect(dashboardContainer).toBeVisible();
       
-      const hasContent = await swaggerContainer.evaluate(el => el.children.length > 0);
+      const hasContent = await dashboardContainer.evaluate(el => el.children.length > 0);
       expect(hasContent).toBe(true);
       
-      const operationsCount = await page.locator('.swagger-ui .opblock').count();
+      const operationsCount = await page.locator('header .opblock').count();
       expect(operationsCount).toBeGreaterThanOrEqual(0);
     };
     
-    await assertSwaggerUILoaded();
+    await assertHeaderLoaded();
     
     // Custom performance assertion
     const assertPerformanceThresholds = async () => {
@@ -102,8 +102,8 @@ test.describe('Advanced Testing Patterns', () => {
     const scenario = new TestScenarioBuilder(page)
       .withViewport(testConfig.viewports.desktop)
       .withSlowNetwork(500)
-      .withMockApi('/swagger.json', { 
-        swagger: '2.0', 
+      .withMockApi('/dashboard.json', { 
+        dashboard: '2.0', 
         info: { title: 'Test API', version: '1.0.0' },
         paths: {}
       })
@@ -112,8 +112,8 @@ test.describe('Advanced Testing Patterns', () => {
     await scenario.execute();
     
     // Verify scenario completed successfully
-    await expect(page.locator('.App')).toBeVisible();
-    await helpers.waitForSwaggerUI();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+    await helpers.waitForAppReady();
   });
 
   test('should implement retry pattern with exponential backoff', async ({ page }) => {
@@ -134,9 +134,9 @@ test.describe('Advanced Testing Patterns', () => {
     // Use retry pattern for flaky operations
     await retryWithBackoff(async () => {
       await helpers.waitForAppReady();
-      await swaggerHelpers.waitForSwaggerUI();
+      await dashboardHelpers.waitForHeader();
       
-      const operations = await swaggerHelpers.getOperations();
+      const operations = await dashboardHelpers.getOperations();
       expect(operations.length).toBeGreaterThan(0);
     });
   });
@@ -169,7 +169,7 @@ test.describe('Advanced Testing Patterns', () => {
     observeNetworkEvents();
     
     await helpers.waitForAppReady();
-    await swaggerHelpers.waitForSwaggerUI();
+    await dashboardHelpers.waitForHeader();
     
     // Analyze collected events
     const consoleEvents = events.filter(e => e.type === 'console');
@@ -187,7 +187,7 @@ test.describe('Advanced Testing Patterns', () => {
     enum AppState {
       Loading = 'loading',
       Ready = 'ready',
-      SwaggerLoaded = 'swagger-loaded',
+      SwaggerLoaded = 'dashboard-loaded',
       InteractionMode = 'interaction-mode',
       Error = 'error'
     }
@@ -208,12 +208,12 @@ test.describe('Advanced Testing Patterns', () => {
     expect(currentState).toBe(AppState.Ready);
     
     // Ready -> SwaggerLoaded
-    await swaggerHelpers.waitForSwaggerUI();
+    await dashboardHelpers.waitForHeader();
     transitionTo(AppState.SwaggerLoaded);
     expect(currentState).toBe(AppState.SwaggerLoaded);
     
     // SwaggerLoaded -> InteractionMode
-    const operations = await page.locator('.swagger-ui .opblock-summary').all();
+    const operations = await page.locator('header .opblock-summary').all();
     if (operations.length > 0) {
       await operations[0].click();
       transitionTo(AppState.InteractionMode);
@@ -243,23 +243,23 @@ test.describe('Advanced Testing Patterns', () => {
 
   test('should demonstrate factory pattern for test data', async ({ page }) => {
     // Test data factories
-    const swaggerDocFactory = new SwaggerDocumentFactory();
-    const mockSwaggerDoc = swaggerDocFactory
+    const dashboardDocFactory = new SwaggerDocumentFactory();
+    const mockSwaggerDoc = dashboardDocFactory
       .withTitle('Test API')
       .withVersion('1.0.0')
       .withPath('/test', 'get', { summary: 'Test endpoint' })
       .build();
     
     // Mock API with factory-generated data
-    await helpers.mockApiResponse('/swagger.json', mockSwaggerDoc);
+    await helpers.mockApiResponse('/dashboard.json', mockSwaggerDoc);
     
     await helpers.waitForAppReady();
-    await swaggerHelpers.waitForSwaggerUI();
+    await dashboardHelpers.waitForHeader();
     
     // Validate factory-generated data
-    const { swaggerDoc, validation } = await swaggerHelpers.validateSwaggerDocument();
+    const { dashboardDoc, validation } = await dashboardHelpers.validateSwaggerDocument();
     expect(validation.hasInfo).toBe(true);
-    expect(swaggerDoc.info.title).toBe('Test API');
+    expect(dashboardDoc.info.title).toBe('Test API');
   });
 });
 
@@ -381,7 +381,7 @@ class EnhancedTestHelpers extends TestHelpers {
 
 class SwaggerDocumentFactory {
   private doc: any = {
-    swagger: '2.0',
+    dashboard: '2.0',
     info: {},
     paths: {}
   };

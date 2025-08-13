@@ -10,12 +10,14 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <Header />
-      <HeroSection />
-      <ServicesGrid />
-      <SecuritySection />
-      <StatsSection />
+      <main>
+        <HeroSection />
+        <ServicesGrid />
+        <SecuritySection />
+        <StatsSection />
+      </main>
       
-      <footer className="bg-gray-900 text-white py-16">
+      <footer className="bg-gray-900 text-white py-16" role="contentinfo">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
@@ -30,14 +32,29 @@ export default function Home() {
                 real-time analytics, and enterprise-grade security.
               </p>
               <div className="flex space-x-4">
-                <button className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer">
-                  <i className="ri-github-line text-gray-400"></i>
+                <button 
+                  className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer"
+                  aria-label="Visit our GitHub repository"
+                  title="GitHub"
+                >
+                  <i className="ri-github-line text-gray-300" aria-hidden="true"></i>
+                  <span className="sr-only">GitHub</span>
                 </button>
-                <button className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer">
-                  <i className="ri-twitter-line text-gray-400"></i>
+                <button 
+                  className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer"
+                  aria-label="Follow us on Twitter"
+                  title="Twitter"
+                >
+                  <i className="ri-twitter-line text-gray-300" aria-hidden="true"></i>
+                  <span className="sr-only">Twitter</span>
                 </button>
-                <button className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer">
-                  <i className="ri-discord-line text-gray-400"></i>
+                <button 
+                  className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center cursor-pointer"
+                  aria-label="Join our Discord community"
+                  title="Discord"
+                >
+                  <i className="ri-discord-line text-gray-300" aria-hidden="true"></i>
+                  <span className="sr-only">Discord</span>
                 </button>
               </div>
             </div>

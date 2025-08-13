@@ -9,8 +9,9 @@ import {
   SolverInfo, 
   IntentError,
   AsyncResult,
+  UserPreferences,
   QuoteEvaluationCriteria,
-  QuoteAnalysis
+  QuoteAnalysis 
 } from './types';
 import { SolverBus } from './solver-bus';
 import { AssetManager } from './asset-manager';
@@ -251,7 +252,7 @@ export class QuoteManager {
       if (criteria.minConfidence && quote.confidence_score < criteria.minConfidence) {
         score -= 25;
       }
-      if (criteria.preferredSolvers?.includes(quote.solver_id)) {
+      if (criteria.preferred_solvers?.includes(quote.solver_id)) {
         score += 10;
         pros.push('Preferred solver');
       }
@@ -272,6 +273,11 @@ export class QuoteManager {
       cons,
       riskLevel,
       recommendation,
+
+      reasoning: `Quote scored ${score}/100 based on execution time, fees, and solver reputation`,
+      risk_factors: cons,
+      opportunities: pros,
+      confidence: Math.min(score / 100, 1.0)
     };
   }
 
