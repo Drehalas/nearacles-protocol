@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { NEAR } from 'near-workspaces';
+import { Worker } from 'near-workspaces';
 import { initTestEnvironment, cleanupTestEnvironment, TestContext, createMockIntent } from './setup';
 
 describe('Intent Manager Contract Tests', () => {
@@ -12,10 +12,12 @@ describe('Intent Manager Contract Tests', () => {
 
   beforeEach(async () => {
     context = await initTestEnvironment();
-  });
+  }, 30000); // 30 second timeout
 
   afterEach(async () => {
-    await cleanupTestEnvironment(context);
+    if (context) {
+      await cleanupTestEnvironment(context);
+    }
   });
 
   describe('Intent Lifecycle Management', () => {
@@ -29,8 +31,8 @@ describe('Intent Manager Contract Tests', () => {
         'submit_intent',
         { intent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -56,8 +58,8 @@ describe('Intent Manager Contract Tests', () => {
           'submit_intent',
           { intent: expiredIntent },
           {
-            attachedDeposit: NEAR.parse('0.01').toString(),
-            gas: '300000000000000',
+            attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+            gas: 300000000000000n,
           }
         );
         expect(true).toBe(false); // Should not reach here
@@ -77,8 +79,8 @@ describe('Intent Manager Contract Tests', () => {
         'submit_intent',
         { intent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -91,7 +93,7 @@ describe('Intent Manager Contract Tests', () => {
           status: 'executing',
           solver_id: solver.accountId,
         },
-        { gas: '100000000000000' }
+        { gas: 100000000000000n }
       );
 
       const status = await context.intentManagerContract.view('get_intent_status', {
@@ -110,7 +112,7 @@ describe('Intent Manager Contract Tests', () => {
         context.intentManagerContract,
         'cleanup_expired_intents',
         { limit: 10 },
-        { gas: '200000000000000' }
+        { gas: 200000000000000n }
       );
 
       expect(cleanupResult).toBeDefined();
@@ -137,8 +139,8 @@ describe('Intent Manager Contract Tests', () => {
         'submit_intent',
         { intent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 
@@ -157,8 +159,8 @@ describe('Intent Manager Contract Tests', () => {
         'submit_intent',
         { intent },
         {
-          attachedDeposit: NEAR.parse('0.01').toString(),
-          gas: '300000000000000',
+          attachedDeposit: 10000000000000000000000n, // 0.01 NEAR
+          gas: 300000000000000n,
         }
       );
 

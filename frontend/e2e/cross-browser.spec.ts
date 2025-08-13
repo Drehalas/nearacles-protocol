@@ -85,12 +85,13 @@ test.describe('Cross-Browser Compatibility Tests', () => {
       await page.waitForLoadState('networkidle');
       
       // Should be functional on mobile
-      await expect(page.locator('#root')).toBeVisible();
       await expect(page.locator('.min-h-screen').first()).toBeVisible();
+      await expect(page.locator('text=Nearacles').first()).toBeVisible();
       
-      // Test touch interactions
-      if (page.locator('header .opblock-summary').first()) {
-        await page.locator('header .opblock-summary').first().tap();
+      // Test touch interactions if available
+      const swaggerSummaries = await page.locator('.swagger-ui .opblock-summary').count();
+      if (swaggerSummaries > 0) {
+        await page.locator('.swagger-ui .opblock-summary').first().tap();
       }
       
       await context.close();

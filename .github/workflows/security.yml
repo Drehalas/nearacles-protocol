@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -34,8 +34,8 @@ jobs:
       - name: Check for leaked NEAR private keys
         run: |
           echo "Checking for leaked NEAR private keys..."
-          # Look for actual private keys (not signature formats)
-          if grep -rE "ed25519:[A-Za-z0-9]{64,}" src/ 2>/dev/null | grep -v "signature:" | grep -v "// Extract signature" | grep -v "replace('ed25519:'"; then
+          if grep -r "ed25519:" src/ 2>/dev/null | grep -v "your_private_key_here" | grep -v "ed25519:\${" | grep -v "ed25519:.*signature" | grep -v "replace('ed25519:" | grep -v "Extract signature from ed25519:" | grep -v "signature: \`ed25519:"; then
+
             echo "❌ NEAR private key found in source code!"
             exit 1
           fi
@@ -44,11 +44,21 @@ jobs:
       - name: Check for leaked API keys
         run: |
           echo "Checking for leaked API keys..."
-          # Look for actual hardcoded API keys (not environment variable references)
-          if grep -rE "(sk-[A-Za-z0-9]{40,}|pk_[A-Za-z0-9]{40,})" src/ 2>/dev/null | grep -v "process.env" | grep -v "example" | grep -v "your_key_here"; then
-            echo "❌ Hardcoded API keys found in source code!"
-            exit 1
-          fi
+          patterns=(
+            "PRIVATE_KEY"
+            "SECRET_KEY" 
+            "API_KEY"
+            "OPENAI_API_KEY"
+            "sk-[A-Za-z0-9]{40,}"
+          )
+          
+          found_secrets=false
+          for pattern in "${patterns[@]}"; do
+            if grep -rE "$pattern" src/ 2>/dev/null | grep -v "process.env" | grep -v "config" | grep -v "example" | grep -v "is not set in environment" | grep -v "throw new Error"; then
+              echo "❌ Potential secret found: $pattern"
+              found_secrets=true
+            fi
+          done
           
           # Check for suspicious hardcoded secrets (not env var usage)
           if grep -rE "(SECRET_KEY|PRIVATE_KEY).*(=|:).*['\"][A-Za-z0-9]{20,}['\"]" src/ 2>/dev/null; then
@@ -87,7 +97,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies

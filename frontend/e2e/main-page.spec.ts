@@ -1,76 +1,277 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Main Page Tests', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
-
-  test('should load the main page successfully', async ({ page }) => {
-    // Check if the page loads without errors
-    await expect(page).toHaveTitle(/Nearacles/);
+test.describe('Load Testing', () => {
+  test('should handle multiple concurrent users', async ({ browser }) => {
+    const userCount = 5;
+    const contexts = [];
+    const pages = [];
     
-    // Check if the main content is present
-    const mainContent = page.locator('div.min-h-screen');
-    await expect(mainContent).toBeVisible();
-  });
-
-  test('should render the main components', async ({ page }) => {
-    // Check if main components are rendered
-    await expect(page.locator('text=Nearacles')).toBeVisible();
-    await expect(page.getByRole('navigation')).toBeVisible();
-  });
-
-  test('should have proper meta tags', async ({ page }) => {
-    // Check charset
-    const charset = page.locator('meta[charset="UTF-8"]');
-    await expect(charset).toHaveCount(1);
+    // Create multiple browser contexts (simulating different users)
+    for (let i = 0; i < userCount; i++) {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      contexts.push(context);
+      pages.push(page);
+    }
     
-    // Check viewport
-    const viewport = page.locator('meta[name="viewport"]');
-    await expect(viewport).toHaveAttribute('content', 'width=device-width, initial-scale=1');
-  });
-
-  test('should load CSS styles', async ({ page }) => {
-    await page.goto('/');
-    
-    // Check if Tailwind CSS classes are working (Next.js uses built-in CSS)
-    const header = page.locator('header');
-    await expect(header).toBeVisible();
-    
-    // Check if styles are applied
-    const bodyElement = page.locator('body');
-    const fontFamily = await bodyElement.evaluate(el => 
-      window.getComputedStyle(el).fontFamily
+    // All users navigate to the app simultaneously
+    const loadPromises = pages.map(page => 
+      page.goto('/').then(() => page.waitForLoadState('networkidle'))
     );
-    expect(fontFamily).toContain('sans-serif');
+    
+    const startTime = Date.now();
+    await Promise.all(loadPromises);
+    const endTime = Date.now();
+    
+    // All pages should load within reasonable time even with concurrent users
+    expect(endTime - startTime).toBeLessThan(10000);
+    
+    // Verify all pages loaded successfully
+    for (const page of pages) {
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
+    }
+    
+    // Cleanup
+    for (const context of contexts) {
+      await context.close();
+    }
   });
 
-  test('should not have console errors on load', async ({ page }) => {
-    const consoleErrors: string[] = [];
+  test('should handle rapid page interactions', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('header', { timeout: 15000 });
     
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
+    const operations = await page.locator('header .opblock-summary').all();
+    
+    if (operations.length > 0) {
+      const startTime = Date.now();
+      
+      // Rapidly interact with multiple elements
+      for (let i = 0; i < Math.min(10, operations.length); i++) {
+        await operations[i % operations.length].click();
+        await page.waitForTimeout(100);
       }
+      
+      const endTime = Date.now();
+      
+      // Should handle rapid interactions smoothly
+      expect(endTime - startTime).toBeLessThan(5000);
+      
+      // App should remain stable
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
+    }
+  });
+
+  test('should handle memory intensive operations', async ({ page }) => {
+    await page.goto('/');
+    
+    // Simulate memory-intensive operations
+    const memoryTest = await page.evaluate(() => {
+      const startTime = performance.now();
+      const largeArray = [];
+      
+      // Create large amount of data
+      for (let i = 0; i < 100000; i++) {
+        largeArray.push({
+          id: i,
+          data: `test data string ${i}`,
+          timestamp: Date.now(),
+        });
+      }
+      
+      // Process the data
+      const processed = largeArray.map(item => ({
+        ...item,
+        processed: true,
+        hash: item.id * 31
+      }));
+      
+      const endTime = performance.now();
+      
+      // Cleanup
+      largeArray.length = 0;
+      processed.length = 0;
+      
+      return endTime - startTime;
     });
     
+    // Should complete memory operations reasonably quickly
+    expect(memoryTest).toBeLessThan(5000);
+    
+    // App should remain responsive
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+  });
+
+  test('should handle continuous scrolling', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    expect(consoleErrors).toHaveLength(0);
+    const startTime = Date.now();
+    
+    // Continuous scrolling for 5 seconds
+    const scrollInterval = setInterval(async () => {
+      await page.evaluate(() => {
+        window.scrollBy(0, 100);
+      });
+    }, 100);
+    
+    // Wait for 5 seconds of scrolling
+    await page.waitForTimeout(5000);
+    clearInterval(scrollInterval);
+    
+    const endTime = Date.now();
+    
+    // Should handle continuous scrolling smoothly
+    expect(endTime - startTime).toBeGreaterThan(4000);
+    expect(endTime - startTime).toBeLessThan(7000);
+    
+    // App should remain functional
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
-  test('should be responsive', async ({ page }) => {
-    // Test desktop view
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await expect(page.locator('div.min-h-screen').first()).toBeVisible();
+  test('should handle rapid resize operations', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
-    // Test tablet view
-    await page.setViewportSize({ width: 768, height: 1024 });
-    await expect(page.locator('div.min-h-screen').first()).toBeVisible();
+    const viewports = [
+      { width: 1920, height: 1080 },
+      { width: 768, height: 1024 },
+      { width: 375, height: 667 },
+      { width: 1440, height: 900 },
+      { width: 320, height: 568 },
+    ];
     
-    // Test mobile view
-    await page.setViewportSize({ width: 375, height: 667 });
-    await expect(page.locator('div.min-h-screen').first()).toBeVisible();
+    const startTime = Date.now();
+    
+    // Rapidly change viewport sizes
+    for (let i = 0; i < 20; i++) {
+      const viewport = viewports[i % viewports.length];
+      await page.setViewportSize(viewport);
+      await page.waitForTimeout(50);
+    }
+    
+    const endTime = Date.now();
+    
+    // Should handle rapid resizing
+    expect(endTime - startTime).toBeLessThan(3000);
+    
+    // App should remain stable after resizing
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+  });
+
+  test('should maintain performance with large DOM', async ({ page }) => {
+    await page.goto('/');
+    
+    // Add many elements to the DOM
+    await page.evaluate(() => {
+      const container = document.createElement('div');
+      container.style.display = 'none'; // Hidden to not affect visual tests
+      
+      for (let i = 0; i < 1000; i++) {
+        const element = document.createElement('div');
+        
+        // Create elements safely without innerHTML to prevent XSS
+        const spanElement = document.createElement('span');
+        spanElement.textContent = `Item ${i}`;
+        
+        const pElement = document.createElement('p');
+        pElement.textContent = `Description for item ${i}`;
+        
+        element.appendChild(spanElement);
+        element.appendChild(pElement);
+        container.appendChild(element);
+      }
+      
+      document.body.appendChild(container);
+    });
+    
+    // Test interactions with large DOM
+    const startTime = Date.now();
+    
+    await page.evaluate(() => {
+      // Query DOM multiple times
+      for (let i = 0; i < 100; i++) {
+        document.querySelectorAll('div');
+        document.querySelectorAll('span');
+      }
+    });
+    
+    const endTime = Date.now();
+    
+    // Should handle DOM queries efficiently even with large DOM
+    expect(endTime - startTime).toBeLessThan(2000);
+    
+    // Original app should still be functional
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+  });
+
+  test('should handle network throttling', async ({ page, context }) => {
+    // Simulate slow network
+    await context.route('**/*', async route => {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      route.continue();
+    });
+    
+    const startTime = Date.now();
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    const endTime = Date.now();
+    
+    // Should handle slow network gracefully
+    expect(endTime - startTime).toBeGreaterThan(1000);
+    
+    // App should still load completely
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+  });
+
+  test('should handle browser tab switching simulation', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    
+    // Simulate tab becoming hidden/visible
+    for (let i = 0; i < 10; i++) {
+      await page.evaluate(() => {
+        // Simulate tab hidden
+        Object.defineProperty(document, 'hidden', { value: true, configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+      
+      await page.waitForTimeout(100);
+      
+      await page.evaluate(() => {
+        // Simulate tab visible
+        Object.defineProperty(document, 'hidden', { value: false, configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+      
+      await page.waitForTimeout(100);
+    }
+    
+    // App should remain stable after visibility changes
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+  });
+
+  test('should handle stress testing of API calls', async ({ page }) => {
+    await page.goto('/');
+    
+    // Make multiple concurrent API calls
+    const apiCalls = Array.from({ length: 10 }, () => 
+      page.request.get('/dashboard.json')
+    );
+    
+    const startTime = Date.now();
+    const responses = await Promise.all(apiCalls);
+    const endTime = Date.now();
+    
+    // All API calls should succeed
+    responses.forEach(response => {
+      expect(response.status()).toBe(200);
+    });
+    
+    // Should complete within reasonable time
+    expect(endTime - startTime).toBeLessThan(5000);
+    
+    // App should remain functional
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 });

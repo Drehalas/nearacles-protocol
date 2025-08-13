@@ -2,29 +2,37 @@
 module.exports = {
   preset: 'ts-jest/presets/default-esm',
   extensionsToTreatAsEsm: ['.ts'],
-
   testEnvironment: 'node',
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: [
-    '**/tests/**/*.test.ts'
+    '**/__tests__/**/*.ts',
+    '**/?(*.)+(spec|test).ts'
   ],
   transform: {
     '^.+\\.ts$': ['ts-jest', {
-      tsconfig: 'tsconfig.test.json'
-    }],
+      useESM: true,
+      tsconfig: {
+        module: 'esnext',
+      }
+    }]
+  },
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1'
   },
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
+    '!src/examples/**',
+    '!src/**/*.test.ts',
+    '!src/**/*.spec.ts',
     '!src/**/index.ts'
   ],
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov'],
+  coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   testTimeout: 30000,
   verbose: false,
-  // Skip tests that require near-workspaces (Windows incompatible)
   testPathIgnorePatterns: [
     'solver-registry.test.ts',
     'intent-manager.test.ts', 

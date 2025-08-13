@@ -1,9 +1,29 @@
 name: E2E Tests
 
 on:
-  # Disabled for now - run manually when needed
   workflow_dispatch:
     inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - desktop
+          - mobile
+          - accessibility
+          - performance
+      browser:
+        description: 'Browser to test (for desktop tests)'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
       reason:
         description: 'Reason for running E2E tests'
         required: false
@@ -11,19 +31,24 @@ on:
 
 jobs:
   test:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'desktop' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     
     strategy:
       matrix:
-        browser: [chromium, firefox, webkit]
+        browser: ${{ 
+          github.event.inputs.browser == 'all' ? fromJson('["chromium", "firefox", "webkit"]') : 
+          github.event.inputs.browser ? fromJson(format('["{0}"]', github.event.inputs.browser)) : 
+          fromJson('["chromium"]')
+        }}
         
     steps:
     - uses: actions/checkout@v4
     
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
     
     - name: Install dependencies
@@ -59,6 +84,7 @@ jobs:
         retention-days: 30
 
   mobile-tests:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'mobile' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     
@@ -67,7 +93,7 @@ jobs:
     
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
     
     - name: Install dependencies
@@ -95,6 +121,7 @@ jobs:
         retention-days: 30
 
   accessibility-tests:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'accessibility' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     
@@ -103,7 +130,7 @@ jobs:
     
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
     
     - name: Install dependencies
@@ -131,6 +158,7 @@ jobs:
         retention-days: 30
 
   performance-tests:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'performance' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     
@@ -139,7 +167,7 @@ jobs:
     
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
     
     - name: Install dependencies

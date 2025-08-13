@@ -108,7 +108,7 @@ test.describe('Load Testing', () => {
     
     const startTime = Date.now();
     
-    // Continuous scrolling for 10 seconds
+    // Continuous scrolling for 5 seconds
     const scrollInterval = setInterval(async () => {
       await page.evaluate(() => {
         window.scrollBy(0, 100);

@@ -98,3 +98,8 @@ CLAUDE.local.md
 CLAUDE.md
 myDocs
 .claude
+.claude/
+frontend/out/
+frontend/playwright-report/
+frontend/test-results/
+.claude/settings.local.json

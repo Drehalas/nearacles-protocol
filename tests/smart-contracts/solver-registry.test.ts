@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { NEAR } from 'near-workspaces';
+import { Worker } from 'near-workspaces';
 import { initTestEnvironment, cleanupTestEnvironment, TestContext } from './setup';
 
 describe('Solver Registry Contract Tests', () => {
@@ -12,10 +12,12 @@ describe('Solver Registry Contract Tests', () => {
 
   beforeEach(async () => {
     context = await initTestEnvironment();
-  });
+  }, 30000); // 30 second timeout
 
   afterEach(async () => {
-    await cleanupTestEnvironment(context);
+    if (context) {
+      await cleanupTestEnvironment(context);
+    }
   });
 
   describe('Solver Registration', () => {
@@ -32,8 +34,8 @@ describe('Solver Registry Contract Tests', () => {
           fee_rate: 0.005,
         },
         {
-          attachedDeposit: NEAR.parse('1').toString(),
-          gas: '150000000000000',
+          attachedDeposit: 1000000000000000000000000n, // 1 NEAR
+          gas: 150000000000000n,
         }
       );
 
@@ -63,8 +65,8 @@ describe('Solver Registry Contract Tests', () => {
             fee_rate: 0.005,
           },
           {
-            attachedDeposit: NEAR.parse('1').toString(),
-            gas: '150000000000000',
+            attachedDeposit: 1000000000000000000000000n, // 1 NEAR
+            gas: 150000000000000n,
           }
         );
         expect(true).toBe(false); // Should not reach here
@@ -87,8 +89,8 @@ describe('Solver Registry Contract Tests', () => {
             fee_rate: 0.005,
           },
           {
-            attachedDeposit: NEAR.parse('0.1').toString(), // Too low
-            gas: '150000000000000',
+            attachedDeposit: 100000000000000000000000n, // 0.1 NEAR (too low)
+            gas: 150000000000000n,
           }
         );
         expect(true).toBe(false);
@@ -110,7 +112,7 @@ describe('Solver Registry Contract Tests', () => {
           description: 'Updated description',
           fee_rate: 0.004,
         },
-        { gas: '100000000000000' }
+        { gas: 100000000000000n }
       );
 
       const solverInfo = await context.solverRegistryContract.view('get_solver', {
@@ -128,7 +130,7 @@ describe('Solver Registry Contract Tests', () => {
         context.solverRegistryContract,
         'deactivate_solver',
         {},
-        { gas: '100000000000000' }
+        { gas: 100000000000000n }
       );
 
       const solverInfo = await context.solverRegistryContract.view('get_solver', {
@@ -146,7 +148,7 @@ describe('Solver Registry Contract Tests', () => {
         context.solverRegistryContract,
         'deactivate_solver',
         {},
-        { gas: '100000000000000' }
+        { gas: 100000000000000n }
       );
 
       // Then reactivate
@@ -154,7 +156,7 @@ describe('Solver Registry Contract Tests', () => {
         context.solverRegistryContract,
         'reactivate_solver',
         {},
-        { gas: '100000000000000' }
+        { gas: 100000000000000n }
       );
 
       const solverInfo = await context.solverRegistryContract.view('get_solver', {
@@ -179,7 +181,7 @@ describe('Solver Registry Contract Tests', () => {
           execution_time: 25,
           gas_used: '180000000000000',
         },
-        { gas: '100000000000000' }
+        { gas: 100000000000000n }
       );
 
       const performance = await context.solverRegistryContract.view('get_solver_performance', {
@@ -205,7 +207,7 @@ describe('Solver Registry Contract Tests', () => {
             execution_time: 20 + (i % 5),
             gas_used: '180000000000000',
           },
-          { gas: '100000000000000' }
+          { gas: 100000000000000n }
         );
       }
 
@@ -231,7 +233,7 @@ describe('Solver Registry Contract Tests', () => {
             execution_time: 60 + (i % 10),
             gas_used: '300000000000000',
           },
-          { gas: '100000000000000' }
+          { gas: 100000000000000n }
         );
       }
 
@@ -298,7 +300,7 @@ describe('Solver Registry Contract Tests', () => {
           solver_id: solver.accountId,
           reason: 'Malicious behavior detected',
         },
-        { gas: '100000000000000' }
+        { gas: 100000000000000n }
       );
 
       const solverInfo = await context.solverRegistryContract.view('get_solver', {
@@ -320,7 +322,7 @@ describe('Solver Registry Contract Tests', () => {
             solver_id: solver.accountId,
             reason: 'Should fail',
           },
-          { gas: '100000000000000' }
+          { gas: 100000000000000n }
         );
         expect(true).toBe(false);
       } catch (error) {
@@ -345,7 +347,7 @@ describe('Solver Registry Contract Tests', () => {
             execution_time: 15,
             gas_used: '150000000000000',
           },
-          { gas: '100000000000000' }
+          { gas: 100000000000000n }
         );
       }
 
@@ -355,8 +357,8 @@ describe('Solver Registry Contract Tests', () => {
         'distribute_rewards',
         {},
         {
-          attachedDeposit: NEAR.parse('10').toString(),
-          gas: '200000000000000',
+          attachedDeposit: 10000000000000000000000000n, // 10 NEAR
+          gas: 200000000000000n,
         }
       );
 

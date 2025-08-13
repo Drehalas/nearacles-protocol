@@ -65,7 +65,7 @@ export class NEAROracleIntegration {
    */
   private async initializeNearAccount(config: NEARConfig): Promise<Account> {
     const keyStore = new InMemoryKeyStore();
-    const keyPair = KeyPair.fromString(config.privateKey as string);
+    const keyPair = KeyPair.fromString(config.privateKey as any);
     await keyStore.setKey(config.networkId, config.accountId, keyPair);
 
     const provider = new JsonRpcProvider({ url: config.nodeUrl });

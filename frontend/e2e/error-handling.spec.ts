@@ -82,10 +82,10 @@ test.describe('Error Handling Tests', () => {
 
   test('should handle rapid user interactions', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('header', { timeout: 10000 });
+    await page.waitForSelector('.swagger-ui', { timeout: 10000 });
     
     // Test rapid clicks on expandable elements
-    const expandableElements = await page.locator('header .opblock-summary').all();
+    const expandableElements = await page.locator('.swagger-ui .opblock-summary').all();
     
     if (expandableElements.length > 0) {
       // Rapidly click elements
@@ -142,7 +142,7 @@ test.describe('Error Handling Tests', () => {
 
   test('should handle page refresh at any time', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('header', { timeout: 10000 });
+    await page.waitForSelector('.swagger-ui', { timeout: 10000 });
     
     // Refresh multiple times during different states
     for (let i = 0; i < 3; i++) {

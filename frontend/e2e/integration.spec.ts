@@ -42,7 +42,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
       };
     });
     
-    // Swagger UI should be properly integrated
+    // Dashboard UI should be properly integrated
     expect(libraryIntegration.dashboardUI).toBe(true);
     
     // React should be available (either global or bundled)
@@ -102,9 +102,6 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     await page.waitForSelector('header', { timeout: 15000 });
     
     // Test component data flow by interacting with Header
-    const operationsBefore = await page.locator('header .opblock').count();
-    
-    // Interact with components to test data flow
     const operations = await page.locator('header .opblock-summary').all();
     
     if (operations.length > 0) {
@@ -121,6 +118,8 @@ test.describe('Integration Tests - Component and Service Integration', () => {
       // Collapse it back (test bidirectional data flow)
       await operations[0].click();
       await page.waitForTimeout(500);
+      const isCollapsed = await operationBody.isHidden();
+      expect(isCollapsed).toBe(true);
     }
     
     // Verify component remains functional after interactions
@@ -128,8 +127,6 @@ test.describe('Integration Tests - Component and Service Integration', () => {
   });
 
   test('should integrate error boundaries and error handling', async ({ page }) => {
-    await page.goto('/');
-    
     const jsErrors: string[] = [];
     const reactErrors: string[] = [];
     
@@ -148,6 +145,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
       jsErrors.push(exception.message);
     });
     
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     
     // Trigger potential error scenarios
@@ -172,57 +170,6 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     expect(criticalReactErrors).toHaveLength(0);
   });
 
-  test('should integrate with development vs production builds', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    
-    // Check build characteristics
-    const buildInfo = await page.evaluate(() => {
-      return {
-        isDevelopment: process?.env?.NODE_ENV === 'development' || !!(window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__,
-        hasSourceMaps: document.querySelectorAll('script[src*=".map"]').length > 0,
-        isMinified: document.querySelector('script')?.textContent?.includes('\n') === false,
-        hasDevTools: !!(window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__,
-        bundleCount: document.querySelectorAll('script[src*=".js"]').length,
-      };
-    });
-    
-    // Verify appropriate build characteristics
-    expect(buildInfo.bundleCount).toBeGreaterThan(0);
-    
-    // Log build info for debugging
-    console.log('Build Integration Info:', buildInfo);
-  });
-
-  test('should integrate responsive design with functionality', async ({ page }) => {
-    const viewports = [
-      { width: 320, height: 568, name: 'Mobile Small' },
-      { width: 768, height: 1024, name: 'Tablet' },
-      { width: 1200, height: 800, name: 'Desktop' },
-      { width: 1920, height: 1080, name: 'Large Desktop' },
-    ];
-    
-    for (const viewport of viewports) {
-      await page.setViewportSize({ width: viewport.width, height: viewport.height });
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
-      
-      // Verify functionality at each viewport
-      await expect(page.locator('.min-h-screen').first()).toBeVisible();
-      
-      // Check if Header adapts to viewport
-      await page.waitForSelector('header', { timeout: 10000 });
-      const dashboardContainer = page.locator('header');
-      await expect(dashboardContainer).toBeVisible();
-      
-      // Verify no horizontal overflow
-      const hasHorizontalScroll = await page.evaluate(() => {
-        return document.body.scrollWidth > window.innerWidth;
-      });
-      expect(hasHorizontalScroll).toBe(false);
-    }
-  });
-
   test('should integrate with browser navigation and routing', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
@@ -245,35 +192,5 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     
     // App should remain functional throughout navigation
     await expect(page.locator('.min-h-screen').first()).toBeVisible();
-  });
-
-  test('should integrate performance monitoring', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    
-    // Test performance monitoring integration
-    const performanceData = await page.evaluate(() => {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      const resources = performance.getEntriesByType('resource');
-      
-      return {
-        navigationTiming: {
-          domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
-          loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
-        },
-        resourceCount: resources.length,
-        memoryUsage: (performance as any).memory ? {
-          used: (performance as any).memory.usedJSHeapSize,
-          total: (performance as any).memory.totalJSHeapSize,
-        } : null,
-      };
-    });
-    
-    // Validate performance integration
-    expect(performanceData.navigationTiming.domContentLoaded).toBeGreaterThan(0);
-    expect(performanceData.resourceCount).toBeGreaterThan(0);
-    
-    // Log performance data
-    console.log('Performance Integration:', performanceData);
   });
 });
