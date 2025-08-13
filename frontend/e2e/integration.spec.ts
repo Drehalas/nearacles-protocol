@@ -8,23 +8,23 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     // Test React component hierarchy
     const componentStructure = await page.evaluate(() => {
       const root = document.querySelector('#root');
-      const app = document.querySelector('.App');
-      const swaggerUI = document.querySelector('.swagger-ui');
+      const app = document.querySelector('.min-h-screen');
+      const dashboardUI = document.querySelector('header');
       
       return {
         hasRoot: !!root,
         hasApp: !!app,
-        hasSwaggerUI: !!swaggerUI,
+        hasHeader: !!dashboardUI,
         rootChildren: root?.children.length || 0,
         appParent: app?.parentElement?.id || '',
-        swaggerUIParent: swaggerUI?.parentElement?.className || '',
+        dashboardUIParent: dashboardUI?.parentElement?.className || '',
       };
     });
     
     // Validate component integration
     expect(componentStructure.hasRoot).toBe(true);
     expect(componentStructure.hasApp).toBe(true);
-    expect(componentStructure.hasSwaggerUI).toBe(true);
+    expect(componentStructure.hasHeader).toBe(true);
     expect(componentStructure.appParent).toBe('root');
     expect(componentStructure.rootChildren).toBeGreaterThan(0);
   });
@@ -37,13 +37,13 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     const libraryIntegration = await page.evaluate(() => {
       return {
         react: !!(window as any).React || !!document.querySelector('[data-reactroot]'),
-        swaggerUI: !!document.querySelector('.swagger-ui'),
-        swaggerUILibrary: !!(window as any).SwaggerUIBundle || document.querySelectorAll('script[src*="swagger"]').length > 0,
+        dashboardUI: !!document.querySelector('header'),
+        dashboardUILibrary: !!(window as any).HeaderBundle || document.querySelectorAll('script[src*="dashboard"]').length > 0,
       };
     });
     
     // Swagger UI should be properly integrated
-    expect(libraryIntegration.swaggerUI).toBe(true);
+    expect(libraryIntegration.dashboardUI).toBe(true);
     
     // React should be available (either global or bundled)
     const hasReactIndicators = await page.locator('[data-reactroot], .App').count();
@@ -57,13 +57,13 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     // Test CSS integration
     const stylingIntegration = await page.evaluate(() => {
       const body = document.body;
-      const app = document.querySelector('.App');
-      const swaggerUI = document.querySelector('.swagger-ui');
+      const app = document.querySelector('.min-h-screen');
+      const dashboardUI = document.querySelector('header');
       
       return {
         bodyFont: window.getComputedStyle(body).fontFamily,
         appStyles: app ? window.getComputedStyle(app).display : '',
-        swaggerUIStyles: swaggerUI ? window.getComputedStyle(swaggerUI).display : '',
+        dashboardUIStyles: dashboardUI ? window.getComputedStyle(dashboardUI).display : '',
         cssRules: document.styleSheets.length,
       };
     });
@@ -99,13 +99,13 @@ test.describe('Integration Tests - Component and Service Integration', () => {
 
   test('should handle data flow between components', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    await page.waitForSelector('header', { timeout: 15000 });
     
-    // Test component data flow by interacting with SwaggerUI
-    const operationsBefore = await page.locator('.swagger-ui .opblock').count();
+    // Test component data flow by interacting with Header
+    const operationsBefore = await page.locator('header .opblock').count();
     
     // Interact with components to test data flow
-    const operations = await page.locator('.swagger-ui .opblock-summary').all();
+    const operations = await page.locator('header .opblock-summary').all();
     
     if (operations.length > 0) {
       // Expand an operation (tests component state changes)
@@ -113,7 +113,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
       await page.waitForTimeout(1000);
       
       // Check if component state updated
-      const operationBody = page.locator('.swagger-ui .opblock-body').first();
+      const operationBody = page.locator('header .opblock-body').first();
       const isExpanded = await operationBody.isVisible();
       
       expect(isExpanded).toBe(true);
@@ -124,7 +124,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     }
     
     // Verify component remains functional after interactions
-    await expect(page.locator('.swagger-ui')).toBeVisible();
+    await expect(page.locator('header')).toBeVisible();
   });
 
   test('should integrate error boundaries and error handling', async ({ page }) => {
@@ -163,7 +163,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     await page.waitForTimeout(1000);
     
     // Application should handle errors gracefully
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
     
     // Critical React errors should not occur
     const criticalReactErrors = reactErrors.filter(error => 
@@ -208,12 +208,12 @@ test.describe('Integration Tests - Component and Service Integration', () => {
       await page.waitForLoadState('networkidle');
       
       // Verify functionality at each viewport
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
       
-      // Check if SwaggerUI adapts to viewport
-      await page.waitForSelector('.swagger-ui', { timeout: 10000 });
-      const swaggerContainer = page.locator('.swagger-ui');
-      await expect(swaggerContainer).toBeVisible();
+      // Check if Header adapts to viewport
+      await page.waitForSelector('header', { timeout: 10000 });
+      const dashboardContainer = page.locator('header');
+      await expect(dashboardContainer).toBeVisible();
       
       // Verify no horizontal overflow
       const hasHorizontalScroll = await page.evaluate(() => {
@@ -244,7 +244,7 @@ test.describe('Integration Tests - Component and Service Integration', () => {
     await page.waitForTimeout(500);
     
     // App should remain functional throughout navigation
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should integrate performance monitoring', async ({ page }) => {

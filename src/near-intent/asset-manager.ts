@@ -3,7 +3,7 @@
  * Manages supported tokens and asset metadata
  */
 
-import { TokenMetadata, AssetBalance, AssetInfo } from './types';
+import { TokenMetadata, AssetBalance, AssetInfo, IntentError } from './types';
 import { Account, Contract } from 'near-api-js';
 import { formatTokenAmount, parseTokenAmount, stringToBigInt } from '../utils/helpers';
 
@@ -169,6 +169,7 @@ export class AssetManager {
           {
             viewMethods: ['ft_balance_of'],
             changeMethods: [],
+            useLocalViewExecution: false,
           }
         );
 
@@ -281,6 +282,7 @@ export class AssetManager {
         {
           viewMethods: ['storage_balance_of'],
           changeMethods: [],
+          useLocalViewExecution: false,
         }
       );
 
@@ -315,6 +317,7 @@ export class AssetManager {
         {
           viewMethods: [],
           changeMethods: ['storage_deposit'],
+          useLocalViewExecution: false,
         }
       );
 

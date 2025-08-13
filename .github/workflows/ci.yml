@@ -1,11 +1,9 @@
 name: CI/CD Pipeline
-
 on:
   push:
     branches: [ main, develop, feature/* ]
   pull_request:
     branches: [ main, develop ]
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,17 +20,28 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+        cache-dependency-path: |
+          package-lock.json
+          frontend/package-lock.json
     
-    - name: Install dependencies
+    - name: Install backend dependencies
       run: npm ci
     
-    - name: Type check
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Type check backend
       run: npm run type-check
     
-    - name: Run linter
+    - name: Run backend linter
       run: npm run lint
     
-    - name: Run tests
+    - name: Run frontend linter
+      working-directory: ./frontend
+      run: npm run lint
+    
+    - name: Run backend tests
       run: npm test
       env:
         CI: true
@@ -41,7 +50,11 @@ jobs:
       run: npm run test:integration || echo "Integration tests skipped - NEAR environment not available"
       continue-on-error: true
     
-    - name: Build project
+    - name: Build backend
+      run: npm run build
+      
+    - name: Build frontend
+      working-directory: ./frontend
       run: npm run build
 
   smart-contract-tests:
@@ -55,6 +68,7 @@ jobs:
       with:
         node-version: 18.x
         cache: 'npm'
+        cache-dependency-path: package-lock.json
     
     - name: Install dependencies
       run: npm ci

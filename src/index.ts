@@ -4,20 +4,41 @@
  */
 
 // Export specific types to avoid conflicts
-export type { Intent, Quote, AssetInfo, SolverInfo, IntentRequestParams, IntentConfig, IntentError, AsyncResult } from './near-intent/types';
-export type { AIAgentConfig, AIDecision, MarketAnalysisResult } from './near-ai/types';
+export type { 
+  Intent, 
+  Quote, 
+  AssetInfo, 
+  SolverInfo, 
+  IntentRequestParams, 
+  IntentConfig, 
+  IntentError, 
+  AsyncResult 
+} from './near-intent/types';
+
+export type { 
+  AIAgentConfig, 
+  AIDecision, 
+  MarketAnalysisResult 
+} from './near-ai/types';
+
+// Export utility functions and helpers
 export * from './utils/helpers';
 
-// Export main classes
+// Export main classes (avoiding duplicates)
 export { IntentAgent } from './near-intent/intent-agent';
-export { AIAgent } from './near-ai/ai-agent';
 export { AssetManager } from './near-intent/asset-manager';
 export { SolverBus } from './near-intent/solver-bus';
 export { QuoteManager } from './near-intent/quote-manager';
 export { VerifierContract } from './near-intent/verifier-contract';
-export { MarketAnalyzer } from './near-ai/market-analyzer';
-export { RiskAssessor } from './near-ai/risk-assessor';
-export { IntentOptimizer } from './near-ai/intent-optimizer';
+
+// Export NEAR AI components
+export { 
+  AIAgent, 
+  MarketAnalyzer, 
+  RiskAssessor, 
+  IntentOptimizer,
+  SentimentAnalyzer 
+} from './near-ai';
 
 // Configuration and constants
 export const NEARACLES_VERSION = '1.0.0';
@@ -45,6 +66,7 @@ export const DEFAULT_TESTNET_CONFIG = {
     quote: '0.005',
   },
 };
+
 export const DEFAULT_MAINNET_CONFIG = {
   network_id: 'mainnet' as const,
   node_url: 'https://rpc.mainnet.near.org',

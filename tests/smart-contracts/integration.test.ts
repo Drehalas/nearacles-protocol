@@ -13,30 +13,34 @@ describe('NEAR Intent Protocol Integration Tests', () => {
   let intentAgent: IntentAgent;
   let aiAgent: AIAgent;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     const config = {
       network_id: 'testnet' as const,
       node_url: 'https://rpc.testnet.near.org',
       wallet_url: 'https://wallet.testnet.near.org',
       helper_url: 'https://helper.testnet.near.org',
       explorer_url: 'https://explorer.testnet.near.org',
-      solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
-      verifier_contract: 'intents.near',
+      solver_bus_url: 'https://solver-bus.near.org',
+      verifier_contract: 'verifier.intents.near',
       intent_contract: 'intents.near',
       gas_limits: {
-        register: '5000000000000',
-        submit_intent: '30000000000000',
-        submit_quote: '5000000000000',
-        execute_intent: '100000000000000',
+        register: '100000000000000',
+        submit_intent: '300000000000000',
+        submit_quote: '200000000000000',
+        execute_intent: '300000000000000',
       },
       storage_deposits: {
         registration: '0.1',
-        intent: '0.25',
-        quote: '0.1',
+        intent: '0.01',
+        quote: '0.005',
+
       },
     };
 
     intentAgent = new IntentAgent(config);
+    
+    // Initialize the intent agent - critical for tests to work!
+    await intentAgent.initialize();
 
     aiAgent = new AIAgent({
       model: {
@@ -61,6 +65,8 @@ describe('NEAR Intent Protocol Integration Tests', () => {
         maxSlippage: 1.0,
       }
     );
+
+
 
     expect(result.success).toBe(true);
     if (result.success) {

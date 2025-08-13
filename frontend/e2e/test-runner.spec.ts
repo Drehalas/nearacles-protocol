@@ -8,7 +8,7 @@ test.describe('Test Runner Configuration', () => {
     
     // Basic smoke test to ensure environment is ready
     await expect(page.locator('#root')).toBeVisible();
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should have proper test data setup', async ({ page }) => {
