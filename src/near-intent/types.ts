@@ -206,6 +206,7 @@ export interface IntentEvent {
 }
 
 // AI Agent Types (for NEAR AI integration)
+
 export interface AIAgentConfig {
   model: 'gpt-4' | 'claude-3' | 'near-ai';
   api_key?: string;
@@ -214,6 +215,7 @@ export interface AIAgentConfig {
   temperature: number;
   context_window: number;
 }
+
 
 export interface AIDecision {
   action: 'execute' | 'wait' | 'cancel' | 'modify';

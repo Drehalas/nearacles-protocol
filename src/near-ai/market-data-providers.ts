@@ -67,6 +67,16 @@ function getCurrentTimestamp(): number {
   return Math.floor(Date.now() / 1000);
 }
 
+export interface PriceOracleConfig {
+  pyth_program_id?: string;
+  chainlink_feeds?: Record<string, string>;
+  chainlink?: { rateLimitMs?: number; feeds?: Record<string, string>; updateInterval?: number } | boolean;
+  near_oracles?: string[];
+  fallback_providers: string[];
+  update_frequency: number;
+  coingecko?: { rateLimitMs?: number } | boolean;
+}
+
 export class MarketDataProviders {
   private config: MarketDataConfig;
   private cache: Map<string, { data: MarketData; timestamp: number }> = new Map();
@@ -101,62 +111,30 @@ export class MarketDataProviders {
         continue;
       }
     }
-
     // Fallback to mock data generation if all sources fail
-    return this.generateFallbackMarketData(assetPair);
-  }
-
-  /**
-   * Fetch from Chainlink price feeds
-   */
-  private async fetchFromChainlink(assetPair: string): Promise<MarketData> {
-    if (!this.config.chainlink || this.config.chainlink === true) {
-      throw new Error('Chainlink not configured');
-    }
-
     const [baseAsset, quoteAsset] = assetPair.split('/');
-    const feedAddress = this.config.chainlink.feeds?.[`${baseAsset}_${quoteAsset}`];
+    const basePrice = this.generateMockPrice(baseAsset, quoteAsset);
     
-    if (!feedAddress) {
-      throw new Error(`No Chainlink feed for ${assetPair}`);
-    }
-
-    // In a real implementation, this would call the Chainlink contract
-    const mockPrice = this.generateMockPrice(baseAsset, quoteAsset);
-    
-    return {
+    const marketData: MarketData = {
       symbol: assetPair,
-      price: mockPrice,
+      price: basePrice,
       volume: Math.random() * 1000000,
-      high_24h: mockPrice * 1.05,
-      low_24h: mockPrice * 0.95,
+      high_24h: basePrice * 1.1,
+      low_24h: basePrice * 0.9,
       change_24h: (Math.random() - 0.5) * 20,
       market_cap: Math.random() * 10000000,
       timestamp: Date.now(),
-      volume_24h: (Math.random() * 1000000).toString(),
+      volume_24h: (Math.random() * 1000000).toFixed(2),
       price_change_24h: (Math.random() - 0.5) * 20,
-      liquidity_score: 0.8 + Math.random() * 0.2,
-      volatility_index: Math.random() * 0.8,
+      liquidity_score: Math.random() * 0.8 + 0.2,
+      volatility_24h: Math.random() * 0.1 + 0.01,
+      volatility_index: Math.random() * 0.15 + 0.05
     };
-  }
 
-  /**
-   * Fetch from Flux Protocol
-   */
-  private async fetchFromFlux(assetPair: string): Promise<MarketData> {
-    if (!this.config.flux) {
-      throw new Error('Flux not configured');
-    }
-
-    const response = await fetch(`${this.config.flux.endpoint}/prices/${assetPair}`, {
-      headers: this.config.flux.apiKey ? {
-        'Authorization': `Bearer ${this.config.flux.apiKey}`
-      } : {}
-    });
-
-    if (!response.ok) {
-      throw new Error(`Flux API error: ${response.status}`);
-    }
+    // Cache the result
+    this.cache.set(assetPair, { data: marketData, timestamp: Date.now() });
+    
+    return marketData;
 
     const data = await response.json();
     
@@ -435,6 +413,7 @@ export class MarketDataProviders {
   }
 
   /**
+
    * Get cached data if still valid
    */
   private getCachedData(key: string): MarketData | null {

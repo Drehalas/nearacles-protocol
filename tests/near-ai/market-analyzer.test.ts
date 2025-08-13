@@ -239,7 +239,7 @@ describe('Market Analyzer Tests', () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        const chartPatterns = result.data!.patterns.filter(p => 
+        const chartPatterns = result.data!.patterns.filter(p =>
           ['triangle', 'head_shoulders', 'double_top', 'double_bottom'].includes(p.pattern)
         );
 

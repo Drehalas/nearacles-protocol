@@ -273,6 +273,7 @@ export class QuoteManager {
       cons,
       riskLevel,
       recommendation,
+
       reasoning: `Quote scored ${score}/100 based on execution time, fees, and solver reputation`,
       risk_factors: cons,
       opportunities: pros,

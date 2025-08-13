@@ -78,7 +78,6 @@ export class IntentAgent {
    */
   private async connectWithCredentials(accountId: string, privateKey: string): Promise<void> {
     const keyStore = new keyStores.InMemoryKeyStore();
-
     const { KeyPair } = await import('near-api-js/lib/utils');
     const keyPair = KeyPair.fromString(privateKey);
     await keyStore.setKey(this.config.network_id, accountId, keyPair);
@@ -307,7 +306,8 @@ export class IntentAgent {
     intent: Intent;
     reasoning: string;
     quotes: QuoteAnalysis[];
-    aiDecision: AIDecision;
+    aiDecision: IntentAIDecision;
+
   }>> {
     // This would integrate with NEAR AI or external AI services
     // For now, implement a basic pattern matching system
@@ -336,6 +336,7 @@ export class IntentAgent {
       }
 
       // Generate AI decision
+
       const aiDecision: AIDecision = await this.generateAIDecision(
         intentResult.data.quotes,
         preferences

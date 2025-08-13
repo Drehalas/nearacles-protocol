@@ -57,7 +57,6 @@ export class SolverBus {
         }
       };
 
-
       this.wsConnection.onerror = (error: WebSocket.ErrorEvent) => {
         console.error('WebSocket error:', error);
       };

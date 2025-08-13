@@ -1,10 +1,5 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: 'module',
-    project: './tsconfig.json',
-  },
   plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
@@ -14,6 +9,11 @@ module.exports = {
     node: true,
     es2020: true,
     jest: true, // Added for test environment support
+  },
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: 'module',
+    project: './tsconfig.json',
   },
   rules: {
     // More lenient for tests - changed from 'error' to 'warn'

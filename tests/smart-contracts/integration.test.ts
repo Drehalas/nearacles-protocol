@@ -33,7 +33,6 @@ describe('NEAR Intent Protocol Integration Tests', () => {
         registration: '0.1',
         intent: '0.01',
         quote: '0.005',
-
       },
     };
 
