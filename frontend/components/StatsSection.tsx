@@ -11,10 +11,10 @@ export default function StatsSection() {
   ];
 
   return (
-    <section className="py-24 bg-gradient-to-r from-green-600 to-blue-600">
+    <section className="py-24 bg-gradient-to-r from-green-600 to-blue-600" aria-labelledby="stats-heading">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-white mb-4">
+          <h2 id="stats-heading" className="text-4xl font-bold text-white mb-4">
             Production-Grade Platform
           </h2>
           <p className="text-xl text-green-100">

@@ -4,11 +4,11 @@ import testConfig from '../test.config.js';
 
 test.describe('Advanced Testing Patterns', () => {
   let helpers: TestHelpers;
-  let swaggerHelpers: SwaggerHelpers;
+  let dashboardHelpers: SwaggerHelpers;
 
   test.beforeEach(async ({ page }) => {
     helpers = new TestHelpers(page);
-    swaggerHelpers = new SwaggerHelpers(page);
+    dashboardHelpers = new SwaggerHelpers(page);
   });
 
   test('should demonstrate page object pattern usage', async ({ page }) => {
@@ -32,6 +32,7 @@ test.describe('Advanced Testing Patterns', () => {
       await expect(page.locator('div.min-h-screen').first()).toBeVisible();
       await expect(page.locator('text=Nearacles').first()).toBeVisible();
     }
+
   });
 
   test('should use data-driven testing approach', async ({ page }) => {
@@ -153,6 +154,7 @@ test.describe('Advanced Testing Patterns', () => {
       await page.setViewportSize({ width: 1200, height: 800 });
       await expect(page.locator('div.min-h-screen').first()).toBeVisible();
     }
+
   });
 
   test('should implement retry pattern with exponential backoff', async ({ page }) => {
@@ -185,6 +187,7 @@ test.describe('Advanced Testing Patterns', () => {
       await page.goto('/');
       await expect(page.locator('div.min-h-screen').first()).toBeVisible();
     }
+
   });
 
   test('should use observer pattern for event monitoring', async ({ page }) => {
@@ -280,6 +283,7 @@ test.describe('Advanced Testing Patterns', () => {
       await page.goto('/');
       await expect(page.locator('div.min-h-screen').first()).toBeVisible();
       await expect(page.locator('text=Nearacles').first()).toBeVisible();
+
     }
   });
 
@@ -335,6 +339,7 @@ test.describe('Advanced Testing Patterns', () => {
       await page.goto('/');
       await expect(page.locator('div.min-h-screen').first()).toBeVisible();
     }
+
   });
 });
 
@@ -456,7 +461,7 @@ class EnhancedTestHelpers extends TestHelpers {
 
 class SwaggerDocumentFactory {
   private doc: any = {
-    swagger: '2.0',
+    dashboard: '2.0',
     info: {},
     paths: {}
   };

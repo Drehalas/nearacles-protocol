@@ -47,8 +47,7 @@ test.describe('User Workflow Tests', () => {
             await expect(responseSection).toBeVisible();
           }
         }
-      }
-      
+      }      
       // Step 5: Navigate through different sections
       const infoSection = page.locator('.swagger-ui .info');
       if (await infoSection.count() > 0) {
@@ -72,10 +71,10 @@ test.describe('User Workflow Tests', () => {
 
   test('should handle typical API exploration workflow', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    await page.waitForSelector('header', { timeout: 15000 });
     
     // User workflow: Explore API endpoints systematically
-    const endpointSections = await page.locator('.swagger-ui .opblock').all();
+    const endpointSections = await page.locator('header .opblock').all();
     
     for (let i = 0; i < Math.min(3, endpointSections.length); i++) {
       const section = endpointSections[i];
@@ -131,12 +130,12 @@ test.describe('User Workflow Tests', () => {
     await page.waitForTimeout(500);
     
     // App should remain functional
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle search and filter workflow', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    await page.waitForSelector('header', { timeout: 15000 });
     
     // Look for search/filter functionality
     const searchInput = page.locator('input[placeholder*="filter"], input[placeholder*="search"]');
@@ -147,7 +146,7 @@ test.describe('User Workflow Tests', () => {
       await page.waitForTimeout(1000);
       
       // Verify filtering works
-      const visibleOperations = await page.locator('.swagger-ui .opblock:visible').count();
+      const visibleOperations = await page.locator('header .opblock:visible').count();
       expect(visibleOperations).toBeGreaterThan(0);
       
       // Clear search
@@ -163,10 +162,10 @@ test.describe('User Workflow Tests', () => {
     await page.waitForLoadState('networkidle');
     
     // Mobile-specific workflow
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    await page.waitForSelector('header', { timeout: 15000 });
     
     // Test touch interactions
-    const operations = await page.locator('.swagger-ui .opblock-summary').all();
+    const operations = await page.locator('header .opblock-summary').all();
     
     if (operations.length > 0) {
       // Tap to expand
@@ -174,7 +173,7 @@ test.describe('User Workflow Tests', () => {
       await page.waitForTimeout(1000);
       
       // Verify expansion works on mobile
-      const operationBody = page.locator('.swagger-ui .opblock-body').first();
+      const operationBody = page.locator('header .opblock-body').first();
       await expect(operationBody).toBeVisible();
       
       // Scroll within mobile view
@@ -185,13 +184,13 @@ test.describe('User Workflow Tests', () => {
       await page.waitForTimeout(500);
       
       // App should remain functional on mobile
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
   });
 
   test('should handle copy-paste workflow', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    await page.waitForSelector('header', { timeout: 15000 });
     
     // Look for copyable content (URLs, code examples, etc.)
     const codeBlocks = await page.locator('code, pre').all();
@@ -207,7 +206,7 @@ test.describe('User Workflow Tests', () => {
       await page.keyboard.press('Control+C');
       
       // Verify copy operation doesn't break the app
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
   });
 
@@ -225,24 +224,24 @@ test.describe('User Workflow Tests', () => {
     // Use browser back button
     await page.goBack();
     await page.waitForTimeout(500);
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
     
     // Use browser forward button
     await page.goForward();
     await page.waitForTimeout(500);
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
     
     // Direct navigation
     await page.goto('/');
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle refresh and reload workflow', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    await page.waitForSelector('header', { timeout: 15000 });
     
     // Interact with the app
-    const operations = await page.locator('.swagger-ui .opblock-summary').all();
+    const operations = await page.locator('header .opblock-summary').all();
     if (operations.length > 0) {
       await operations[0].click();
       await page.waitForTimeout(1000);
@@ -252,15 +251,15 @@ test.describe('User Workflow Tests', () => {
     await page.reload({ waitUntil: 'networkidle' });
     
     // Verify app loads correctly after refresh
-    await expect(page.locator('.App')).toBeVisible();
-    await page.waitForSelector('.swagger-ui', { timeout: 15000 });
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+    await page.waitForSelector('header', { timeout: 15000 });
     
     // Soft refresh (F5)
     await page.keyboard.press('F5');
     await page.waitForLoadState('networkidle');
     
     // Verify app still works
-    await expect(page.locator('.App')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle multi-tab workflow simulation', async ({ browser }) => {
@@ -282,18 +281,18 @@ test.describe('User Workflow Tests', () => {
     ]);
     
     // Verify both tabs work independently
-    await expect(page1.locator('.App')).toBeVisible();
-    await expect(page2.locator('.App')).toBeVisible();
+    await expect(page1.locator('.min-h-screen')).toBeVisible();
+    await expect(page2.locator('.min-h-screen')).toBeVisible();
     
     // Interact with one tab
-    await page1.waitForSelector('.swagger-ui', { timeout: 15000 });
-    const operations1 = await page1.locator('.swagger-ui .opblock-summary').all();
+    await page1.waitForSelector('header', { timeout: 15000 });
+    const operations1 = await page1.locator('header .opblock-summary').all();
     if (operations1.length > 0) {
       await operations1[0].click();
     }
     
     // Other tab should remain unaffected
-    await expect(page2.locator('.App')).toBeVisible();
+    await expect(page2.locator('.min-h-screen')).toBeVisible();
     
     await context.close();
   });
@@ -313,7 +312,7 @@ test.describe('User Workflow Tests', () => {
       await page.waitForTimeout(300);
       
       // App should remain stable during screen reader navigation
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
     
     // Test skip links if present

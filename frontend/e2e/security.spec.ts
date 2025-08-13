@@ -70,6 +70,7 @@ test.describe('Security Tests', () => {
       // Fallback: verify basic app security (app loads safely)
       await page.goto('/');
       await expect(page.locator('div.min-h-screen').first()).toBeVisible();
+
     }
   });
 
@@ -92,7 +93,7 @@ test.describe('Security Tests', () => {
         await page.keyboard.press('Enter');
         
         // App should remain stable
-        await expect(page.locator('.App')).toBeVisible();
+        await expect(page.locator('.min-h-screen').first()).toBeVisible();
       }
     }
   });
@@ -159,7 +160,7 @@ test.describe('Security Tests', () => {
       
       // Should stay on the same origin
       expect(page.url()).toContain('localhost');
-      await expect(page.locator('.App')).toBeVisible();
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
   });
 
@@ -216,7 +217,7 @@ test.describe('Security Tests', () => {
           });
           
           // App should handle file appropriately
-          await expect(page.locator('.App')).toBeVisible();
+          await expect(page.locator('.min-h-screen').first()).toBeVisible();
         } catch (error) {
           // File validation errors are expected for malicious files
           expect(error).toBeDefined();

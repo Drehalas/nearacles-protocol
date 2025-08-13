@@ -14,7 +14,7 @@ const DEMO_CONFIG = {
     networkId: 'testnet' as const,
     nodeUrl: 'https://rpc.testnet.near.org',
     contractId: 'oracle-intent.testnet',
-    privateKey: 'ed25519:your_private_key_here',
+    privateKey: process.env.NEAR_PRIVATE_KEY || '',
     accountId: 'demo-user.testnet',
   },
   openaiApiKey: process.env.OPENAI_API_KEY || '',
@@ -286,7 +286,7 @@ async function main() {
     process.exit(1);
   }
 
-  if (DEMO_CONFIG.nearConfig.privateKey === 'ed25519:your_private_key_here') {
+  if (!DEMO_CONFIG.nearConfig.privateKey || DEMO_CONFIG.nearConfig.privateKey === '') {
     console.error('❌ Please set a valid NEAR private key in the demo configuration');
     process.exit(1);
   }

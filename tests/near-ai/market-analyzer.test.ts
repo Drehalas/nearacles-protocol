@@ -63,6 +63,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
+
       if (result.success) {
         expect(result.data!.marketAnalysis).toBeDefined();
         expect(result.data!.patterns).toBeDefined();
@@ -87,6 +88,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
+
       if (result.success) {
         expect(result.data!.mlPrediction).toBeUndefined();
         expect(result.data!.marketAnalysis).toBeDefined();
@@ -97,6 +99,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
+
       if (result.success) {
         expect(result.data!.marketAnalysis.confidence).toBeGreaterThan(0);
         expect(result.data!.marketAnalysis.confidence).toBeLessThanOrEqual(1);
@@ -112,6 +115,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
+
       if (result.success && result.data!.patterns.length > 0) {
         const pattern = result.data!.patterns[0];
         expect(pattern.pattern).toBeDefined();
@@ -126,7 +130,7 @@ describe('Market Analyzer Tests', () => {
       const result = await marketAnalyzer.performAdvancedAnalysis('NEAR', 'USD');
 
       expect(result.success).toBe(true);
-      if (result.success) {
+      if (result.success && result.data) {
         const validActions = ['buy', 'sell', 'hold', 'wait'];
         expect(validActions).toContain(result.data!.marketAnalysis.recommended_action);
 
@@ -235,7 +239,7 @@ describe('Market Analyzer Tests', () => {
 
       expect(result.success).toBe(true);
       if (result.success) {
-        const chartPatterns = result.data!.patterns.filter(p => 
+        const chartPatterns = result.data!.patterns.filter(p =>
           ['triangle', 'head_shoulders', 'double_top', 'double_bottom'].includes(p.pattern)
         );
 

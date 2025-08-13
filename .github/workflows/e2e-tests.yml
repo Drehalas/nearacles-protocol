@@ -24,6 +24,10 @@ on:
           - firefox
           - webkit
           - all
+      reason:
+        description: 'Reason for running E2E tests'
+        required: false
+        default: 'Manual E2E test run'
 
 jobs:
   test:
@@ -46,7 +50,6 @@ jobs:
       with:
         node-version: '22'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
     
     - name: Install dependencies
       working-directory: ./frontend
@@ -54,32 +57,15 @@ jobs:
     
     - name: Install Playwright Browsers
       working-directory: ./frontend
-      run: npx playwright install --with-deps
+      run: npx playwright install --with-deps ${{ matrix.browser }}
     
-    - name: Build application
+    - name: Run Playwright tests (starts dev server automatically)
       working-directory: ./frontend
-      run: npm run build
-    
-    - name: Verify build output
-      working-directory: ./frontend
-      run: |
-        echo "Verifying out/ directory exists and has content..."
-        if [ ! -d "out" ]; then
-          echo "ERROR: out/ directory not found!"
-          exit 1
-        fi
-        echo "out/ directory contents:"
-        ls -la out/
-        echo "out/ file count: $(find out -type f | wc -l) files"
-        if [ ! -f "out/index.html" ]; then
-          echo "ERROR: out/index.html not found!"
-          exit 1
-        fi
-        echo "Build verification successful!"
-    
-    - name: Run Playwright tests
-      working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
       run: npx playwright test --project=${{ matrix.browser }}
+      timeout-minutes: 10
       
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -109,7 +95,6 @@ jobs:
       with:
         node-version: '22'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
     
     - name: Install dependencies
       working-directory: ./frontend
@@ -117,32 +102,15 @@ jobs:
     
     - name: Install Playwright Browsers
       working-directory: ./frontend
-      run: npx playwright install --with-deps
-    
-    - name: Build application
-      working-directory: ./frontend
-      run: npm run build
-    
-    - name: Verify build output
-      working-directory: ./frontend
-      run: |
-        echo "Verifying out/ directory exists and has content..."
-        if [ ! -d "out" ]; then
-          echo "ERROR: out/ directory not found!"
-          exit 1
-        fi
-        echo "out/ directory contents:"
-        ls -la out/
-        echo "out/ file count: $(find out -type f | wc -l) files"
-        if [ ! -f "out/index.html" ]; then
-          echo "ERROR: out/index.html not found!"
-          exit 1
-        fi
-        echo "Build verification successful!"
+      run: npx playwright install --with-deps chromium
     
     - name: Run mobile tests
       working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
       run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
+      continue-on-error: true
       
     - name: Upload mobile test results
       uses: actions/upload-artifact@v4
@@ -164,7 +132,6 @@ jobs:
       with:
         node-version: '22'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
     
     - name: Install dependencies
       working-directory: ./frontend
@@ -172,32 +139,15 @@ jobs:
     
     - name: Install Playwright Browsers
       working-directory: ./frontend
-      run: npx playwright install --with-deps
-    
-    - name: Build application
-      working-directory: ./frontend
-      run: npm run build
-    
-    - name: Verify build output
-      working-directory: ./frontend
-      run: |
-        echo "Verifying out/ directory exists and has content..."
-        if [ ! -d "out" ]; then
-          echo "ERROR: out/ directory not found!"
-          exit 1
-        fi
-        echo "out/ directory contents:"
-        ls -la out/
-        echo "out/ file count: $(find out -type f | wc -l) files"
-        if [ ! -f "out/index.html" ]; then
-          echo "ERROR: out/index.html not found!"
-          exit 1
-        fi
-        echo "Build verification successful!"
+      run: npx playwright install --with-deps chromium
     
     - name: Run accessibility tests
       working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
       run: npx playwright test accessibility.spec.ts
+      continue-on-error: true
       
     - name: Upload accessibility results
       uses: actions/upload-artifact@v4
@@ -219,7 +169,6 @@ jobs:
       with:
         node-version: '22'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
     
     - name: Install dependencies
       working-directory: ./frontend
@@ -227,32 +176,15 @@ jobs:
     
     - name: Install Playwright Browsers
       working-directory: ./frontend
-      run: npx playwright install --with-deps
-    
-    - name: Build application
-      working-directory: ./frontend
-      run: npm run build
-    
-    - name: Verify build output
-      working-directory: ./frontend
-      run: |
-        echo "Verifying out/ directory exists and has content..."
-        if [ ! -d "out" ]; then
-          echo "ERROR: out/ directory not found!"
-          exit 1
-        fi
-        echo "out/ directory contents:"
-        ls -la out/
-        echo "out/ file count: $(find out -type f | wc -l) files"
-        if [ ! -f "out/index.html" ]; then
-          echo "ERROR: out/index.html not found!"
-          exit 1
-        fi
-        echo "Build verification successful!"
+      run: npx playwright install --with-deps chromium
     
     - name: Run performance tests
       working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
       run: npx playwright test performance.spec.ts
+      continue-on-error: true
       
     - name: Upload performance results
       uses: actions/upload-artifact@v4

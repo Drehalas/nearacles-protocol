@@ -24,15 +24,15 @@ describe('NEAR Intent Protocol Integration Tests', () => {
       verifier_contract: 'intents.near',
       intent_contract: 'intents.near',
       gas_limits: {
-        register: '5000000000000',
-        submit_intent: '30000000000000',
-        submit_quote: '5000000000000',
-        execute_intent: '100000000000000',
+        register: '100000000000000',
+        submit_intent: '300000000000000',
+        submit_quote: '200000000000000',
+        execute_intent: '300000000000000',
       },
       storage_deposits: {
         registration: '0.1',
-        intent: '0.25',
-        quote: '0.1',
+        intent: '0.01',
+        quote: '0.005',
       },
     };
 

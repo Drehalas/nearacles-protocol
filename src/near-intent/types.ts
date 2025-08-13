@@ -50,25 +50,36 @@ export interface SolverInfo {
   active: boolean;
 }
 
-// Quote Analysis Types  
 export interface QuoteEvaluationCriteria {
-  maxSlippage?: number; // percentage
-  maxFee?: string;
-  maxExecutionTime?: number; // seconds
-  minConfidence?: number; // 0-1
-  preferredSolvers?: string[];
-  prioritize?: 'amount' | 'fee' | 'speed' | 'reputation' | 'balanced';
+  prioritize_cost?: boolean;
+  prioritize_speed?: boolean;
+  prioritize_reliability?: boolean;
+  max_execution_time?: number;
+  min_confidence_score?: number;
+  max_fee_percentage?: number;
+  preferred_solvers?: string[];
+  maxSlippage?: number;
   riskTolerance?: 'low' | 'medium' | 'high';
+  maxFee?: string;
+  maxExecutionTime?: number;
+  minConfidence?: number;
+  prioritize?: 'amount' | 'fee' | 'speed' | 'reputation' | 'balanced';
+
 }
 
 export interface QuoteAnalysis {
   quote: Quote;
   score: number;
+  reasoning: string;
+  risk_factors: string[];
+  opportunities: string[];
   recommendation: 'accept' | 'reject' | 'consider';
-  riskLevel: 'low' | 'medium' | 'high';
+  confidence: number;
   pros: string[];
   cons: string[];
+  riskLevel: 'low' | 'medium' | 'high';
 }
+
 // Request and Response Types
 export interface IntentRequestParams {
   asset_in: string;
@@ -195,6 +206,7 @@ export interface IntentEvent {
 }
 
 // AI Agent Types (for NEAR AI integration)
+
 export interface AIAgentConfig {
   model: 'gpt-4' | 'claude-3' | 'near-ai';
   api_key?: string;
@@ -203,6 +215,7 @@ export interface AIAgentConfig {
   temperature: number;
   context_window: number;
 }
+
 
 export interface AIDecision {
   action: 'execute' | 'wait' | 'cancel' | 'modify';

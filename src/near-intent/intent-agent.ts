@@ -20,8 +20,9 @@ import { AssetManager } from './asset-manager';
 import { SolverBus } from './solver-bus';
 import { QuoteManager } from './quote-manager';
 import { VerifierContract } from './verifier-contract';
-import { Account, connect, ConnectConfig, keyStores } from 'near-api-js';
-import { getCurrentTimestamp } from '../utils/helpers';
+import { Account, connect, ConnectConfig, keyStores, utils } from 'near-api-js';
+import { getCurrentTimestamp, retry } from '../utils/helpers';
+
 
 export class IntentAgent {
   private account?: Account;
@@ -305,7 +306,8 @@ export class IntentAgent {
     intent: Intent;
     reasoning: string;
     quotes: QuoteAnalysis[];
-    aiDecision: AIDecision;
+    aiDecision: IntentAIDecision;
+
   }>> {
     // This would integrate with NEAR AI or external AI services
     // For now, implement a basic pattern matching system
@@ -334,6 +336,7 @@ export class IntentAgent {
       }
 
       // Generate AI decision
+
       const aiDecision: AIDecision = await this.generateAIDecision(
         intentResult.data.quotes,
         preferences
@@ -423,7 +426,7 @@ export class IntentAgent {
       prioritize: params.user_preferences?.execution_speed === 'fast' ? 'speed' : 'balanced',
       riskTolerance: 'medium',
       maxFee: params.user_preferences?.max_fee,
-      preferredSolvers: params.user_preferences?.preferred_solvers,
+      preferred_solvers: params.user_preferences?.preferred_solvers,
     };
   }
 
@@ -432,7 +435,7 @@ export class IntentAgent {
    */
   private async parseIntentDescription(description: string): Promise<IntentRequestParams | null> {
     // Very basic pattern matching - in production, use proper NLP/AI
-    const swapPattern = /swap\s+(\d+(?:\.\d+)?)\s+(\w+)\s+(?:for|to)\s+(\w+)/i;
+    const swapPattern = /swap\s+(\d+(?:\.\d+)?)\s+(\w+)\s+(?:for|to)\s+(\w+)(?:\s+.*)?/i;
     const match = description.match(swapPattern);
 
     if (match) {

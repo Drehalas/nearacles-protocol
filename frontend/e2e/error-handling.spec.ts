@@ -28,224 +28,160 @@ test.describe('Error Handling Tests', () => {
   });
 
   test('should handle missing resources gracefully', async ({ page }) => {
-    try {
-      // Intercept and fail CSS request
-      await page.route('**/main.css', route => {
-        route.abort('failed');
-      });
-      
-      await page.goto('/');
-      
-      // App should still load even without CSS
-      await expect(page.locator('#root')).toBeVisible();
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-    } catch (error) {
-      console.warn('Missing resources test failed, using basic fallback:', error.message);
-      await page.goto('/');
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      await expect(page.locator('text=Nearacles').first()).toBeVisible();
-    }
+    // Intercept and fail CSS request
+    await page.route('**/main.css', route => {
+      route.abort('failed');
+    });
+    
+    await page.goto('/');
+    
+    // App should still load even without CSS
+    await expect(page.locator('#root')).toBeVisible();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle network connectivity issues', async ({ page, context }) => {
-    try {
-      // Simulate offline mode
-      await context.setOffline(true);
-      
-      const networkErrors: string[] = [];
-      page.on('response', response => {
-        if (!response.ok()) {
-          networkErrors.push(`${response.status()}: ${response.url()}`);
-        }
-      });
-      
-      await page.goto('/');
-      
-      // Should handle offline gracefully
-      await expect(page.locator('#root')).toBeVisible();
-      
-      // Restore connectivity
-      await context.setOffline(false);
-    } catch (error) {
-      console.warn('Network connectivity test failed, using basic fallback:', error.message);
-      await context.setOffline(false);
-      await page.goto('/');
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      await expect(page.locator('text=Nearacles').first()).toBeVisible();
-    }
+    // Simulate offline mode
+    await context.setOffline(true);
+    
+    const networkErrors: string[] = [];
+    page.on('response', response => {
+      if (!response.ok()) {
+        networkErrors.push(`${response.status()}: ${response.url()}`);
+      }
+    });
+    
+    await page.goto('/');
+    
+    // Should handle offline gracefully
+    await expect(page.locator('#root')).toBeVisible();
+    
+    // Restore connectivity
+    await context.setOffline(false);
   });
 
   test('should handle browser resize and orientation changes', async ({ page }) => {
-    try {
-      await page.goto('/');
+    await page.goto('/');
+    
+    // Test various viewport sizes
+    const viewports = [
+      { width: 1920, height: 1080 },
+      { width: 768, height: 1024 },
+      { width: 375, height: 667 },
+      { width: 320, height: 568 },
+    ];
+    
+    for (const viewport of viewports) {
+      await page.setViewportSize(viewport);
+      await page.waitForTimeout(500);
       
-      // Test various viewport sizes
-      const viewports = [
-        { width: 1920, height: 1080 },
-        { width: 768, height: 1024 },
-        { width: 375, height: 667 },
-        { width: 320, height: 568 },
-      ];
-      
-      for (const viewport of viewports) {
-        await page.setViewportSize(viewport);
-        await page.waitForTimeout(500);
-        
-        // App should remain functional at all sizes
-        await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      }
-    } catch (error) {
-      console.warn('Browser resize test failed, using basic fallback:', error.message);
-      await page.goto('/');
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      await expect(page.locator('text=Nearacles').first()).toBeVisible();
+      // App should remain functional at all sizes
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
   });
 
   test('should handle rapid user interactions', async ({ page }) => {
-    try {
-      await page.goto('/');
-      await page.waitForSelector('.swagger-ui', { timeout: 10000 });
-      
-      // Test rapid clicks on expandable elements
-      const expandableElements = await page.locator('.swagger-ui .opblock-summary').all();
-      
-      if (expandableElements.length > 0) {
-        // Rapidly click elements
-        for (let i = 0; i < Math.min(3, expandableElements.length); i++) {
-          for (let j = 0; j < 5; j++) {
-            await expandableElements[i].click();
-            await page.waitForTimeout(50);
-          }
+    await page.goto('/');
+    await page.waitForSelector('.swagger-ui', { timeout: 10000 });
+    
+    // Test rapid clicks on expandable elements
+    const expandableElements = await page.locator('.swagger-ui .opblock-summary').all();
+    
+    if (expandableElements.length > 0) {
+      // Rapidly click elements
+      for (let i = 0; i < Math.min(3, expandableElements.length); i++) {
+        for (let j = 0; j < 5; j++) {
+          await expandableElements[i].click();
+          await page.waitForTimeout(50);
         }
-        
-        // App should remain stable
-        await expect(page.locator('div.min-h-screen').first()).toBeVisible();
       }
-    } catch (error) {
-      console.warn('Rapid user interactions test failed, using basic fallback:', error.message);
-      await page.goto('/');
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      await expect(page.locator('text=Nearacles').first()).toBeVisible();
+      
+      // App should remain stable
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
     }
   });
 
   test('should handle invalid URLs and routes', async ({ page }) => {
-    try {
-      // Test non-existent routes
-      const invalidUrls = [
-        '/non-existent-page',
-        '/admin',
-        '/api/invalid',
-        '/../',
-        '/null',
-        '/undefined'
-      ];
+    // Test non-existent routes
+    const invalidUrls = [
+      '/non-existent-page',
+      '/admin',
+      '/api/invalid',
+      '/../',
+      '/null',
+      '/undefined'
+    ];
+    
+    for (const url of invalidUrls) {
+      await page.goto(url, { waitUntil: 'networkidle' });
       
-      for (const url of invalidUrls) {
-        await page.goto(url, { waitUntil: 'networkidle' });
-        
-        // Should still show the app (SPA behavior)
-        await expect(page.locator('#root')).toBeVisible();
-      }
-    } catch (error) {
-      console.warn('Invalid URLs test failed, using basic fallback:', error.message);
-      await page.goto('/');
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      await expect(page.locator('text=Nearacles').first()).toBeVisible();
+      // Should still show the app (SPA behavior)
+      await expect(page.locator('#root')).toBeVisible();
     }
   });
 
   test('should handle browser back/forward navigation', async ({ page }) => {
-    try {
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
-      
-      // Navigate to different hash or query params
-      await page.goto('/#section1');
-      await page.goto('/?param=test');
-      
-      // Test browser back
-      await page.goBack();
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      
-      await page.goBack();
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      
-      // Test browser forward
-      await page.goForward();
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-    } catch (error) {
-      console.warn('Browser navigation test failed, using basic fallback:', error.message);
-      await page.goto('/');
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      await expect(page.locator('text=Nearacles').first()).toBeVisible();
-    }
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    
+    // Navigate to different hash or query params
+    await page.goto('/#section1');
+    await page.goto('/?param=test');
+    
+    // Test browser back
+    await page.goBack();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+    
+    await page.goBack();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+    
+    // Test browser forward
+    await page.goForward();
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle page refresh at any time', async ({ page }) => {
-    try {
-      await page.goto('/');
-      await page.waitForSelector('.swagger-ui', { timeout: 10000 });
-      
-      // Refresh multiple times during different states
-      for (let i = 0; i < 3; i++) {
-        await page.reload();
-        await page.waitForLoadState('networkidle');
-        await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-        await page.waitForTimeout(1000);
-      }
-    } catch (error) {
-      console.warn('Page refresh test failed, using basic fallback:', error.message);
-      await page.goto('/');
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      await expect(page.locator('text=Nearacles').first()).toBeVisible();
+    await page.goto('/');
+    await page.waitForSelector('.swagger-ui', { timeout: 10000 });
+    
+    // Refresh multiple times during different states
+    for (let i = 0; i < 3; i++) {
+      await page.reload();
+      await page.waitForLoadState('networkidle');
+      await expect(page.locator('.min-h-screen').first()).toBeVisible();
+      await page.waitForTimeout(1000);
     }
   });
 
   test('should handle browser storage issues', async ({ page, context }) => {
-    try {
-      // Clear all storage
-      await context.clearCookies();
-      await page.evaluate(() => {
-        localStorage.clear();
-        sessionStorage.clear();
-      });
-      
-      await page.goto('/');
-      
-      // App should work without stored data
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-    } catch (error) {
-      console.warn('Browser storage test failed, using basic fallback:', error.message);
-      await page.goto('/');
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      await expect(page.locator('text=Nearacles').first()).toBeVisible();
-    }
+    // Clear all storage
+    await context.clearCookies();
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+    
+    await page.goto('/');
+    
+    // App should work without stored data
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
   });
 
   test('should handle memory pressure gracefully', async ({ page }) => {
-    try {
-      await page.goto('/');
-      
-      // Create memory pressure by generating large objects
-      await page.evaluate(() => {
-        const largeArray = new Array(100000).fill('test string data');
-        (window as any).testData = largeArray;
-      });
-      
-      // App should remain responsive
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      
-      // Cleanup
-      await page.evaluate(() => {
-        delete (window as any).testData;
-      });
-    } catch (error) {
-      console.warn('Memory pressure test failed, using basic fallback:', error.message);
-      await page.goto('/');
-      await expect(page.locator('div.min-h-screen').first()).toBeVisible();
-      await expect(page.locator('text=Nearacles').first()).toBeVisible();
-    }
+    await page.goto('/');
+    
+    // Create memory pressure by generating large objects
+    await page.evaluate(() => {
+      const largeArray = new Array(100000).fill('test string data');
+      (window as any).testData = largeArray;
+    });
+    
+    // App should remain responsive
+    await expect(page.locator('.min-h-screen').first()).toBeVisible();
+    
+    // Cleanup
+    await page.evaluate(() => {
+      delete (window as any).testData;
+    });
   });
 });
