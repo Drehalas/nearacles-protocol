@@ -46,7 +46,9 @@ export class CredibilityService {
       };
     } catch (error) {
       console.error('Error in credibility evaluation:', error);
-      throw new Error(`Failed to evaluate question: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to evaluate question: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 

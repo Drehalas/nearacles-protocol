@@ -3,7 +3,7 @@
  * Based on the NEAR Intents specification
  */
 
-import { Account, Contract } from 'near-api-js';
+// import { Account, Contract } from 'near-api-js';
 
 // Core Intent Types
 export interface Intent {
@@ -64,6 +64,7 @@ export interface QuoteEvaluationCriteria {
   maxExecutionTime?: number;
   minConfidence?: number;
   prioritize?: 'amount' | 'fee' | 'speed' | 'reputation' | 'balanced';
+
 }
 
 export interface QuoteAnalysis {
@@ -102,7 +103,7 @@ export interface SolverBusMessage {
   type: 'intent_request' | 'quote_response' | 'execution_update' | 'settlement';
   id: string;
   timestamp: number;
-  data: any;
+  data: Record<string, unknown>;
   signature?: string;
 }
 
@@ -151,6 +152,7 @@ export interface AssetBalance {
   available: string;
   locked: string;
   decimals: number;
+  [key: string]: unknown;
 }
 
 // Configuration Types
@@ -180,7 +182,7 @@ export interface IntentConfig {
 export interface IntentError {
   code: string;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
   timestamp: number;
 }
 
@@ -200,7 +202,7 @@ export interface IntentEvent {
   type: 'intent_created' | 'quote_received' | 'intent_matched' | 'execution_started' | 'execution_completed' | 'intent_failed';
   intent_id: string;
   timestamp: number;
-  data: any;
+  data: Record<string, unknown>;
 }
 
 // AI Agent Types (for NEAR AI integration)
@@ -217,7 +219,7 @@ export interface AIDecision {
   action: 'execute' | 'wait' | 'cancel' | 'modify';
   confidence: number;
   reasoning: string;
-  parameters?: any;
+  parameters?: Record<string, unknown>;
   risk_assessment: {
     level: 'low' | 'medium' | 'high';
     factors: string[];

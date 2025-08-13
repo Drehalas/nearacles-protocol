@@ -28,6 +28,7 @@ export class AssetManager {
       name: 'NEAR Protocol',
       decimals: 24,
       contract_address: '',
+      total_supply: '1000000000',
       is_native: true,
       icon: 'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png',
     });
@@ -381,7 +382,7 @@ export class AssetManager {
   /**
    * Get asset price from external oracle (placeholder)
    */
-  async getAssetPrice(tokenId: string, quoteCurrency: string = 'USD'): Promise<number | null> {
+  async getAssetPrice(tokenId: string, _quoteCurrency: string = 'USD'): Promise<number | null> {
     // Placeholder implementation
     // In production, this would integrate with price oracles like:
     // - Chainlink

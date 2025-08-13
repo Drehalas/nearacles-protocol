@@ -6,7 +6,7 @@
 import { IntentBroadcaster } from '../services/intent-broadcaster.js';
 // import { NEAROracleIntegration } from '../services/near-oracle-integration.js';
 import { OracleSolverNode } from '../services/oracle-solver-node.js';
-import { CredibilityEvaluationIntent as _CredibilityEvaluationIntent } from '../types/near-intent.js';
+// import { CredibilityEvaluationIntent } from '../types/near-intent.js';
 
 // Demo configuration
 const DEMO_CONFIG = {
@@ -15,15 +15,15 @@ const DEMO_CONFIG = {
     nodeUrl: 'https://rpc.testnet.near.org',
     contractId: 'oracle-intent.testnet',
     privateKey: 'ed25519:your_private_key_here',
-    accountId: 'demo-user.testnet'
+    accountId: 'demo-user.testnet',
   },
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   solverConfig: {
     minStakeAmount: '1000000000000000000000000', // 1 NEAR
     maxExecutionTime: 300,
     confidenceThreshold: 0.8,
-    reputationThreshold: 0.7
-  }
+    reputationThreshold: 0.7,
+  },
 };
 
 class IntentOracleDemo {
@@ -63,7 +63,6 @@ class IntentOracleDemo {
 
       // Step 4: Display final results
       await this.displayResults();
-
     } catch (error) {
       console.error('❌ Demo failed:', error);
     } finally {
@@ -76,15 +75,14 @@ class IntentOracleDemo {
    */
   private async startSolverNode(): Promise<void> {
     console.log('🚀 Step 1: Starting Oracle Solver Node');
-    console.log('=' .repeat(50));
-    
+    console.log('='.repeat(50));
+
     try {
       await this.solverNode.start();
       console.log('✅ Solver node is running and monitoring for intents\n');
-      
+
       // Give solver node time to initialize
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
     } catch (error) {
       console.error('Failed to start solver node:', error);
       throw error;
@@ -96,9 +94,9 @@ class IntentOracleDemo {
    */
   private async demonstrateCredibilityEvaluation(): Promise<void> {
     console.log('🔍 Step 2: Creating Credibility Evaluation Intent');
-    console.log('=' .repeat(50));
+    console.log('='.repeat(50));
 
-    const question = "Is Bitcoin currently trading above $50,000?";
+    const question = 'Is Bitcoin currently trading above $50,000?';
     console.log(`📝 Question: ${question}`);
 
     try {
@@ -110,7 +108,7 @@ class IntentOracleDemo {
           reward: '2000000000000000000000000', // 2 NEAR
           requiredSources: 3,
           confidenceThreshold: 0.8,
-          maxEvaluationTime: 240
+          maxEvaluationTime: 240,
         }
       );
 
@@ -121,7 +119,8 @@ class IntentOracleDemo {
       console.log(`   Max Execution Time: 240 seconds`);
 
       // Extract intent message for demonstration
-      const intentMessage = this.intentBroadcaster['signingService'].extractIntentMessage(signedIntent);
+      const intentMessage =
+        this.intentBroadcaster['signingService'].extractIntentMessage(signedIntent);
       console.log('\n📋 Signed Intent Created:');
       console.log(`   Signer: ${intentMessage.signer_id}`);
       console.log(`   Deadline: ${intentMessage.deadline}`);
@@ -129,14 +128,13 @@ class IntentOracleDemo {
 
       // Simulate intent broadcasting
       console.log('\n📡 Broadcasting intent to solver network...');
-      
+
       // In a real scenario, this would broadcast to the actual solver network
       console.log('✅ Intent broadcast successful');
       console.log('⏳ Waiting for solver nodes to process...\n');
 
       // Wait for processing
       await new Promise(resolve => setTimeout(resolve, 5000));
-
     } catch (error) {
       console.error('Failed to create credibility evaluation:', error);
       throw error;
@@ -148,7 +146,7 @@ class IntentOracleDemo {
    */
   private async demonstrateRefutationChallenge(): Promise<void> {
     console.log('⚔️  Step 3: Demonstrating Refutation Challenge');
-    console.log('=' .repeat(50));
+    console.log('='.repeat(50));
 
     try {
       const evaluationHash = 'eval_demo_123';
@@ -167,7 +165,8 @@ class IntentOracleDemo {
       console.log('\n🔍 Challenge Intent Created:');
       console.log(`   Evaluation Hash: ${evaluationHash}`);
       console.log(`   Challenge Stake: ${challengeStake} yoctoNEAR`);
-      const challengeMessage = this.intentBroadcaster['signingService'].extractIntentMessage(challengeIntent);
+      const challengeMessage =
+        this.intentBroadcaster['signingService'].extractIntentMessage(challengeIntent);
       console.log(`   Intent Hash: ${challengeMessage.intents[0].intent}...`);
 
       console.log('\n📡 Broadcasting challenge to solver network...');
@@ -175,7 +174,6 @@ class IntentOracleDemo {
       console.log('⏳ Waiting for challenge processing...\n');
 
       await new Promise(resolve => setTimeout(resolve, 3000));
-
     } catch (error) {
       console.error('Failed to create refutation challenge:', error);
       throw error;
@@ -187,7 +185,7 @@ class IntentOracleDemo {
    */
   private async displayResults(): Promise<void> {
     console.log('📊 Step 4: Demo Results & Solver Metrics');
-    console.log('=' .repeat(50));
+    console.log('='.repeat(50));
 
     try {
       // Get solver metrics
@@ -212,10 +210,10 @@ class IntentOracleDemo {
         console.log('   No active executions');
       } else {
         activeExecutions.forEach((execution, index) => {
-          const runtime = execution.endTime 
+          const runtime = execution.endTime
             ? `${((execution.endTime - execution.startTime) / 1000).toFixed(1)}s`
             : `${((Date.now() - execution.startTime) / 1000).toFixed(1)}s (ongoing)`;
-          
+
           console.log(`   ${index + 1}. ${execution.intentId}`);
           console.log(`      Status: ${execution.status}`);
           console.log(`      Runtime: ${runtime}`);
@@ -231,7 +229,7 @@ class IntentOracleDemo {
       // Demonstrate economic model
       console.log('\n💰 Economic Model Demonstration:');
       console.log('   ├─ Intent Creators stake NEAR for evaluations');
-      console.log('   ├─ Oracle Solvers stake NEAR to participate');  
+      console.log('   ├─ Oracle Solvers stake NEAR to participate');
       console.log('   ├─ Accurate evaluations earn rewards');
       console.log('   ├─ Challenges require higher stakes');
       console.log('   └─ Reputation affects future earnings');
@@ -242,7 +240,6 @@ class IntentOracleDemo {
       console.log('   ✅ Natural market for oracle services');
       console.log('   ✅ Adversarial validation through challenges');
       console.log('   ✅ Cross-chain compatibility via NEAR intents');
-
     } catch (error) {
       console.error('Error displaying results:', error);
     }
@@ -253,11 +250,10 @@ class IntentOracleDemo {
    */
   private async cleanup(): Promise<void> {
     console.log('\n🧹 Cleaning up demo resources...');
-    
+
     try {
       await this.solverNode.stop();
       console.log('✅ Demo completed successfully');
-      
     } catch (error) {
       console.error('Error during cleanup:', error);
     }
@@ -268,8 +264,8 @@ class IntentOracleDemo {
    */
   async runInteractiveDemo(): Promise<void> {
     console.log('🎮 Interactive NEAR Intent Oracle Demo');
-    console.log('=' .repeat(50));
-    
+    console.log('='.repeat(50));
+
     // This would integrate with readline for real user interaction
     console.log('Available commands:');
     console.log('  1. create-intent <question>   - Create credibility evaluation intent');
@@ -277,7 +273,7 @@ class IntentOracleDemo {
     console.log('  3. status                     - Show solver status');
     console.log('  4. metrics                    - Show solver metrics');
     console.log('  5. quit                       - Exit demo');
-    
+
     // For demo purposes, just run the automated demo
     await this.runDemo();
   }
@@ -296,7 +292,7 @@ async function main() {
   }
 
   const demo = new IntentOracleDemo();
-  
+
   try {
     await demo.runDemo();
   } catch (error) {

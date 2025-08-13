@@ -10,6 +10,7 @@ import {
   AIResponse,
   AIError 
 } from './types';
+import { Quote, IntentRequestParams } from '../near-intent/types';
 import { getCurrentTimestamp } from '../utils/helpers';
 
 export class RiskAssessor {
@@ -24,7 +25,7 @@ export class RiskAssessor {
   /**
    * Assess risk for an intent and available quotes
    */
-  async assessRisk(intent: any, quotes: any[]): Promise<AIResponse<RiskAssessment>> {
+  async assessRisk(intent: IntentRequestParams, quotes: Quote[]): Promise<AIResponse<RiskAssessment>> {
     const cacheKey = this.generateCacheKey(intent, quotes);
     
     try {
@@ -39,17 +40,16 @@ export class RiskAssessor {
       const overallRiskScore = this.calculateOverallRiskScore(riskFactors);
       const riskLevel = this.determineRiskLevel(overallRiskScore);
       const recommendations = this.generateRecommendations(riskFactors, riskLevel);
-      const warningFlags = this.identifyWarningFlags(intent, quotes, riskFactors);
+      this.identifyWarningFlags(intent, quotes, riskFactors);
 
       const assessment: RiskAssessment = {
         overall_risk_score: overallRiskScore,
         risk_level: riskLevel,
-        risk_factors: riskFactors,
+        confidence: 0.8,
+        factors: riskFactors.map(f => f.description || f.type),
+        risk_factors: riskFactors.map(f => f.description || f.type),
         recommendations,
-        max_position_size: this.calculateMaxPositionSize(intent, riskLevel),
         suggested_slippage: this.calculateSuggestedSlippage(intent, riskFactors),
-        warning_flags: warningFlags,
-        assessment_timestamp: getCurrentTimestamp(),
       };
 
       // Cache the result
@@ -82,7 +82,7 @@ export class RiskAssessor {
   /**
    * Identify risk factors for the intent and quotes
    */
-  private async identifyRiskFactors(intent: any, quotes: any[]): Promise<RiskFactor[]> {
+  private async identifyRiskFactors(intent: IntentRequestParams, quotes: Quote[]): Promise<RiskFactor[]> {
     const riskFactors: RiskFactor[] = [];
 
     // Market Risk Assessment
@@ -115,7 +115,7 @@ export class RiskAssessor {
   /**
    * Assess market-related risks
    */
-  private async assessMarketRisk(intent: any): Promise<RiskFactor | null> {
+  private async assessMarketRisk(_intent: IntentRequestParams): Promise<RiskFactor | null> {
     // Mock market volatility analysis
     const volatility = Math.random() * 0.8 + 0.1; // 0.1 to 0.9
     
@@ -123,6 +123,8 @@ export class RiskAssessor {
       return {
         type: 'market',
         level: volatility > 0.8 ? 'high' : 'medium',
+        severity: volatility > 0.8 ? 'high' : 'medium',
+        impact: volatility,
         description: `High market volatility detected (${(volatility * 100).toFixed(1)}%)`,
         impact_score: volatility,
         probability: 0.8,
@@ -141,7 +143,7 @@ export class RiskAssessor {
   /**
    * Assess liquidity-related risks
    */
-  private async assessLiquidityRisk(intent: any, quotes: any[]): Promise<RiskFactor | null> {
+  private async assessLiquidityRisk(intent: IntentRequestParams, quotes: Quote[]): Promise<RiskFactor | null> {
     const avgLiquidity = quotes.length > 0 ? 0.7 : 0.3; // Mock liquidity calculation
     const intentSize = parseFloat(intent.amount_in) || 1000;
     const liquidityRatio = intentSize / 10000; // Mock calculation
@@ -150,6 +152,8 @@ export class RiskAssessor {
       return {
         type: 'liquidity',
         level: avgLiquidity < 0.3 ? 'high' : 'medium',
+        severity: avgLiquidity < 0.3 ? 'high' : 'medium',
+        impact: 1 - avgLiquidity,
         description: `Low liquidity conditions may impact execution`,
         impact_score: 1 - avgLiquidity,
         probability: 0.7,
@@ -168,15 +172,17 @@ export class RiskAssessor {
   /**
    * Assess smart contract risks
    */
-  private async assessSmartContractRisk(intent: any, quotes: any[]): Promise<RiskFactor | null> {
+  private async assessSmartContractRisk(intent: IntentRequestParams, quotes: Quote[]): Promise<RiskFactor | null> {
     // Check for contract complexity and audit status
-    const hasComplexAssets = intent.asset_in.contract_address || intent.asset_out.contract_address;
+    const hasComplexAssets = (intent as any).asset_in?.contract_address || (intent as any).asset_out?.contract_address;
     const multipleProtocols = quotes.length > 3;
 
     if (hasComplexAssets || multipleProtocols) {
       return {
         type: 'smart_contract',
         level: 'medium',
+        severity: 'medium',
+        impact: 0.4,
         description: 'Smart contract interaction complexity increases risk',
         impact_score: 0.4,
         probability: 0.3,
@@ -195,11 +201,13 @@ export class RiskAssessor {
   /**
    * Assess solver-related risks
    */
-  private async assessSolverRisk(quotes: any[]): Promise<RiskFactor | null> {
+  private async assessSolverRisk(quotes: Quote[]): Promise<RiskFactor | null> {
     if (quotes.length === 0) {
       return {
         type: 'operational',
         level: 'high',
+        severity: 'high',
+        impact: 0.8,
         description: 'No solvers available for execution',
         impact_score: 0.9,
         probability: 1.0,
@@ -212,13 +220,15 @@ export class RiskAssessor {
       };
     }
 
-    const lowQualityQuotes = quotes.filter(q => q.recommendation === 'reject').length;
+    const lowQualityQuotes = quotes.filter(q => (q as any).recommendation === 'reject').length;
     const riskRatio = lowQualityQuotes / quotes.length;
 
     if (riskRatio > 0.5) {
       return {
         type: 'operational',
         level: 'medium',
+        severity: 'medium',
+        impact: 0.4,
         description: `${lowQualityQuotes}/${quotes.length} quotes are low quality`,
         impact_score: riskRatio * 0.6,
         probability: 0.8,
@@ -237,15 +247,17 @@ export class RiskAssessor {
   /**
    * Assess operational risks
    */
-  private async assessOperationalRisk(intent: any): Promise<RiskFactor | null> {
+  private async assessOperationalRisk(intent: IntentRequestParams): Promise<RiskFactor | null> {
     const currentTime = getCurrentTimestamp();
-    const intentExpiry = intent.expiry || (currentTime + 3600);
+    const intentExpiry = (intent as any).expiry || (currentTime + 3600);
     const timeToExpiry = intentExpiry - currentTime;
 
     if (timeToExpiry < 300) { // Less than 5 minutes
       return {
         type: 'operational',
         level: 'high',
+        severity: 'high',
+        impact: 0.8,
         description: 'Intent expiry is very close, execution may fail',
         impact_score: 0.8,
         probability: 0.9,
@@ -264,16 +276,18 @@ export class RiskAssessor {
   /**
    * Assess regulatory risks
    */
-  private async assessRegulatoryRisk(intent: any): Promise<RiskFactor | null> {
+  private async assessRegulatoryRisk(intent: IntentRequestParams): Promise<RiskFactor | null> {
     // Check for high-risk jurisdictions or assets
     const riskAssets = ['PRIVACY_COIN', 'GAMBLING_TOKEN']; // Mock risk assets
-    const hasRiskAsset = riskAssets.includes(intent.asset_in.symbol) || 
-                        riskAssets.includes(intent.asset_out.symbol);
+    const hasRiskAsset = riskAssets.includes((intent as any).asset_in?.symbol) || 
+                        riskAssets.includes((intent as any).asset_out?.symbol);
 
     if (hasRiskAsset) {
       return {
         type: 'regulatory',
         level: 'medium',
+        severity: 'medium',
+        impact: 0.4,
         description: 'Asset may be subject to regulatory restrictions',
         impact_score: 0.5,
         probability: 0.4,
@@ -297,7 +311,7 @@ export class RiskAssessor {
 
     const weightedScore = riskFactors.reduce((sum, factor) => {
       const weight = this.getRiskTypeWeight(factor.type);
-      return sum + (factor.impact_score * factor.probability * weight);
+      return sum + ((factor.impact_score || 0) * factor.probability * weight);
     }, 0);
 
     const normalizedScore = Math.min(0.95, weightedScore / riskFactors.length);
@@ -307,8 +321,8 @@ export class RiskAssessor {
   /**
    * Get risk type weights
    */
-  private getRiskTypeWeight(riskType: RiskFactor['type']): number {
-    const weights = {
+  private getRiskTypeWeight(riskType: string): number {
+    const weights: { [key: string]: number } = {
       market: 1.2,
       liquidity: 1.0,
       smart_contract: 1.1,
@@ -358,7 +372,7 @@ export class RiskAssessor {
     }
 
     // Specific recommendations from risk factors
-    const allMitigations = riskFactors.flatMap(factor => factor.mitigation_strategies);
+    const allMitigations = riskFactors.flatMap(factor => factor.mitigation_strategies || []);
     const uniqueMitigations = [...new Set(allMitigations)];
     recommendations.push(...uniqueMitigations.slice(0, 5)); // Top 5 unique mitigations
 
@@ -368,7 +382,7 @@ export class RiskAssessor {
   /**
    * Calculate maximum position size
    */
-  private calculateMaxPositionSize(intent: any, riskLevel: 'low' | 'medium' | 'high' | 'critical'): string {
+  private calculateMaxPositionSize(intent: IntentRequestParams, riskLevel: 'low' | 'medium' | 'high' | 'critical'): string {
     const originalAmount = BigInt(intent.amount_in);
     
     const multipliers = {
@@ -385,20 +399,20 @@ export class RiskAssessor {
   /**
    * Calculate suggested slippage
    */
-  private calculateSuggestedSlippage(intent: any, riskFactors: RiskFactor[]): number {
+  private calculateSuggestedSlippage(intent: IntentRequestParams, riskFactors: RiskFactor[]): number {
     let baseSlippage = 0.01; // 1%
 
     // Increase slippage based on risk factors
     for (const factor of riskFactors) {
       switch (factor.type) {
         case 'market':
-          baseSlippage += factor.impact_score * 0.02; // Up to 2% additional
+          baseSlippage += (factor.impact_score || 0) * 0.02; // Up to 2% additional
           break;
         case 'liquidity':
-          baseSlippage += factor.impact_score * 0.03; // Up to 3% additional
+          baseSlippage += (factor.impact_score || 0) * 0.03; // Up to 3% additional
           break;
         default:
-          baseSlippage += factor.impact_score * 0.01; // Up to 1% additional
+          baseSlippage += (factor.impact_score || 0) * 0.01; // Up to 1% additional
           break;
       }
     }
@@ -409,7 +423,7 @@ export class RiskAssessor {
   /**
    * Identify warning flags
    */
-  private identifyWarningFlags(intent: any, quotes: any[], riskFactors: RiskFactor[]): string[] {
+  private identifyWarningFlags(intent: IntentRequestParams, quotes: Quote[], riskFactors: RiskFactor[]): string[] {
     const warnings: string[] = [];
 
     if (quotes.length === 0) {
@@ -421,17 +435,17 @@ export class RiskAssessor {
     }
 
     const currentTime = getCurrentTimestamp();
-    const timeToExpiry = (intent.expiry || (currentTime + 3600)) - currentTime;
+    const timeToExpiry = ((intent as any).expiry || (currentTime + 3600)) - currentTime;
     if (timeToExpiry < 600) { // Less than 10 minutes
       warnings.push('NEAR_EXPIRY');
     }
 
-    const highImpactRisks = riskFactors.filter(f => f.impact_score > 0.7);
+    const highImpactRisks = riskFactors.filter(f => (f.impact_score || 0) > 0.7);
     if (highImpactRisks.length > 0) {
       warnings.push('HIGH_IMPACT_RISKS');
     }
 
-    if (quotes.some(q => q.recommendation === 'reject' && q.score < 20)) {
+    if (quotes.some(q => (q as any).recommendation === 'reject' && (q as any).score < 20)) {
       warnings.push('VERY_LOW_QUALITY_QUOTES');
     }
 
@@ -458,12 +472,12 @@ export class RiskAssessor {
   /**
    * Helper: Generate cache key
    */
-  private generateCacheKey(intent: any, quotes: any[]): string {
+  private generateCacheKey(intent: IntentRequestParams, quotes: Quote[]): string {
     const intentHash = JSON.stringify({
-      asset_in: intent.asset_in?.token_id,
-      asset_out: intent.asset_out?.token_id,
+      asset_in: (intent as any).asset_in?.token_id,
+      asset_out: (intent as any).asset_out?.token_id,
       amount_in: intent.amount_in,
-      expiry: intent.expiry,
+      expiry: (intent as any).expiry,
     });
     const quotesHash = quotes.length.toString();
     return `${intentHash}_${quotesHash}`;

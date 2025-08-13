@@ -5,7 +5,6 @@
 
 import { 
   Intent, 
-  Quote, 
   IntentRequestParams, 
   IntentExecutionStatus,
   QuoteEvaluationCriteria,
@@ -23,6 +22,7 @@ import { QuoteManager } from './quote-manager';
 import { VerifierContract } from './verifier-contract';
 import { Account, connect, ConnectConfig, keyStores, utils } from 'near-api-js';
 import { getCurrentTimestamp, retry } from '../utils/helpers';
+
 
 export class IntentAgent {
   private account?: Account;
@@ -78,7 +78,9 @@ export class IntentAgent {
    */
   private async connectWithCredentials(accountId: string, privateKey: string): Promise<void> {
     const keyStore = new keyStores.InMemoryKeyStore();
-    const keyPair = utils.KeyPair.fromString(privateKey as any);
+
+    const { KeyPair } = await import('near-api-js/lib/utils');
+    const keyPair = KeyPair.fromString(privateKey);
     await keyStore.setKey(this.config.network_id, accountId, keyPair);
 
     const connectionConfig: ConnectConfig = {
@@ -253,7 +255,7 @@ export class IntentAgent {
   /**
    * Get asset balances
    */
-  async getBalances(): Promise<any[]> {
+  async getBalances(): Promise<Record<string, unknown>[]> {
     try {
       return await this.assetManager.getAllBalances();
     } catch (error) {
@@ -325,7 +327,7 @@ export class IntentAgent {
       }
 
       // Apply preferences to criteria
-      const criteria = this.buildCriteriaFromPreferences(preferences);
+      this.buildCriteriaFromPreferences(preferences);
 
       // Create intent
       const intentResult = await this.createIntent(intentParams);
@@ -401,7 +403,7 @@ export class IntentAgent {
   /**
    * Get agent statistics
    */
-  async getStatistics(): Promise<any> {
+  async getStatistics(): Promise<Record<string, unknown>> {
     const stats = {
       solver_bus: await this.solverBus.getStatistics(),
       verifier_contract: this.verifierContract ? 
@@ -450,11 +452,11 @@ export class IntentAgent {
   /**
    * Helper: Build criteria from preferences
    */
-  private buildCriteriaFromPreferences(preferences?: any): QuoteEvaluationCriteria {
+  private buildCriteriaFromPreferences(preferences?: Record<string, unknown>): QuoteEvaluationCriteria {
     return {
-      riskTolerance: preferences?.riskTolerance || 'medium',
+      riskTolerance: (preferences?.riskTolerance as 'low' | 'medium' | 'high') || 'medium',
       prioritize: preferences?.speedPreference === 'fast' ? 'speed' : 'balanced',
-      maxSlippage: preferences?.maxSlippage || 1.0,
+      maxSlippage: (preferences?.maxSlippage as number) || 1.0,
     };
   }
 
@@ -463,7 +465,7 @@ export class IntentAgent {
    */
   private async generateAIDecision(
     quotes: QuoteAnalysis[], 
-    preferences?: any
+    _preferences?: Record<string, unknown>
   ): Promise<AIDecision> {
     if (quotes.length === 0) {
       return {

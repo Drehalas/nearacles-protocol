@@ -17,8 +17,6 @@ import { SolverBus } from './solver-bus';
 import { AssetManager } from './asset-manager';
 import { getCurrentTimestamp, stringToBigInt } from '../utils/helpers';
 
-// Removed duplicate interface definitions - using ones from types.ts
-
 export class QuoteManager {
   private solverBus: SolverBus;
   private assetManager: AssetManager;
@@ -45,7 +43,7 @@ export class QuoteManager {
     // Subscribe to real-time quote updates
     this.solverBus.subscribe('quote-manager', (message) => {
       if (message.type === 'quote_response') {
-        this.handleNewQuote(message.data);
+        this.handleNewQuote(message.data as any);
       }
     });
   }

@@ -1,586 +1,845 @@
 /**
- * Intent Optimizer for Execution Optimization
- * AI-powered intent optimization and execution strategy generation
+ * Intent Optimizer for NEAR Protocol Intent System
+ * Provides intelligent optimization for intent execution strategies
  */
 
-import { 
-  AIAgentConfig,
-  OptimizationCriteria,
-  OptimizationResult,
-  AIResponse,
-  AIError,
-  TradingStrategy,
-  StrategyRecommendation 
-} from './types';
-import { getCurrentTimestamp, stringToBigInt } from '../utils/helpers';
+import { MarketDataProviders } from './market-data-providers';
+
+export interface OptimizationConfig {
+  enableRouteOptimization: boolean;
+  enableGasOptimization: boolean;
+  enableTimingOptimization: boolean;
+  enableSlippageOptimization: boolean;
+  enableArbitrageDetection: boolean;
+  maxSlippage: number; // percentage
+  maxGasPrice: string; // in NEAR
+  executionTimeLimit: number; // seconds
+  minProfitThreshold: number; // percentage
+}
+
+export interface ExecutionRoute {
+  id: string;
+  path: string[];
+  dexes: string[];
+  estimatedOutput: string;
+  estimatedGas: string;
+  expectedSlippage: number;
+  executionTime: number;
+  confidence: number;
+  fees: {
+    protocol_fee: string;
+    gas_fee: string;
+    slippage_cost: string;
+    total_cost: string;
+  };
+}
+
+export interface OptimizationResult {
+  optimal_route: ExecutionRoute;
+  alternative_routes: ExecutionRoute[];
+  arbitrage_opportunities: ArbitrageOpportunity[];
+  optimization_metrics: {
+    gas_savings: string;
+    slippage_reduction: number;
+    time_optimization: number;
+    profit_enhancement: number;
+  };
+  execution_strategy: {
+    timing: 'immediate' | 'delayed' | 'split';
+    split_orders?: SplitOrder[];
+    conditions?: ExecutionCondition[];
+  };
+  risk_assessment: {
+    overall_risk: number;
+    execution_risk: number;
+    market_risk: number;
+    recommendations: string[];
+  };
+}
+
+export interface ArbitrageOpportunity {
+  id: string;
+  asset_pair: string;
+  buy_venue: string;
+  sell_venue: string;
+  buy_price: string;
+  sell_price: string;
+  profit_percentage: number;
+  profit_amount: string;
+  required_capital: string;
+  execution_complexity: 'low' | 'medium' | 'high';
+  time_sensitivity: number; // seconds
+  confidence: number;
+}
+
+export interface SplitOrder {
+  order_id: string;
+  amount: string;
+  delay: number; // milliseconds
+  route: ExecutionRoute;
+  conditions: ExecutionCondition[];
+}
+
+export interface ExecutionCondition {
+  type: 'price' | 'time' | 'liquidity' | 'volatility';
+  operator: '>' | '<' | '=' | '>=' | '<=';
+  value: string;
+  description: string;
+}
 
 export class IntentOptimizer {
-  private config: AIAgentConfig;
-  private optimizationCache: Map<string, { result: OptimizationResult; timestamp: number }> = new Map();
-  private readonly CACHE_TTL = 900; // 15 minutes
+  private marketDataProviders: MarketDataProviders;
+  private optimizationConfig: OptimizationConfig;
+  private dexRegistry: Map<string, DexInfo> = new Map();
 
-  constructor(config: AIAgentConfig) {
-    this.config = config;
+  constructor(
+    marketDataProviders: MarketDataProviders,
+    optimizationConfig: OptimizationConfig
+  ) {
+    this.marketDataProviders = marketDataProviders;
+    this.optimizationConfig = optimizationConfig;
+    this.initializeDexRegistry();
   }
 
   /**
-   * Optimize an intent for better execution
+   * Optimize intent (alias for optimizeIntentExecution)
    */
   async optimizeIntent(
-    intent: any, 
-    criteria: OptimizationCriteria
-  ): Promise<AIResponse<OptimizationResult>> {
-    const cacheKey = this.generateOptimizationCacheKey(intent, criteria);
-    
-    try {
-      // Check cache first
-      const cached = this.getCachedOptimization(cacheKey);
-      if (cached) {
-        return { success: true, data: cached };
-      }
+    assetIn: string,
+    assetOut: string,
+    amount: string,
+    userPreferences: Record<string, unknown> = {}
+  ): Promise<OptimizationResult> {
+    const result = await this.optimizeIntentExecution(assetIn, assetOut, amount, userPreferences as any);
+    if (result.success && result.data) {
+      return result.data;
+    }
+    throw new Error(result.error?.message || 'Optimization failed');
+  }
 
-      // Analyze current intent
-      const intentAnalysis = await this.analyzeIntent(intent);
+  /**
+   * Optimize intent execution strategy
+   */
+  async optimizeIntentExecution(
+    assetIn: string,
+    assetOut: string,
+    amountIn: string,
+    userPreferences?: {
+      priority: 'speed' | 'cost' | 'security' | 'balanced';
+      maxSlippage?: number;
+      maxExecutionTime?: number;
+    }
+  ): Promise<{
+    success: boolean;
+    data?: OptimizationResult;
+    error?: { code: string; message: string };
+  }> {
+    try {
+      // Fetch market data for both assets
+      const marketData = await this.marketDataProviders.fetchMarketData(`${assetIn}/${assetOut}`);
       
-      // Generate optimization strategies
-      const strategies = await this.generateOptimizationStrategies(intent, criteria, intentAnalysis);
+      // Discover all possible execution routes
+      const allRoutes = await this.discoverExecutionRoutes(assetIn, assetOut, amountIn);
       
-      // Apply best optimization
-      const optimizedIntent = await this.applyOptimization(intent, strategies, criteria);
+      // Evaluate and rank routes based on optimization criteria
+      const rankedRoutes = await this.evaluateRoutes(allRoutes, userPreferences);
       
-      // Calculate improvements
-      const improvements = await this.calculateImprovements(intent, optimizedIntent);
+      // Detect arbitrage opportunities
+      const arbitrageOpportunities = this.optimizationConfig.enableArbitrageDetection
+        ? await this.detectArbitrageOpportunities(assetIn, assetOut, amountIn)
+        : [];
       
-      // Generate reasoning
-      const reasoning = this.generateOptimizationReasoning(strategies, improvements);
+      // Perform risk assessment for the optimal route
+      const riskAssessment = await this.assessExecutionRisk(rankedRoutes[0]);
       
+      // Optimize execution strategy (timing, splitting, conditions)
+      const executionStrategy = await this.optimizeExecutionStrategy(
+        rankedRoutes[0],
+        marketData as unknown as Record<string, unknown>
+      );
+      
+      // Calculate optimization metrics
+      const optimizationMetrics = this.calculateOptimizationMetrics(
+        rankedRoutes[0],
+        rankedRoutes,
+        arbitrageOpportunities
+      );
+
       const result: OptimizationResult = {
-        original_intent: intent,
-        optimized_intent: optimizedIntent,
-        improvements,
-        optimization_strategies: strategies.map(s => s.description),
-        confidence: this.calculateOptimizationConfidence(improvements),
-        reasoning,
-      };
-
-      // Cache the result
-      this.cacheOptimization(cacheKey, result);
-
-      return {
-        success: true,
-        data: result,
-        metadata: {
-          model_used: this.config.model.name,
-          tokens_consumed: 300,
-          processing_time: 1500,
-          confidence: result.confidence,
-        },
-      };
-
-    } catch (error) {
-      const aiError: AIError = {
-        code: 'INTENT_OPTIMIZATION_FAILED',
-        message: error instanceof Error ? error.message : 'Failed to optimize intent',
-        model: this.config.model.name,
-        severity: 'medium',
-        timestamp: getCurrentTimestamp(),
-      };
-
-      return { success: false, error: aiError };
-    }
-  }
-
-  /**
-   * Generate trading strategy recommendations
-   */
-  async generateStrategies(
-    intent: any,
-    marketConditions: any
-  ): Promise<AIResponse<StrategyRecommendation>> {
-    try {
-      const strategies = await this.createTradingStrategies(intent, marketConditions);
-      const allocation = this.calculateOptimalAllocation(strategies, intent);
-      const reasoning = this.generateStrategyReasoning(strategies, marketConditions);
-
-      const recommendation: StrategyRecommendation = {
-        strategies,
-        recommended_allocation: allocation,
-        reasoning,
-        confidence: 0.75,
+        optimal_route: rankedRoutes[0],
+        alternative_routes: rankedRoutes.slice(1, 5), // Top 5 alternatives
+        arbitrage_opportunities: arbitrageOpportunities,
+        optimization_metrics: optimizationMetrics,
+        execution_strategy: executionStrategy,
+        risk_assessment: riskAssessment
       };
 
       return {
         success: true,
-        data: recommendation,
-        metadata: {
-          model_used: this.config.model.name,
-          tokens_consumed: 250,
-          processing_time: 1200,
-          confidence: 0.75,
-        },
+        data: result
       };
 
     } catch (error) {
-      const aiError: AIError = {
-        code: 'STRATEGY_GENERATION_FAILED',
-        message: error instanceof Error ? error.message : 'Failed to generate strategies',
-        model: this.config.model.name,
-        severity: 'medium',
-        timestamp: getCurrentTimestamp(),
+      return {
+        success: false,
+        error: {
+          code: 'OPTIMIZATION_FAILED',
+          message: `Failed to optimize intent execution: ${error instanceof Error ? error.message : 'Unknown error'}`
+        }
       };
-
-      return { success: false, error: aiError };
     }
   }
 
   /**
-   * Analyze intent for optimization opportunities
+   * Discover all possible execution routes
    */
-  private async analyzeIntent(intent: any): Promise<any> {
-    const analysis = {
-      size_category: this.categorizeIntentSize(intent),
-      urgency_level: this.assessUrgency(intent),
-      complexity_score: this.calculateComplexity(intent),
-      market_impact: this.estimateMarketImpact(intent),
-      gas_efficiency: this.analyzeGasEfficiency(intent),
-      slippage_risk: this.analyzeSlippageRisk(intent),
-    };
+  private async discoverExecutionRoutes(
+    assetIn: string,
+    assetOut: string,
+    amountIn: string
+  ): Promise<ExecutionRoute[]> {
+    const routes: ExecutionRoute[] = [];
+    const amountNum = parseFloat(amountIn);
 
-    return analysis;
-  }
-
-  /**
-   * Generate optimization strategies
-   */
-  private async generateOptimizationStrategies(
-    intent: any, 
-    criteria: OptimizationCriteria, 
-    analysis: any
-  ): Promise<Array<{ type: string; description: string; impact: number; feasibility: number }>> {
-    const strategies: Array<{ type: string; description: string; impact: number; feasibility: number }> = [];
-
-    // Size-based optimizations
-    if (analysis.size_category === 'large') {
-      strategies.push({
-        type: 'size_splitting',
-        description: 'Split large intent into smaller chunks to reduce market impact',
-        impact: 0.7,
-        feasibility: 0.9,
-      });
-    }
-
-    // Time-based optimizations
-    if (analysis.urgency_level === 'low') {
-      strategies.push({
-        type: 'time_optimization',
-        description: 'Use TWAP execution over extended period for better prices',
-        impact: 0.6,
-        feasibility: 0.8,
-      });
-    }
-
-    // Route optimization
-    if (analysis.complexity_score > 0.5) {
-      strategies.push({
-        type: 'route_optimization',
-        description: 'Optimize execution route through multiple DEXs',
-        impact: 0.5,
-        feasibility: 0.7,
-      });
-    }
-
-    // Gas optimization
-    if (analysis.gas_efficiency < 0.7) {
-      strategies.push({
-        type: 'gas_optimization',
-        description: 'Batch multiple operations to reduce gas costs',
-        impact: 0.4,
-        feasibility: 0.9,
-      });
-    }
-
-    // Slippage optimization
-    if (analysis.slippage_risk > 0.6) {
-      strategies.push({
-        type: 'slippage_optimization',
-        description: 'Adjust slippage parameters and execution timing',
-        impact: 0.6,
-        feasibility: 0.8,
-      });
-    }
-
-    // Solver selection optimization
-    strategies.push({
-      type: 'solver_optimization',
-      description: 'Optimize solver selection based on historical performance',
-      impact: 0.5,
-      feasibility: 0.9,
-    });
-
-    // Priority-based filtering
-    return this.filterStrategiesByPriority(strategies, criteria);
-  }
-
-  /**
-   * Apply optimization to intent
-   */
-  private async applyOptimization(
-    intent: any, 
-    strategies: any[], 
-    criteria: OptimizationCriteria
-  ): Promise<any> {
-    const optimizedIntent = { ...intent };
-
-    for (const strategy of strategies) {
-      switch (strategy.type) {
-        case 'size_splitting':
-          optimizedIntent.execution_chunks = this.calculateOptimalChunks(intent);
-          break;
-        case 'time_optimization':
-          optimizedIntent.execution_schedule = this.generateTimeSchedule(intent);
-          break;
-        case 'route_optimization':
-          optimizedIntent.preferred_routes = this.optimizeRoutes(intent);
-          break;
-        case 'gas_optimization':
-          optimizedIntent.gas_settings = this.optimizeGasSettings(intent);
-          break;
-        case 'slippage_optimization':
-          optimizedIntent.dynamic_slippage = this.calculateDynamicSlippage(intent);
-          break;
-        case 'solver_optimization':
-          optimizedIntent.solver_preferences = this.optimizeSolverSelection(intent);
-          break;
+    // Direct routes (single hop)
+    for (const [dexName, dexInfo] of this.dexRegistry) {
+      if (dexInfo.supportedPairs.includes(`${assetIn}/${assetOut}`)) {
+        const route = await this.createDirectRoute(dexName, assetIn, assetOut, amountNum);
+        if (route) routes.push(route);
       }
     }
 
-    return optimizedIntent;
-  }
-
-  /**
-   * Calculate improvements from optimization
-   */
-  private async calculateImprovements(original: any, optimized: any): Promise<any> {
-    const improvements: any = {};
-
-    // Estimate gas savings
-    if (optimized.gas_settings) {
-      improvements.estimated_gas_savings = this.estimateGasSavings(original, optimized);
-    }
-
-    // Estimate time savings
-    if (optimized.execution_schedule) {
-      improvements.estimated_time_savings = this.estimateTimeSavings(original, optimized);
-    }
-
-    // Estimate output increase
-    if (optimized.preferred_routes || optimized.execution_chunks) {
-      improvements.estimated_output_increase = this.estimateOutputIncrease(original, optimized);
-    }
-
-    // Estimate risk reduction
-    if (optimized.dynamic_slippage || optimized.execution_chunks) {
-      improvements.risk_reduction = this.estimateRiskReduction(original, optimized);
-    }
-
-    return improvements;
-  }
-
-  /**
-   * Create trading strategies
-   */
-  private async createTradingStrategies(intent: any, marketConditions: any): Promise<TradingStrategy[]> {
-    const strategies: TradingStrategy[] = [];
-
-    // DCA Strategy
-    strategies.push({
-      name: 'Dollar Cost Averaging',
-      type: 'dca',
-      description: 'Execute intent in equal chunks over time to reduce volatility impact',
-      parameters: {
-        chunk_count: 5,
-        interval_minutes: 10,
-        chunk_size_variance: 0.1,
-      },
-      expected_return: 0.02,
-      risk_level: 0.3,
-      time_horizon: 'short',
-      market_conditions: ['high_volatility', 'uncertain_direction'],
-      implementation_steps: [
-        'Split intent into 5 equal chunks',
-        'Execute one chunk every 10 minutes',
-        'Monitor market conditions between executions',
-        'Adjust timing based on volatility',
-      ],
-    });
-
-    // Momentum Strategy
-    if (marketConditions.trend_direction === 'bullish') {
-      strategies.push({
-        name: 'Momentum Execution',
-        type: 'momentum',
-        description: 'Execute quickly to capitalize on strong momentum',
-        parameters: {
-          execution_speed: 'fast',
-          momentum_threshold: 0.05,
-          stop_loss: 0.03,
-        },
-        expected_return: 0.05,
-        risk_level: 0.7,
-        time_horizon: 'immediate',
-        market_conditions: ['strong_trend', 'high_volume'],
-        implementation_steps: [
-          'Confirm momentum strength',
-          'Execute with minimal delay',
-          'Monitor for trend reversal',
-          'Set stop-loss protection',
-        ],
-      });
-    }
-
-    // Mean Reversion Strategy
-    if (marketConditions.volatility_index > 0.6) {
-      strategies.push({
-        name: 'Mean Reversion',
-        type: 'mean_reversion',
-        description: 'Wait for price to revert to mean before execution',
-        parameters: {
-          reversion_threshold: 0.02,
-          patience_limit: 3600,
-          partial_execution: true,
-        },
-        expected_return: 0.03,
-        risk_level: 0.4,
-        time_horizon: 'medium',
-        market_conditions: ['high_volatility', 'oversold_conditions'],
-        implementation_steps: [
-          'Calculate price deviation from mean',
-          'Wait for reversion signal',
-          'Execute when price normalizes',
-          'Use partial fills if needed',
-        ],
-      });
-    }
-
-    // Arbitrage Strategy
-    strategies.push({
-      name: 'Cross-DEX Arbitrage',
-      type: 'arbitrage',
-      description: 'Execute across multiple DEXs to capture price differences',
-      parameters: {
-        min_arbitrage_profit: 0.005,
-        dex_count: 3,
-        execution_coordination: 'parallel',
-      },
-      expected_return: 0.015,
-      risk_level: 0.2,
-      time_horizon: 'immediate',
-      market_conditions: ['price_discrepancies', 'sufficient_liquidity'],
-      implementation_steps: [
-        'Identify price discrepancies across DEXs',
-        'Calculate optimal execution amounts',
-        'Execute simultaneously on multiple DEXs',
-        'Capture arbitrage profit',
-      ],
-    });
-
-    return strategies;
-  }
-
-  /**
-   * Helper methods for analysis
-   */
-  private categorizeIntentSize(intent: any): 'small' | 'medium' | 'large' {
-    const amount = Number(intent.amount_in) || 0;
-    if (amount < 1000) return 'small';
-    if (amount < 10000) return 'medium';
-    return 'large';
-  }
-
-  private assessUrgency(intent: any): 'low' | 'medium' | 'high' {
-    const currentTime = getCurrentTimestamp();
-    const expiry = intent.expiry || (currentTime + 3600);
-    const timeLeft = expiry - currentTime;
+    // Multi-hop routes (through intermediate assets)
+    const intermediateAssets = ['USDC', 'USDT', 'NEAR', 'ETH', 'BTC'];
     
-    if (timeLeft > 1800) return 'low';
-    if (timeLeft > 300) return 'medium';
+    for (const intermediate of intermediateAssets) {
+      if (intermediate === assetIn || intermediate === assetOut) continue;
+      
+      const multiHopRoute = await this.createMultiHopRoute(
+        assetIn,
+        intermediate,
+        assetOut,
+        amountNum
+      );
+      if (multiHopRoute) routes.push(multiHopRoute);
+    }
+
+    // Complex routes (multiple intermediates for better pricing)
+    if (routes.length < 3) {
+      const complexRoutes = await this.discoverComplexRoutes(assetIn, assetOut, amountNum);
+      routes.push(...complexRoutes);
+    }
+
+    return routes;
+  }
+
+  /**
+   * Create a direct trading route
+   */
+  private async createDirectRoute(
+    dexName: string,
+    assetIn: string,
+    assetOut: string,
+    amountIn: number
+  ): Promise<ExecutionRoute | null> {
+    try {
+      const dexInfo = this.dexRegistry.get(dexName);
+      if (!dexInfo) return null;
+
+      const marketData = await this.marketDataProviders.fetchMarketData(`${assetIn}/${assetOut}`);
+      const price = marketData.price;
+      
+      const estimatedOutput = (amountIn * price * (1 - dexInfo.fee)).toString();
+      const estimatedGas = this.estimateGasCost(dexName, 1); // Single hop
+      const expectedSlippage = this.calculateExpectedSlippage(amountIn, marketData.liquidity_score || 0.5);
+      
+      return {
+        id: `direct_${dexName}_${Date.now()}`,
+        path: [assetIn, assetOut],
+        dexes: [dexName],
+        estimatedOutput,
+        estimatedGas: estimatedGas.toString(),
+        expectedSlippage,
+        executionTime: dexInfo.averageExecutionTime,
+        confidence: 0.9,
+        fees: {
+          protocol_fee: (amountIn * dexInfo.fee).toString(),
+          gas_fee: estimatedGas.toString(),
+          slippage_cost: (amountIn * expectedSlippage).toString(),
+          total_cost: (amountIn * (dexInfo.fee + expectedSlippage) + estimatedGas).toString()
+        }
+      };
+    } catch (error) {
+      console.error(`Error creating direct route for ${dexName}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Create a multi-hop trading route
+   */
+  private async createMultiHopRoute(
+    assetIn: string,
+    intermediate: string,
+    assetOut: string,
+    amountIn: number
+  ): Promise<ExecutionRoute | null> {
+    try {
+      // Find best DEX for first hop
+      const firstHopDex = await this.findBestDexForPair(`${assetIn}/${intermediate}`);
+      if (!firstHopDex) return null;
+
+      // Find best DEX for second hop
+      const secondHopDex = await this.findBestDexForPair(`${intermediate}/${assetOut}`);
+      if (!secondHopDex) return null;
+
+      // Calculate first hop
+      const firstHopData = await this.marketDataProviders.fetchMarketData(`${assetIn}/${intermediate}`);
+      const firstHopPrice = firstHopData.price;
+      const firstHopOutput = amountIn * firstHopPrice * (1 - firstHopDex.fee);
+
+      // Calculate second hop
+      const secondHopData = await this.marketDataProviders.fetchMarketData(`${intermediate}/${assetOut}`);
+      const secondHopPrice = secondHopData.price;
+      const finalOutput = firstHopOutput * secondHopPrice * (1 - secondHopDex.fee);
+
+      const estimatedGas = this.estimateGasCost(firstHopDex.name, 2) + this.estimateGasCost(secondHopDex.name, 2);
+      const expectedSlippage = this.calculateExpectedSlippage(amountIn, firstHopData.liquidity_score || 0.5) +
+                              this.calculateExpectedSlippage(firstHopOutput, secondHopData.liquidity_score || 0.5);
+
+      return {
+        id: `multihop_${firstHopDex.name}_${secondHopDex.name}_${Date.now()}`,
+        path: [assetIn, intermediate, assetOut],
+        dexes: [firstHopDex.name, secondHopDex.name],
+        estimatedOutput: finalOutput.toString(),
+        estimatedGas: estimatedGas.toString(),
+        expectedSlippage,
+        executionTime: firstHopDex.averageExecutionTime + secondHopDex.averageExecutionTime + 5, // +5s for coordination
+        confidence: 0.75, // Lower confidence for multi-hop
+        fees: {
+          protocol_fee: (amountIn * firstHopDex.fee + firstHopOutput * secondHopDex.fee).toString(),
+          gas_fee: estimatedGas.toString(),
+          slippage_cost: (amountIn * expectedSlippage).toString(),
+          total_cost: (amountIn * (firstHopDex.fee + expectedSlippage) + firstHopOutput * secondHopDex.fee + estimatedGas).toString()
+        }
+      };
+    } catch (error) {
+      console.error(`Error creating multi-hop route:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Discover complex routes with multiple paths
+   */
+  private async discoverComplexRoutes(
+    assetIn: string,
+    assetOut: string,
+    amountIn: number
+  ): Promise<ExecutionRoute[]> {
+    const complexRoutes: ExecutionRoute[] = [];
+    
+    // For complex route discovery, we would implement:
+    // 1. Graph-based pathfinding algorithms
+    // 2. Dynamic programming for optimal path selection
+    // 3. Parallel route execution strategies
+    // 4. Cross-DEX arbitrage routes
+    
+    // Simplified implementation for demonstration
+    const pathVariations = [
+      [assetIn, 'USDC', 'NEAR', assetOut],
+      [assetIn, 'ETH', 'USDT', assetOut],
+      [assetIn, 'BTC', 'USDC', assetOut]
+    ];
+
+    for (const path of pathVariations) {
+      if (path.length === 4) {
+        const route = await this.createComplexRoute(path, amountIn);
+        if (route) complexRoutes.push(route);
+      }
+    }
+
+    return complexRoutes;
+  }
+
+  /**
+   * Create a complex multi-step route
+   */
+  private async createComplexRoute(path: string[], amountIn: number): Promise<ExecutionRoute | null> {
+    try {
+      let currentAmount = amountIn;
+      const dexes: string[] = [];
+      let totalGas = 0;
+      let totalSlippage = 0;
+      let totalExecutionTime = 0;
+      let totalFees = 0;
+
+      // Calculate each hop
+      for (let i = 0; i < path.length - 1; i++) {
+        const assetFrom = path[i];
+        const assetTo = path[i + 1];
+        
+        const dex = await this.findBestDexForPair(`${assetFrom}/${assetTo}`);
+        if (!dex) return null;
+
+        const marketData = await this.marketDataProviders.fetchMarketData(`${assetFrom}/${assetTo}`);
+        const price = marketData.price;
+        
+        currentAmount = currentAmount * price * (1 - dex.fee);
+        totalGas += this.estimateGasCost(dex.name, path.length - 1);
+        totalSlippage += this.calculateExpectedSlippage(currentAmount, marketData.liquidity_score || 0.5);
+        totalExecutionTime += dex.averageExecutionTime;
+        totalFees += currentAmount * dex.fee;
+        
+        dexes.push(dex.name);
+      }
+
+      return {
+        id: `complex_${path.join('_')}_${Date.now()}`,
+        path,
+        dexes,
+        estimatedOutput: currentAmount.toString(),
+        estimatedGas: totalGas.toString(),
+        expectedSlippage: totalSlippage,
+        executionTime: totalExecutionTime + (path.length - 2) * 3, // +3s per additional hop
+        confidence: Math.max(0.5, 1 - (path.length - 2) * 0.1), // Lower confidence for longer paths
+        fees: {
+          protocol_fee: totalFees.toString(),
+          gas_fee: totalGas.toString(),
+          slippage_cost: (amountIn * totalSlippage).toString(),
+          total_cost: (totalFees + totalGas + amountIn * totalSlippage).toString()
+        }
+      };
+    } catch (error) {
+      console.error(`Error creating complex route:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Evaluate and rank routes based on optimization criteria
+   */
+  private async evaluateRoutes(
+    routes: ExecutionRoute[],
+    userPreferences?: {
+      priority: 'speed' | 'cost' | 'security' | 'balanced';
+      maxSlippage?: number;
+      maxExecutionTime?: number;
+    }
+  ): Promise<ExecutionRoute[]> {
+    const priority = userPreferences?.priority || 'balanced';
+    
+    // Filter routes based on user constraints
+    const filteredRoutes = routes.filter(route => {
+      if (userPreferences?.maxSlippage && route.expectedSlippage > userPreferences.maxSlippage) {
+        return false;
+      }
+      if (userPreferences?.maxExecutionTime && route.executionTime > userPreferences.maxExecutionTime) {
+        return false;
+      }
+      return true;
+    });
+
+    // Score routes based on priority
+    const scoredRoutes = filteredRoutes.map(route => {
+      let score = 0;
+      
+      switch (priority) {
+        case 'speed':
+          score = this.calculateSpeedScore(route);
+          break;
+        case 'cost':
+          score = this.calculateCostScore(route);
+          break;
+        case 'security':
+          score = this.calculateSecurityScore(route);
+          break;
+        case 'balanced':
+        default:
+          score = this.calculateBalancedScore(route);
+          break;
+      }
+      
+      return { route, score };
+    });
+
+    // Sort by score (higher is better)
+    scoredRoutes.sort((a, b) => b.score - a.score);
+    
+    return scoredRoutes.map(item => item.route);
+  }
+
+  /**
+   * Calculate speed-optimized score
+   */
+  private calculateSpeedScore(route: ExecutionRoute): number {
+    const timeWeight = 0.6;
+    const confidenceWeight = 0.3;
+    const simplicityWeight = 0.1;
+    
+    const timeScore = Math.max(0, 1 - route.executionTime / 300); // Normalize to 5 minutes max
+    const confidenceScore = route.confidence;
+    const simplicityScore = Math.max(0, 1 - route.path.length / 5); // Prefer shorter paths
+    
+    return timeWeight * timeScore + confidenceWeight * confidenceScore + simplicityWeight * simplicityScore;
+  }
+
+  /**
+   * Calculate cost-optimized score
+   */
+  private calculateCostScore(route: ExecutionRoute): number {
+    const outputWeight = 0.5;
+    const feesWeight = 0.3;
+    const slippageWeight = 0.2;
+    
+    const output = parseFloat(route.estimatedOutput);
+    const totalCost = parseFloat(route.fees.total_cost);
+    
+    // Normalize scores (higher output = better, lower costs = better)
+    const outputScore = Math.min(1, output / 10000); // Normalize based on expected output range
+    const feesScore = Math.max(0, 1 - totalCost / 1000); // Normalize based on expected cost range
+    const slippageScore = Math.max(0, 1 - route.expectedSlippage / 0.05); // Normalize to 5% max slippage
+    
+    return outputWeight * outputScore + feesWeight * feesScore + slippageWeight * slippageScore;
+  }
+
+  /**
+   * Calculate security-optimized score
+   */
+  private calculateSecurityScore(route: ExecutionRoute): number {
+    const confidenceWeight = 0.4;
+    const simplicityWeight = 0.3;
+    const dexReputationWeight = 0.3;
+    
+    const confidenceScore = route.confidence;
+    const simplicityScore = Math.max(0, 1 - route.path.length / 5);
+    
+    // Calculate DEX reputation score (simplified)
+    const dexReputationScore = route.dexes.reduce((sum, dex) => {
+      const dexInfo = this.dexRegistry.get(dex);
+      return sum + (dexInfo?.reputation || 0.5);
+    }, 0) / route.dexes.length;
+    
+    return confidenceWeight * confidenceScore + simplicityWeight * simplicityScore + dexReputationWeight * dexReputationScore;
+  }
+
+  /**
+   * Calculate balanced score
+   */
+  private calculateBalancedScore(route: ExecutionRoute): number {
+    const speedScore = this.calculateSpeedScore(route);
+    const costScore = this.calculateCostScore(route);
+    const securityScore = this.calculateSecurityScore(route);
+    
+    return (speedScore + costScore + securityScore) / 3;
+  }
+
+  /**
+   * Detect arbitrage opportunities
+   */
+  private async detectArbitrageOpportunities(
+    assetIn: string,
+    assetOut: string,
+    amountIn: string
+  ): Promise<ArbitrageOpportunity[]> {
+    const opportunities: ArbitrageOpportunity[] = [];
+    const amountNum = parseFloat(amountIn);
+    
+    // Check prices across all DEXes
+    const dexPrices: Map<string, { buy: number; sell: number; liquidity: number }> = new Map();
+    
+    for (const [dexName, dexInfo] of this.dexRegistry) {
+      try {
+        const marketData = await this.marketDataProviders.fetchMarketData(`${assetIn}/${assetOut}`);
+        const price = marketData.price;
+        
+        dexPrices.set(dexName, {
+          buy: price * (1 + dexInfo.fee),
+          sell: price * (1 - dexInfo.fee),
+          liquidity: marketData.liquidity_score || 0.5
+        });
+      } catch (error) {
+        console.error(`Error fetching price for ${dexName}:`, error);
+      }
+    }
+
+    // Find arbitrage opportunities
+    for (const [buyDex, buyData] of dexPrices) {
+      for (const [sellDex, sellData] of dexPrices) {
+        if (buyDex === sellDex) continue;
+        
+        const profit = sellData.sell - buyData.buy;
+        const profitPercentage = (profit / buyData.buy) * 100;
+        
+        if (profitPercentage > this.optimizationConfig.minProfitThreshold) {
+          opportunities.push({
+            id: `arb_${buyDex}_${sellDex}_${Date.now()}`,
+            asset_pair: `${assetIn}/${assetOut}`,
+            buy_venue: buyDex,
+            sell_venue: sellDex,
+            buy_price: buyData.buy.toString(),
+            sell_price: sellData.sell.toString(),
+            profit_percentage: profitPercentage,
+            profit_amount: (amountNum * profit).toString(),
+            required_capital: (amountNum * buyData.buy).toString(),
+            execution_complexity: this.assessArbitrageComplexity(buyDex, sellDex),
+            time_sensitivity: Math.max(30, 300 - profitPercentage * 50), // Higher profit = more time sensitive
+            confidence: Math.min(buyData.liquidity, sellData.liquidity)
+          });
+        }
+      }
+    }
+
+    // Sort by profit percentage
+    opportunities.sort((a, b) => b.profit_percentage - a.profit_percentage);
+    
+    return opportunities.slice(0, 5); // Return top 5 opportunities
+  }
+
+  /**
+   * Assess execution risk for a route
+   */
+  private async assessExecutionRisk(route: ExecutionRoute): Promise<{
+    overall_risk: number;
+    execution_risk: number;
+    market_risk: number;
+    recommendations: string[];
+  }> {
+    const recommendations: string[] = [];
+    
+    // Execution risk based on route complexity
+    const executionRisk = Math.min(0.9, route.path.length * 0.15 + (1 - route.confidence) * 0.5);
+    
+    // Market risk based on slippage and volatility
+    const marketRisk = Math.min(0.9, route.expectedSlippage * 10 + (route.executionTime / 3600) * 0.2);
+    
+    // Overall risk
+    const overallRisk = (executionRisk + marketRisk) / 2;
+    
+    // Generate recommendations
+    if (executionRisk > 0.5) {
+      recommendations.push('Consider simpler execution path with fewer hops');
+    }
+    if (marketRisk > 0.5) {
+      recommendations.push('Monitor market volatility before execution');
+    }
+    if (route.expectedSlippage > 0.03) {
+      recommendations.push('Split order into smaller chunks to reduce slippage');
+    }
+    if (route.executionTime > 300) {
+      recommendations.push('Consider faster execution route if time-sensitive');
+    }
+
+    return {
+      overall_risk: overallRisk,
+      execution_risk: executionRisk,
+      market_risk: marketRisk,
+      recommendations
+    };
+  }
+
+  /**
+   * Optimize execution strategy
+   */
+  private async optimizeExecutionStrategy(
+    route: ExecutionRoute,
+    marketData: Record<string, unknown>
+  ): Promise<{
+    timing: 'immediate' | 'delayed' | 'split';
+    split_orders?: SplitOrder[];
+    conditions?: ExecutionCondition[];
+  }> {
+    const amountIn = parseFloat(route.estimatedOutput) / parseFloat(route.path[route.path.length - 1]);
+    
+    // Determine optimal timing strategy
+    let timing: 'immediate' | 'delayed' | 'split' = 'immediate';
+    let splitOrders: SplitOrder[] | undefined;
+    let conditions: ExecutionCondition[] | undefined;
+
+    // If slippage is high, consider splitting
+    if (route.expectedSlippage > 0.02 || amountIn > 10000) {
+      timing = 'split';
+      splitOrders = this.createSplitOrders(route, amountIn);
+    }
+    
+    // If market is volatile, add conditions
+    if ((marketData as any).volatility_24h > 0.05) {
+      conditions = [
+        {
+          type: 'volatility',
+          operator: '<',
+          value: '0.03',
+          description: 'Execute only if volatility is below 3%'
+        }
+      ];
+    }
+
+    return {
+      timing,
+      ...(splitOrders && { split_orders: splitOrders }),
+      ...(conditions && { conditions })
+    };
+  }
+
+  /**
+   * Create split orders for large transactions
+   */
+  private createSplitOrders(route: ExecutionRoute, totalAmount: number): SplitOrder[] {
+    const numSplits = Math.min(5, Math.ceil(totalAmount / 5000)); // Max 5 splits
+    const amountPerSplit = totalAmount / numSplits;
+    const baseDelay = 60000; // 1 minute between splits
+    
+    const splitOrders: SplitOrder[] = [];
+    
+    for (let i = 0; i < numSplits; i++) {
+      splitOrders.push({
+        order_id: `split_${i + 1}_${Date.now()}`,
+        amount: amountPerSplit.toString(),
+        delay: i * baseDelay,
+        route: { ...route, estimatedOutput: (parseFloat(route.estimatedOutput) / numSplits).toString() },
+        conditions: [
+          {
+            type: 'liquidity',
+            operator: '>',
+            value: '0.3',
+            description: 'Ensure sufficient liquidity before execution'
+          }
+        ]
+      });
+    }
+    
+    return splitOrders;
+  }
+
+  /**
+   * Calculate optimization metrics
+   */
+  private calculateOptimizationMetrics(
+    optimalRoute: ExecutionRoute,
+    allRoutes: ExecutionRoute[],
+    arbitrageOpportunities: ArbitrageOpportunity[]
+  ) {
+    // Compare optimal route against alternatives
+    const worstRoute = allRoutes[allRoutes.length - 1];
+    
+    const gasSavings = worstRoute 
+      ? (parseFloat(worstRoute.estimatedGas) - parseFloat(optimalRoute.estimatedGas)).toString()
+      : '0';
+    
+    const slippageReduction = worstRoute 
+      ? worstRoute.expectedSlippage - optimalRoute.expectedSlippage
+      : 0;
+    
+    const timeOptimization = worstRoute 
+      ? worstRoute.executionTime - optimalRoute.executionTime
+      : 0;
+    
+    const maxArbitrageProfit = arbitrageOpportunities.length > 0 
+      ? arbitrageOpportunities[0].profit_percentage
+      : 0;
+
+    return {
+      gas_savings: gasSavings,
+      slippage_reduction: slippageReduction,
+      time_optimization: timeOptimization,
+      profit_enhancement: maxArbitrageProfit
+    };
+  }
+
+  /**
+   * Utility functions
+   */
+  private async findBestDexForPair(pair: string): Promise<DexInfo | null> {
+    let bestDex: DexInfo | null = null;
+    let bestScore = 0;
+    
+    for (const [, dexInfo] of this.dexRegistry) {
+      if (dexInfo.supportedPairs.includes(pair)) {
+        const score = dexInfo.reputation * (1 - dexInfo.fee) * dexInfo.liquidity;
+        if (score > bestScore) {
+          bestScore = score;
+          bestDex = dexInfo;
+        }
+      }
+    }
+    
+    return bestDex;
+  }
+
+  private estimateGasCost(dexName: string, complexity: number): number {
+    const baseCost = 0.001; // Base gas cost in NEAR
+    const dexMultiplier = this.dexRegistry.get(dexName)?.gasMultiplier || 1;
+    return baseCost * dexMultiplier * complexity;
+  }
+
+  private calculateExpectedSlippage(amount: number, liquidityScore: number): number {
+    const baseSlippage = 0.001; // 0.1% base slippage
+    const liquidityImpact = Math.max(0, (1 - liquidityScore) * 0.02); // Up to 2% additional
+    const sizeImpact = Math.min(amount / 100000 * 0.01, 0.03); // Up to 3% for very large orders
+    
+    return baseSlippage + liquidityImpact + sizeImpact;
+  }
+
+  private assessArbitrageComplexity(buyDex: string, sellDex: string): 'low' | 'medium' | 'high' {
+    const buyDexInfo = this.dexRegistry.get(buyDex);
+    const sellDexInfo = this.dexRegistry.get(sellDex);
+    
+    if (!buyDexInfo || !sellDexInfo) return 'high';
+    
+    const avgExecutionTime = (buyDexInfo.averageExecutionTime + sellDexInfo.averageExecutionTime) / 2;
+    
+    if (avgExecutionTime < 30) return 'low';
+    if (avgExecutionTime < 120) return 'medium';
     return 'high';
   }
 
-  private calculateComplexity(intent: any): number {
-    let complexity = 0.3; // Base complexity
-    
-    if (intent.asset_in.contract_address) complexity += 0.2;
-    if (intent.asset_out.contract_address) complexity += 0.2;
-    if (Number(intent.amount_in) > 10000) complexity += 0.3;
-    
-    return Math.min(1.0, complexity);
-  }
-
-  private estimateMarketImpact(intent: any): number {
-    const amount = Number(intent.amount_in) || 0;
-    // Simple linear model for market impact
-    return Math.min(0.05, amount / 100000);
-  }
-
-  private analyzeGasEfficiency(intent: any): number {
-    // Mock gas efficiency analysis
-    return 0.7 + Math.random() * 0.2;
-  }
-
-  private analyzeSlippageRisk(intent: any): number {
-    const complexity = this.calculateComplexity(intent);
-    const impact = this.estimateMarketImpact(intent);
-    return (complexity + impact) / 2;
-  }
-
-  private filterStrategiesByPriority(strategies: any[], criteria: OptimizationCriteria): any[] {
-    return strategies
-      .filter(s => s.impact > 0.3 && s.feasibility > 0.6)
-      .sort((a, b) => (b.impact * b.feasibility) - (a.impact * a.feasibility))
-      .slice(0, 3); // Top 3 strategies
-  }
-
-  private calculateOptimalChunks(intent: any): any {
-    const amount = Number(intent.amount_in);
-    const chunkCount = Math.min(10, Math.max(2, Math.floor(amount / 1000)));
-    const chunkSize = amount / chunkCount;
-    
-    return {
-      count: chunkCount,
-      size: chunkSize.toString(),
-      variance: 0.1,
-    };
-  }
-
-  private generateTimeSchedule(intent: any): any {
-    const totalTime = 3600; // 1 hour
-    const chunks = this.calculateOptimalChunks(intent);
-    const interval = totalTime / chunks.count;
-    
-    return {
-      total_duration: totalTime,
-      execution_interval: interval,
-      start_delay: 0,
-    };
-  }
-
-  private optimizeRoutes(intent: any): string[] {
-    return ['ref-finance', 'jumbo-exchange', 'trisolaris'];
-  }
-
-  private optimizeGasSettings(intent: any): any {
-    return {
-      gas_limit: '200000000000000',
-      gas_price: 'auto',
-      priority: 'standard',
-    };
-  }
-
-  private calculateDynamicSlippage(intent: any): any {
-    const baseSlippage = 0.01;
-    const riskMultiplier = this.analyzeSlippageRisk(intent);
-    
-    return {
-      min_slippage: baseSlippage,
-      max_slippage: baseSlippage * (1 + riskMultiplier),
-      adaptive: true,
-    };
-  }
-
-  private optimizeSolverSelection(intent: any): any {
-    return {
-      reputation_weight: 0.4,
-      speed_weight: 0.3,
-      cost_weight: 0.3,
-      min_reputation: 0.8,
-    };
-  }
-
-  private estimateGasSavings(original: any, optimized: any): string {
-    return '15000000000000'; // 15 TGas savings
-  }
-
-  private estimateTimeSavings(original: any, optimized: any): number {
-    return 120; // 2 minutes savings
-  }
-
-  private estimateOutputIncrease(original: any, optimized: any): string {
-    const originalAmount = stringToBigInt(original.amount_out_min || '0');
-    const increase = originalAmount * BigInt(25) / BigInt(1000); // 2.5% increase
-    return increase.toString();
-  }
-
-  private estimateRiskReduction(original: any, optimized: any): number {
-    return 0.15; // 15% risk reduction
-  }
-
-  private calculateOptimalAllocation(strategies: TradingStrategy[], intent: any): { [strategy: string]: number } {
-    const allocation: { [strategy: string]: number } = {};
-    const totalRisk = strategies.reduce((sum, s) => sum + s.risk_level, 0);
-    
-    strategies.forEach(strategy => {
-      // Allocate more to lower-risk strategies
-      const riskWeight = (1 - strategy.risk_level) / (strategies.length - totalRisk);
-      allocation[strategy.name] = Math.max(0.1, Math.min(0.5, riskWeight));
+  private initializeDexRegistry(): void {
+    // Initialize with known DEXes (in a real implementation, this would be dynamic)
+    this.dexRegistry.set('ref-finance', {
+      name: 'ref-finance',
+      reputation: 0.9,
+      fee: 0.003,
+      liquidity: 0.8,
+      gasMultiplier: 1.0,
+      averageExecutionTime: 15,
+      supportedPairs: ['NEAR/USD', 'NEAR/USDC', 'ETH/USD', 'BTC/USD', 'NEAR/ETH']
     });
-    
-    return allocation;
-  }
 
-  private generateStrategyReasoning(strategies: TradingStrategy[], marketConditions: any): string {
-    return `Based on current market conditions (volatility: ${marketConditions.volatility_index?.toFixed(2)}, trend: ${marketConditions.trend_direction}), recommended ${strategies.length} strategies with balanced risk-return profile.`;
-  }
+    this.dexRegistry.set('jumbo-exchange', {
+      name: 'jumbo-exchange',
+      reputation: 0.85,
+      fee: 0.0025,
+      liquidity: 0.7,
+      gasMultiplier: 1.1,
+      averageExecutionTime: 20,
+      supportedPairs: ['NEAR/USD', 'NEAR/USDT', 'ETH/USDC']
+    });
 
-  private generateOptimizationReasoning(strategies: any[], improvements: any): string {
-    const appliedStrategies = strategies.map(s => s.type).join(', ');
-    const keyImprovements = Object.keys(improvements).join(', ');
-    
-    return `Applied ${appliedStrategies} optimizations resulting in improved ${keyImprovements} with high confidence.`;
-  }
-
-  private calculateOptimizationConfidence(improvements: any): number {
-    const improvementCount = Object.keys(improvements).length;
-    return Math.min(0.9, 0.5 + (improvementCount * 0.1));
-  }
-
-  /**
-   * Update configuration
-   */
-  updateConfig(config: AIAgentConfig): void {
-    this.config = config;
-  }
-
-  /**
-   * Helper: Generate cache key
-   */
-  private generateOptimizationCacheKey(intent: any, criteria: OptimizationCriteria): string {
-    return JSON.stringify({
-      intent_hash: intent.id,
-      amount: intent.amount_in,
-      objective: criteria.primary_objective,
-      constraints: criteria.constraints,
+    this.dexRegistry.set('spin-dex', {
+      name: 'spin-dex',
+      reputation: 0.8,
+      fee: 0.004,
+      liquidity: 0.6,
+      gasMultiplier: 0.9,
+      averageExecutionTime: 25,
+      supportedPairs: ['NEAR/USD', 'BTC/USD', 'ETH/USD']
     });
   }
 
   /**
-   * Helper: Get cached optimization
+   * Update optimization configuration
    */
-  private getCachedOptimization(key: string): OptimizationResult | null {
-    const cached = this.optimizationCache.get(key);
-    if (cached && (getCurrentTimestamp() - cached.timestamp) < this.CACHE_TTL) {
-      return cached.result;
-    }
-    return null;
+  updateOptimizationConfig(config: Partial<OptimizationConfig>): void {
+    this.optimizationConfig = { ...this.optimizationConfig, ...config };
   }
+}
 
-  /**
-   * Helper: Cache optimization result
-   */
-  private cacheOptimization(key: string, result: OptimizationResult): void {
-    this.optimizationCache.set(key, {
-      result,
-      timestamp: getCurrentTimestamp(),
-    });
-  }
+interface DexInfo {
+  name: string;
+  reputation: number; // 0-1 scale
+  fee: number; // percentage
+  liquidity: number; // 0-1 scale
+  gasMultiplier: number;
+  averageExecutionTime: number; // seconds
+  supportedPairs: string[];
 }

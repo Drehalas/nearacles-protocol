@@ -3,16 +3,25 @@
  * Main entry point for the NEAR Intent Protocol
  */
 
-// Export all NEAR Intent components
-export * from './near-intent';
-// Export NEAR AI components (excluding overlapping types)
-export { 
-  AIAgent, 
-  MarketAnalyzer, 
-  RiskAssessor, 
-  IntentOptimizer,
-  SentimentAnalyzer 
-} from './near-ai';
+// Export specific types to avoid conflicts
+export type { 
+  Intent, 
+  Quote, 
+  AssetInfo, 
+  SolverInfo, 
+  IntentRequestParams, 
+  IntentConfig, 
+  IntentError, 
+  AsyncResult 
+} from './near-intent/types';
+
+export type { 
+  AIAgentConfig, 
+  AIDecision, 
+  MarketAnalysisResult 
+} from './near-ai/types';
+
+// Export utility functions and helpers
 export * from './utils/helpers';
 
 // Export main classes (avoiding duplicates)
@@ -21,6 +30,15 @@ export { AssetManager } from './near-intent/asset-manager';
 export { SolverBus } from './near-intent/solver-bus';
 export { QuoteManager } from './near-intent/quote-manager';
 export { VerifierContract } from './near-intent/verifier-contract';
+
+// Export NEAR AI components
+export { 
+  AIAgent, 
+  MarketAnalyzer, 
+  RiskAssessor, 
+  IntentOptimizer,
+  SentimentAnalyzer 
+} from './near-ai';
 
 // Configuration and constants
 export const NEARACLES_VERSION = '1.0.0';
@@ -33,7 +51,7 @@ export const DEFAULT_TESTNET_CONFIG = {
   wallet_url: 'https://wallet.testnet.near.org',
   helper_url: 'https://helper.testnet.near.org',
   explorer_url: 'https://explorer.testnet.near.org',
-  solver_bus_url: 'wss://solver-bus.testnet.near.org',
+  solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
   verifier_contract: 'verifier.testnet',
   intent_contract: 'intents.testnet',
   gas_limits: {
@@ -55,8 +73,8 @@ export const DEFAULT_MAINNET_CONFIG = {
   wallet_url: 'https://wallet.mainnet.near.org',
   helper_url: 'https://helper.mainnet.near.org',
   explorer_url: 'https://explorer.mainnet.near.org',
-  solver_bus_url: 'wss://solver-bus.near.org',
-  verifier_contract: 'verifier.near',
+  solver_bus_url: 'https://solver-relay-v2.chaindefuser.com/rpc',
+  verifier_contract: 'intents.near',
   intent_contract: 'intents.near',
   gas_limits: {
     register: '100000000000000',
@@ -93,11 +111,7 @@ export async function initializeNearIntentProtocol(
       max_tokens: 4096,
     },
     temperature: 0.7,
-    max_tokens: 4096,
     context_window: 8192,
-    enable_reasoning: true,
-    enable_memory: true,
-    risk_tolerance: 'moderate',
   });
 
   // Initialize agents

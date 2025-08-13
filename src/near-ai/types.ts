@@ -1,257 +1,161 @@
 /**
- * TypeScript interfaces for NEAR AI Integration
+ * Type definitions for NEAR AI System
  */
 
-// Core AI Types
-export interface AIModel {
+// AI Agent Configuration
+export interface AIModelInfo {
   name: string;
-  provider: 'near-ai' | 'openai' | 'anthropic' | 'local';
+  provider: string;
   version: string;
-  capabilities: AICapability[];
+  capabilities: string[];
   max_tokens: number;
-  cost_per_token?: number;
 }
 
-export type AICapability = 
-  | 'text-generation'
-  | 'market-analysis'
-  | 'risk-assessment'
-  | 'sentiment-analysis'
-  | 'intent-optimization'
-  | 'strategy-generation'
-  | 'anomaly-detection';
-
-// AI Agent Configuration
 export interface AIAgentConfig {
-  model: AIModel;
+  model: AIModelInfo;
+  api_key?: string;
+  endpoint?: string;
   temperature: number;
-  max_tokens: number;
-  system_prompt?: string;
   context_window: number;
-  enable_reasoning: boolean;
-  enable_memory: boolean;
-  risk_tolerance: 'conservative' | 'moderate' | 'aggressive';
+  max_tokens?: number;
+  enable_reasoning?: boolean;
+  enable_memory?: boolean;
+  risk_tolerance?: 'conservative' | 'moderate' | 'aggressive';
+}
+
+// AI Decision Types
+export interface AIDecision {
+  action: 'execute' | 'wait' | 'cancel' | 'modify';
+  confidence: number;
+  reasoning: string;
+  parameters?: Record<string, unknown>;
+  risk_assessment: {
+    level: 'low' | 'medium' | 'high' | 'critical';
+    factors: string[];
+  };
+  risk_score?: number;
+  expected_outcome?: Record<string, unknown>;
+  alternative_strategies?: string[];
+  monitoring_points?: string[];
+  execution_params?: Record<string, unknown>;
+}
+
+export interface AIDecisionContext {
+  intent_data: Record<string, unknown>;
+  market_conditions: Record<string, unknown>;
+  historical_performance: Record<string, unknown>;
+  risk_tolerance: number;
+  user_profile?: Record<string, unknown>;
 }
 
 // Market Analysis Types
-export interface MarketData {
+export interface MarketAnalysisResult {
   asset_pair: string;
-  price: string;
-  volume_24h: string;
-  price_change_24h: number;
-  price_change_7d: number;
-  market_cap?: string;
-  liquidity_score: number;
-  volatility_index: number;
+  current_price: string;
+  price_trend: 'up' | 'down' | 'stable';
+  volatility: number;
+  liquidity: number;
+  recommended_action: 'buy' | 'sell' | 'hold';
+  confidence: number;
+  analysis_timestamp: number;
+  market_data?: MarketData;
+  technical_indicators?: TechnicalIndicators;
+  trend_direction?: 'up' | 'down' | 'sideways';
+  sentiment_score?: number;
+  strength_score?: number;
+  reasoning?: string[];
+  time_horizon?: string;
+}
+
+export interface MarketData {
+  symbol: string;
+  price: number;
+  volume: number;
+  high_24h: number;
+  low_24h: number;
+  change_24h: number;
+  market_cap?: number;
   timestamp: number;
+  historical_prices?: Array<{ timestamp: number; price: number; volume: number }>;
+  // Additional properties for compatibility
+  volume_24h?: string;
+  price_change_24h?: number;
+  liquidity_score?: number;
+  volatility_24h?: number;
+  volatility_index?: number;
 }
 
 export interface TechnicalIndicators {
   rsi: number;
-  macd: {
-    signal: number;
-    histogram: number;
-    macd: number;
-  };
-  bollinger_bands: {
-    upper: number;
-    middle: number;
-    lower: number;
-  };
-  moving_averages: {
-    sma_20: number;
-    sma_50: number;
-    ema_12: number;
-    ema_26: number;
-  };
-  support_resistance: {
-    support_levels: number[];
-    resistance_levels: number[];
-  };
+  macd: { signal: number; histogram: number; macd: number };
+  bollinger_bands: { upper: number; middle: number; lower: number };
+  moving_averages: { sma_20: number; sma_50: number; sma_200: number };
+  volume_profile: { support: number; resistance: number };
+  momentum_indicators: { stochastic: number; williams_r: number };
 }
 
-export interface MarketAnalysisResult {
-  asset_pair: string;
-  market_data: MarketData;
-  technical_indicators: TechnicalIndicators;
-  sentiment_score: number;
-  trend_direction: 'bullish' | 'bearish' | 'neutral';
-  strength_score: number;
-  recommended_action: 'buy' | 'sell' | 'hold' | 'wait';
-  confidence: number;
-  reasoning: string[];
-  time_horizon: 'immediate' | 'short' | 'medium' | 'long';
-  analysis_timestamp: number;
-}
-
-// Risk Assessment Types
 export interface RiskFactor {
-  type: 'market' | 'liquidity' | 'smart_contract' | 'regulatory' | 'operational';
-  level: 'low' | 'medium' | 'high' | 'critical';
-  description: string;
-  impact_score: number;
+  type: string;
+  factor?: string; // Alternative name for type (for backward compatibility)
+  level?: 'low' | 'medium' | 'high' | 'critical';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  impact: number;
+  impact_score?: number;
   probability: number;
-  mitigation_strategies: string[];
+  description: string;
+  mitigation_strategies?: string[];
 }
 
 export interface RiskAssessment {
   overall_risk_score: number;
   risk_level: 'low' | 'medium' | 'high' | 'critical';
-  risk_factors: RiskFactor[];
+  confidence: number;
+  factors: string[];
   recommendations: string[];
-  max_position_size?: string;
+  risk_factors?: string[];
   suggested_slippage?: number;
-  warning_flags: string[];
-  assessment_timestamp: number;
 }
 
-// Intent Optimization Types
-export interface OptimizationCriteria {
-  primary_objective: 'maximize_output' | 'minimize_cost' | 'minimize_time' | 'minimize_risk';
-  constraints: {
-    max_slippage?: number;
-    max_execution_time?: number;
-    max_fee?: string;
-    preferred_solvers?: string[];
-    blacklisted_solvers?: string[];
-  };
-  preferences: {
-    speed_weight: number;
-    cost_weight: number;
-    reliability_weight: number;
-    privacy_weight: number;
-  };
-}
-
-export interface OptimizationResult {
-  original_intent: any;
-  optimized_intent: any;
-  improvements: {
-    estimated_gas_savings?: string;
-    estimated_time_savings?: number;
-    estimated_output_increase?: string;
-    risk_reduction?: number;
-  };
-  optimization_strategies: string[];
-  confidence: number;
-  reasoning: string;
-}
-
-// Sentiment Analysis Types
-export interface SentimentSource {
-  type: 'twitter' | 'reddit' | 'news' | 'telegram' | 'discord' | 'github';
-  url?: string;
-  weight: number;
-  credibility_score: number;
-}
-
-export interface SentimentData {
-  source: SentimentSource;
-  content: string;
-  sentiment_score: number;
-  keywords: string[];
-  influence_score: number;
-  timestamp: number;
-}
-
-export interface SentimentAnalysisResult {
-  asset: string;
-  overall_sentiment: number;
-  sentiment_trend: 'improving' | 'declining' | 'stable';
-  sentiment_breakdown: {
-    positive: number;
-    negative: number;
-    neutral: number;
-  };
-  key_themes: string[];
-  influencer_sentiment: number;
-  news_sentiment: number;
-  social_volume: number;
-  analysis_period: {
-    start: number;
-    end: number;
-  };
-}
-
-// AI Decision Types
-export interface AIDecisionContext {
-  user_profile?: {
-    risk_tolerance: 'low' | 'medium' | 'high';
-    experience_level: 'beginner' | 'intermediate' | 'expert';
-    trading_history?: any[];
-    preferences?: any;
-  };
-  market_conditions: {
-    volatility: number;
-    liquidity: number;
-    trend: string;
-  };
-  portfolio_context?: {
-    current_positions: any[];
-    available_balance: string;
-    diversification_score: number;
-  };
-}
-
-export interface AIDecision {
-  action: 'execute' | 'wait' | 'cancel' | 'modify' | 'split' | 'delay';
-  confidence: number;
-  reasoning: string[];
-  risk_score: number;
-  expected_outcome: {
-    success_probability: number;
-    estimated_return?: string;
-    time_to_completion?: number;
-  };
-  alternative_strategies?: string[];
-  monitoring_points: string[];
-  execution_params?: any;
-}
-
-// Strategy Generation Types
-export interface TradingStrategy {
+// AI Model Types
+export interface AIModel {
   name: string;
-  type: 'arbitrage' | 'dca' | 'momentum' | 'mean_reversion' | 'carry' | 'pairs';
-  description: string;
-  parameters: any;
-  expected_return: number;
-  risk_level: number;
-  time_horizon: string;
-  market_conditions: string[];
-  implementation_steps: string[];
+  version: string;
+  capabilities: string[];
 }
 
-export interface StrategyRecommendation {
-  strategies: TradingStrategy[];
-  recommended_allocation: { [strategy: string]: number };
-  reasoning: string;
-  backtesting_results?: any;
-  confidence: number;
-}
-
-// AI Memory and Learning Types
+// AI Memory and Learning
 export interface AIMemory {
-  id: string;
-  type: 'decision' | 'outcome' | 'pattern' | 'user_preference';
-  content: any;
+  id?: string;
+  decisions: AIDecision[];
+  outcomes: Record<string, unknown>[];
+  performance_metrics: AIPerformanceMetrics;
   importance_score: number;
-  access_count: number;
-  created_at: number;
-  last_accessed: number;
-  expires_at?: number;
+  type?: string;
+  content?: string;
+  access_count?: number;
+  created_at?: number;
+  last_accessed?: number;
 }
 
 export interface LearningEvent {
-  event_type: 'intent_executed' | 'quote_accepted' | 'trade_completed' | 'user_feedback';
-  event_data: any;
-  outcome: 'positive' | 'negative' | 'neutral';
-  lesson_learned?: string;
-  confidence_adjustment?: number;
+  type?: string;
+  data?: Record<string, unknown>;
   timestamp: number;
+  impact?: number;
+  outcome?: 'success' | 'failure';
+  confidence_adjustment?: number;
+  lesson_learned?: string;
+  event_type: string;
+  event_data: Record<string, unknown>;
 }
 
-// AI Performance Metrics
 export interface AIPerformanceMetrics {
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1_score: number;
+  total_decisions: number;
+  successful_decisions: number;
   decision_accuracy: number;
   prediction_accuracy: number;
   risk_assessment_accuracy: number;
@@ -267,48 +171,43 @@ export interface AIPerformanceMetrics {
   };
 }
 
-// Error and Monitoring Types
-export interface AIError {
-  code: string;
-  message: string;
-  model: string;
-  context?: any;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  timestamp: number;
-  stack_trace?: string;
-}
-
-export interface AIMonitoringEvent {
-  type: 'performance' | 'error' | 'usage' | 'cost' | 'anomaly';
-  data: any;
-  threshold_breached?: boolean;
-  alert_level: 'info' | 'warning' | 'error' | 'critical';
-  timestamp: number;
-}
-
-// Utility Types
-export type AITaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
-
-export interface AITask {
-  id: string;
-  type: string;
-  status: AITaskStatus;
-  progress: number;
-  created_at: number;
-  started_at?: number;
-  completed_at?: number;
-  result?: any;
-  error?: AIError;
-}
-
+// AI Response
 export interface AIResponse<T = any> {
   success: boolean;
   data?: T;
   error?: AIError;
-  metadata?: {
-    model_used: string;
-    tokens_consumed: number;
-    processing_time: number;
-    confidence: number;
-  };
+  metadata?: Record<string, unknown>;
+}
+
+export interface AIError {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+  model?: string;
+  severity?: 'low' | 'medium' | 'high' | 'critical';
+  timestamp?: number;
+}
+
+// Additional types from main branch
+export interface OptimizationCriteria {
+  priority: 'speed' | 'cost' | 'security' | 'balanced';
+  max_slippage: number;
+  max_execution_time: number;
+  min_confidence: number;
+}
+
+export interface TradingStrategy {
+  id: string;
+  name: string;
+  type: 'arbitrage' | 'market_making' | 'trend_following' | 'mean_reversion';
+  parameters: Record<string, any>;
+  risk_profile: 'low' | 'medium' | 'high';
+}
+
+export interface StrategyRecommendation {
+  strategy: TradingStrategy;
+  confidence: number;
+  expected_return: number;
+  risk_score: number;
+  reasoning: string;
 }

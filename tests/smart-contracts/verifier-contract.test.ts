@@ -129,8 +129,8 @@ describe('Verifier Contract Tests', () => {
       });
 
       expect(storedIntent).toBeDefined();
-      expect(storedIntent.id).toBe(intent.id);
-      expect(storedIntent.user).toBe(user.accountId);
+      expect((storedIntent as { id: string; user: string }).id).toBe(intent.id);
+      expect((storedIntent as { id: string; user: string }).user).toBe(user.accountId);
     });
 
     it('should reject invalid intent with zero amount', async () => {
@@ -296,9 +296,9 @@ describe('Verifier Contract Tests', () => {
       });
 
       expect(quotes).toBeDefined();
-      expect(quotes.length).toBe(1);
-      expect(quotes[0].solver_id).toBe(solver.accountId);
-      expect(quotes[0].amount_out).toBe(quote.amount_out);
+      expect((quotes as Array<{ solver_id: string; amount_out: string }>).length).toBe(1);
+      expect((quotes as Array<{ solver_id: string; amount_out: string }>)[0].solver_id).toBe(solver.accountId);
+      expect((quotes as Array<{ solver_id: string; amount_out: string }>)[0].amount_out).toBe(quote.amount_out);
     });
 
     it('should reject quote with insufficient output amount', async () => {
@@ -433,7 +433,7 @@ describe('Verifier Contract Tests', () => {
       });
 
       expect(status).toBeDefined();
-      expect(['executing', 'completed']).toContain(status.status);
+      expect(['executing', 'completed']).toContain((status as { status: string; intent_id: string }).status);
     });
 
     it('should not allow execution by non-owner', async () => {
@@ -517,7 +517,7 @@ describe('Verifier Contract Tests', () => {
         intent_id: intentId,
       });
 
-      expect(status.status).toBe('cancelled');
+      expect((status as { status: string; intent_id: string }).status).toBe('cancelled');
     });
 
     it('should not allow cancellation by non-owner', async () => {
@@ -592,16 +592,16 @@ describe('Verifier Contract Tests', () => {
 
       expect(intents).toBeDefined();
       expect(Array.isArray(intents)).toBe(true);
-      expect(intents.length).toBeGreaterThan(0);
-      expect(intents[0].user).toBe(user.accountId);
+      expect((intents as Array<{ user: string; id: string }>).length).toBeGreaterThan(0);
+      expect((intents as Array<{ user: string; id: string }>)[0].user).toBe(user.accountId);
     });
 
     it('should get contract statistics', async () => {
       const stats = await verifierContract.view('get_statistics', {});
 
       expect(stats).toBeDefined();
-      expect(typeof stats.total_intents).toBe('number');
-      expect(typeof stats.total_users).toBe('number');
+      expect(typeof (stats as { total_intents: number; total_users: number }).total_intents).toBe('number');
+      expect(typeof (stats as { total_intents: number; total_users: number }).total_users).toBe('number');
     });
   });
 });

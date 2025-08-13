@@ -6,7 +6,6 @@
 import { 
   Intent, 
   IntentRequestParams, 
-  AssetInfo, 
   IntentError,
   AsyncResult 
 } from './types';

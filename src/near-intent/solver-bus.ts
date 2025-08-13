@@ -3,6 +3,7 @@
  * Handles communication with the off-chain solver network
  */
 
+import WebSocket from 'ws';
 import { 
   Quote, 
   SolverInfo, 
@@ -47,7 +48,7 @@ export class SolverBus {
         }
       };
 
-      this.wsConnection.onmessage = (event: WS.MessageEvent) => {
+      this.wsConnection.onmessage = (event: WebSocket.MessageEvent) => {
         try {
           const message: SolverBusMessage = JSON.parse(event.data.toString());
           this.handleMessage(message);
@@ -56,7 +57,8 @@ export class SolverBus {
         }
       };
 
-      this.wsConnection.onerror = (error: WS.ErrorEvent) => {
+
+      this.wsConnection.onerror = (error: WebSocket.ErrorEvent) => {
         console.error('WebSocket error:', error);
       };
 
@@ -85,8 +87,9 @@ export class SolverBus {
   /**
    * Send a message through WebSocket
    */
-  private send(data: any): void {
-    if (this.wsConnection && this.wsConnection.readyState === WS.WebSocket.OPEN) {
+
+  private send(data: Record<string, unknown>): void {
+    if (this.wsConnection && this.wsConnection.readyState === WebSocket.OPEN) {
       this.wsConnection.send(JSON.stringify(data));
     }
   }
@@ -124,7 +127,7 @@ export class SolverBus {
    */
   async publishIntent(intent: Intent): Promise<AsyncResult<string>> {
     try {
-      const response = await this.httpRequest('POST', '/intents', intent);
+      const response = await this.httpRequest('POST', '/intents', intent as unknown as Record<string, unknown>);
       
       if (response.success) {
         // Also send via WebSocket for real-time processing
@@ -137,7 +140,7 @@ export class SolverBus {
 
         return { success: true, data: intent.id };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -152,14 +155,14 @@ export class SolverBus {
   /**
    * Get quotes for an intent
    */
-  async getQuotes(intentId: string, timeout: number = 30000): Promise<AsyncResult<Quote[]>> {
+  async getQuotes(intentId: string, _timeout: number = 30000): Promise<AsyncResult<Quote[]>> {
     try {
       const response = await this.httpRequest('GET', `/intents/${intentId}/quotes`);
       
       if (response.success) {
-        return { success: true, data: response.data.quotes || [] };
+        return { success: true, data: (response as any).data.quotes || [] };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -257,7 +260,7 @@ export class SolverBus {
    */
   async submitQuote(quote: Quote): Promise<AsyncResult<void>> {
     try {
-      const response = await this.httpRequest('POST', '/quotes', quote);
+      const response = await this.httpRequest('POST', '/quotes', quote as unknown as Record<string, unknown>);
       
       if (response.success) {
         // Send via WebSocket
@@ -270,7 +273,7 @@ export class SolverBus {
 
         return { success: true, data: undefined };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -290,9 +293,9 @@ export class SolverBus {
       const response = await this.httpRequest('GET', `/intents/${intentId}/status`);
       
       if (response.success) {
-        return { success: true, data: response.data };
+        return { success: true, data: (response as any).data };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -312,9 +315,9 @@ export class SolverBus {
       const response = await this.httpRequest('GET', '/solvers');
       
       if (response.success) {
-        return { success: true, data: response.data.solvers || [] };
+        return { success: true, data: (response as any).data.solvers || [] };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -334,7 +337,7 @@ export class SolverBus {
     status: IntentExecutionStatus
   ): Promise<AsyncResult<void>> {
     try {
-      const response = await this.httpRequest('PUT', `/intents/${intentId}/status`, status);
+      const response = await this.httpRequest('PUT', `/intents/${intentId}/status`, status as unknown as Record<string, unknown>);
       
       if (response.success) {
         // Send update via WebSocket
@@ -347,7 +350,7 @@ export class SolverBus {
 
         return { success: true, data: undefined };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {
@@ -365,10 +368,10 @@ export class SolverBus {
   private async httpRequest(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     endpoint: string,
-    data?: any
-  ): Promise<any> {
+    data?: Record<string, unknown>
+  ): Promise<Record<string, unknown>> {
     const url = `${this.baseUrl}${endpoint}`;
-    const headers: any = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
 
@@ -394,7 +397,7 @@ export class SolverBus {
       }
       
       return await response.json();
-    }, 3, 1000);
+    }, 3, 1000) as Promise<Record<string, unknown>>;
   }
 
   /**
@@ -413,14 +416,14 @@ export class SolverBus {
   /**
    * Get Solver Bus statistics
    */
-  async getStatistics(): Promise<AsyncResult<any>> {
+  async getStatistics(): Promise<AsyncResult<Record<string, unknown>>> {
     try {
       const response = await this.httpRequest('GET', '/stats');
       
       if (response.success) {
-        return { success: true, data: response.data };
+        return { success: true, data: (response as any).data };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error as IntentError };
       }
     } catch (error) {
       const intentError: IntentError = {

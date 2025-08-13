@@ -17,6 +17,9 @@ test.describe('User Workflow Tests', () => {
     // Step 3: Explore navigation options
     const navLinks = await page.locator('a[href*="/dashboard"], a[href*="/oracles"], a[href*="/analytics"], a[href*="/explorer"]').all();
     
+    // Step 4: Check for API operations
+    const operations = await page.locator('.swagger-ui .opblock').all();
+    
     if (operations.length > 0) {
       // Expand first API operation
       await operations[0].locator('.opblock-summary').click();

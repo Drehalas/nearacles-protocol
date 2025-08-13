@@ -11,7 +11,7 @@ import {
   IntentError,
   AsyncResult 
 } from './types';
-import { Account, Contract, transactions, utils } from 'near-api-js';
+import { Account, Contract } from 'near-api-js';
 import { getCurrentTimestamp, retry, parseNearAmount } from '../utils/helpers';
 
 export class VerifierContract {
@@ -97,13 +97,14 @@ export class VerifierContract {
       // Ensure user is registered
       const registrationResult = await this.registerUser();
       if (!registrationResult.success) {
-        return Promise.resolve(registrationResult);
+
+        return Promise.resolve(registrationResult as { success: false; error: IntentError });
       }
 
       // Calculate storage deposit
       const storageDeposit = parseNearAmount('0.01'); // Base storage for intent
 
-      const result = await this.contract.submit_intent(
+      await this.contract.submit_intent(
         { intent },
         '300000000000000', // 300 TGas
         storageDeposit
@@ -186,7 +187,8 @@ export class VerifierContract {
       }, 3, 2000);
 
       // The result should contain transaction hash
-      const txHash = (result as any)?.transaction?.hash || 'unknown';
+
+      const txHash = (result as any)?.transaction?.hash || (result as any)?.transaction_outcome?.id || 'unknown';
 
       return { success: true, data: txHash };
 
@@ -194,7 +196,7 @@ export class VerifierContract {
       const intentError: IntentError = {
         code: 'INTENT_EXECUTION_FAILED',
         message: error instanceof Error ? error.message : 'Failed to execute intent',
-        details: error,
+        details: error as any,
         timestamp: getCurrentTimestamp(),
       };
       return { success: false, error: intentError };
@@ -299,7 +301,7 @@ export class VerifierContract {
         errors.push({
           code: 'BATCH_EXECUTION_ERROR',
           message: `Failed to execute intent ${execution.intentId}`,
-          details: error,
+          details: error as any,
           timestamp: getCurrentTimestamp(),
         });
       }
@@ -311,7 +313,7 @@ export class VerifierContract {
         error: {
           code: 'BATCH_EXECUTION_PARTIAL_FAILURE',
           message: `${errors.length} out of ${executions.length} executions failed`,
-          details: errors,
+          details: errors as any,
           timestamp: getCurrentTimestamp(),
         }
       };
@@ -323,7 +325,7 @@ export class VerifierContract {
   /**
    * Estimate gas for intent execution
    */
-  async estimateExecutionGas(intentId: string, quoteId: string): Promise<string> {
+  async estimateExecutionGas(_intentId: string, _quoteId: string): Promise<string> {
     try {
       // This would typically call a view method that simulates execution
       // For now, return a conservative estimate
@@ -340,12 +342,12 @@ export class VerifierContract {
   /**
    * Get contract statistics
    */
-  async getStatistics(): Promise<any> {
+  async getStatistics(): Promise<Record<string, unknown>> {
     try {
       return await (this.contract as any).get_statistics();
     } catch (error) {
       console.error('Failed to get contract statistics:', error);
-      return null;
+      return {} as unknown as Record<string, unknown>;
     }
   }
 
@@ -461,12 +463,12 @@ export class VerifierContract {
   /**
    * Get account state
    */
-  async getAccountState(): Promise<any> {
+  async getAccountState(): Promise<Record<string, unknown>> {
     try {
-      return await this.account.state();
+      return await this.account.state() as unknown as Record<string, unknown>;
     } catch (error) {
       console.error('Failed to get account state:', error);
-      return null;
+      return {} as unknown as Record<string, unknown>;
     }
   }
 

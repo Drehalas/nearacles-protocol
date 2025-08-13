@@ -39,8 +39,8 @@ export function parseNearAmount(nearAmount: string): string {
 /**
  * Calculate hash of data
  */
-export function calculateHash(data: any): string {
-  const jsonString = JSON.stringify(data, Object.keys(data).sort());
+export function calculateHash(data: unknown): string {
+  const jsonString = JSON.stringify(data, typeof data === 'object' && data !== null ? Object.keys(data as object).sort() : undefined);
   return createHash('sha256').update(jsonString).digest('hex');
 }
 
@@ -173,21 +173,21 @@ export function deepClone<T>(obj: T): T {
   }
   
   if (obj instanceof Date) {
-    return new Date(obj.getTime()) as any;
+    return new Date(obj.getTime()) as T;
   }
   
   if (obj instanceof Array) {
-    return obj.map(item => deepClone(item)) as any;
+    return obj.map(item => deepClone(item)) as T;
   }
   
   if (typeof obj === 'object') {
-    const clonedObj = {} as any;
+    const clonedObj = {} as Record<string, unknown>;
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         clonedObj[key] = deepClone(obj[key]);
       }
     }
-    return clonedObj;
+    return clonedObj as T;
   }
   
   return obj;

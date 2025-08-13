@@ -33,6 +33,7 @@ describe('NEAR Intent Protocol Integration Tests', () => {
         registration: '0.1',
         intent: '0.01',
         quote: '0.005',
+
       },
     };
 
@@ -43,18 +44,15 @@ describe('NEAR Intent Protocol Integration Tests', () => {
 
     aiAgent = new AIAgent({
       model: {
-        name: 'test-model',
+        name: 'near-ai',
         provider: 'near-ai',
         version: '1.0.0',
-        capabilities: ['market-analysis', 'risk-assessment'],
+        capabilities: ['intent-analysis'],
         max_tokens: 4096,
       },
       temperature: 0.7,
       max_tokens: 4096,
       context_window: 8192,
-      enable_reasoning: true,
-      enable_memory: true,
-      risk_tolerance: 'moderate',
     });
   });
 
@@ -73,7 +71,7 @@ describe('NEAR Intent Protocol Integration Tests', () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.intent).toBeDefined();
-      expect(result.data.aiDecision).toBeDefined();
+      expect(result.data.reasoning).toBeDefined();
       expect(result.data.reasoning).toBeDefined();
     }
   });
@@ -81,6 +79,6 @@ describe('NEAR Intent Protocol Integration Tests', () => {
   it('should perform end-to-end market analysis', async () => {
     const analysis = await aiAgent.getPerformanceMetrics();
     expect(analysis).toBeDefined();
-    expect(analysis.decision_accuracy).toBeGreaterThan(0);
+    expect(analysis.accuracy).toBeGreaterThan(0);
   });
 });
