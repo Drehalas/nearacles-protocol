@@ -31,16 +31,12 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
     - name: Install dependencies
-      run: |
-        npm install --package-lock-only
-        npm ci
+      run: npm install
       continue-on-error: true
 
     - name: Install frontend dependencies
       working-directory: ./frontend
-      run: |
-        npm install --package-lock-only
-        npm ci
+      run: npm install
       continue-on-error: true
 
     - name: Run Trivy vulnerability scanner
@@ -133,9 +129,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
     - name: Install dependencies
-      run: |
-        npm install --package-lock-only
-        npm ci
+      run: npm install
       continue-on-error: true
 
     - name: Check licenses

@@ -20,9 +20,7 @@ jobs:
           node-version: '22'
       
       - name: Install dependencies
-        run: |
-          npm install --package-lock-only
-          npm ci
+        run: npm install
       
       - name: Run ESLint
         run: npm run lint
