@@ -92,7 +92,7 @@ export class MarketDataProviders {
         this.cacheData(cacheKey, data as MarketData);
         return data as MarketData;
       } catch (error) {
-        console.warn(`Market data source failed for ${assetPair}:`, error);
+        console.warn('Market data source failed for %s:', assetPair, error);
         continue;
       }
     }
@@ -286,7 +286,7 @@ export class MarketDataProviders {
         const data = await this.fetchMarketData(symbol);
         results.set(symbol, data);
       } catch (error) {
-        console.error(`Failed to fetch data for ${symbol}:`, error);
+        console.error('Failed to fetch data for %s:', symbol, error);
       }
     });
 

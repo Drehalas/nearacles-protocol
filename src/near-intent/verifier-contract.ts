@@ -232,7 +232,7 @@ export class VerifierContract {
     try {
       return await this.contract.get_intent({ intent_id: intentId });
     } catch (error) {
-      console.error(`Failed to get intent ${intentId}:`, error);
+      console.error('Failed to get intent %s:', intentId, error);
       return null;
     }
   }
@@ -263,7 +263,7 @@ export class VerifierContract {
     try {
       return await this.contract.get_solver_quotes({ intent_id: intentId });
     } catch (error) {
-      console.error(`Failed to get quotes for intent ${intentId}:`, error);
+      console.error('Failed to get quotes for intent %s:', intentId, error);
       return [];
     }
   }
@@ -275,7 +275,7 @@ export class VerifierContract {
     try {
       return await (this.contract as any).get_intent_status({ intent_id: intentId });
     } catch (error) {
-      console.error(`Failed to get status for intent ${intentId}:`, error);
+      console.error('Failed to get status for intent %s:', intentId, error);
       return null;
     }
   }

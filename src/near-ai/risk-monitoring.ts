@@ -75,7 +75,7 @@ export class RiskMonitoringSystem {
     assets.forEach(asset => this.subscribedAssets.add(asset));
 
     this.isMonitoring = true;
-    console.log(`Starting risk monitoring for assets: ${Array.from(this.subscribedAssets).join(', ')}`);
+    console.log('Starting risk monitoring for assets: %s', Array.from(this.subscribedAssets).join(', '));
 
     // Perform initial assessment
     await this.performMonitoringCycle();
@@ -110,7 +110,7 @@ export class RiskMonitoringSystem {
    */
   addAssetsToMonitoring(assets: string[]): void {
     assets.forEach(asset => this.subscribedAssets.add(asset));
-    console.log(`Added assets to monitoring: ${assets.join(', ')}`);
+    console.log('Added assets to monitoring: %s', assets.join(', '));
   }
 
   /**
@@ -118,7 +118,7 @@ export class RiskMonitoringSystem {
    */
   removeAssetsFromMonitoring(assets: string[]): void {
     assets.forEach(asset => this.subscribedAssets.delete(asset));
-    console.log(`Removed assets from monitoring: ${assets.join(', ')}`);
+    console.log('Removed assets from monitoring: %s', assets.join(', '));
   }
 
   /**
@@ -190,7 +190,7 @@ export class RiskMonitoringSystem {
       await this.checkRiskTrends(asset, riskData);
 
     } catch (error) {
-      console.error(`Error monitoring asset ${asset}:`, error);
+      console.error('Error monitoring asset %s:', asset, error);
     }
   }
 
@@ -319,7 +319,7 @@ export class RiskMonitoringSystem {
       this.emitAlert(alert);
     }
 
-    console.log(`Risk Alert [${alert.severity.toUpperCase()}]: ${alert.message}`);
+    console.log('Risk Alert [%s]: %s', alert.severity.toUpperCase(), alert.message);
   }
 
   /**
@@ -332,7 +332,7 @@ export class RiskMonitoringSystem {
     // - Send notifications to monitoring dashboards
     // - Trigger automated responses based on severity
     
-    console.log(`Emitting alert: ${JSON.stringify(alert, null, 2)}`);
+    console.log('Emitting alert: %s', JSON.stringify(alert, null, 2));
   }
 
   /**
@@ -356,7 +356,7 @@ export class RiskMonitoringSystem {
     const alert = this.alerts.find(a => a.id === alertId);
     if (alert) {
       alert.resolved = true;
-      console.log(`Alert resolved: ${alertId}`);
+      console.log('Alert resolved: %s', alertId);
       return true;
     }
     return false;

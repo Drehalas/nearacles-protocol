@@ -193,7 +193,7 @@ export class AssetManager {
       return assetBalance;
 
     } catch (error) {
-      console.error(`Failed to get balance for ${tokenId}:`, error);
+      console.error('Failed to get balance for %s:', tokenId, error);
       return null;
     }
   }
@@ -212,7 +212,7 @@ export class AssetManager {
           balances.push(balance);
         }
       } catch (error) {
-        console.warn(`Failed to get balance for ${asset.token_id}:`, error);
+        console.warn('Failed to get balance for %s:', asset.token_id, error);
       }
     }
 
@@ -293,7 +293,7 @@ export class AssetManager {
 
       return storageBalance !== null;
     } catch (error) {
-      console.error(`Failed to check storage registration for ${tokenId}:`, error);
+      console.error('Failed to check storage registration for %s:', tokenId, error);
       return false;
     }
   }
@@ -333,7 +333,7 @@ export class AssetManager {
 
       return true;
     } catch (error) {
-      console.error(`Failed to register storage for ${tokenId}:`, error);
+      console.error('Failed to register storage for %s:', tokenId, error);
       return false;
     }
   }
