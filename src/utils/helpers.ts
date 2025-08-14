@@ -114,7 +114,7 @@ export async function retry<T>(
   maxAttempts: number = 3,
   baseDelay: number = 1000
 ): Promise<T> {
-  let lastError: Error;
+  let lastError: Error | undefined;
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -131,7 +131,8 @@ export async function retry<T>(
     }
   }
   
-  throw lastError!;
+  // This should never be reached due to the loop logic, but TypeScript requires it
+  throw lastError || new Error('Operation failed after retries');
 }
 
 /**

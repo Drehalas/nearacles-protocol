@@ -154,7 +154,7 @@ export class SolverBus {
   /**
    * Get quotes for an intent
    */
-  async getQuotes(intentId: string, _timeout: number = 30000): Promise<AsyncResult<Quote[]>> {
+  async getQuotes(intentId: string, _timeout: number = 30000): Promise<AsyncResult<Quote[]>> { // eslint-disable-line @typescript-eslint/no-unused-vars
     try {
       const response = await this.httpRequest('GET', `/intents/${intentId}/quotes`);
       

@@ -11,7 +11,12 @@ module.exports = {
   },
   env: {
     node: true,
-    es2022: true
+    es2022: true,
+    browser: true
+  },
+  globals: {
+    NodeJS: 'readonly',
+    RequestInit: 'readonly'
   },
   rules: {
     // Enhanced security rules for security checks

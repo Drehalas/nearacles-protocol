@@ -72,7 +72,9 @@ export class AdvancedMarketAnalyzer {
     // Convert PriceOracleConfig to MarketDataConfig
     const marketDataConfig = {
       providers: priceOracleConfig.fallback_providers,
+      fallback_providers: priceOracleConfig.fallback_providers,
       cache_duration: priceOracleConfig.update_frequency * 1000,
+      update_frequency: priceOracleConfig.update_frequency * 1000,
       fallback_enabled: true,
       timeout_ms: 10000
     };
@@ -273,7 +275,7 @@ export class AdvancedMarketAnalyzer {
   /**
    * Fetch on-chain metrics for analysis
    */
-  private async fetchOnChainMetrics(_asset: string): Promise<OnChainMetrics> {
+  private async fetchOnChainMetrics(_asset: string): Promise<OnChainMetrics> { // eslint-disable-line @typescript-eslint/no-unused-vars
     // In a real implementation, this would fetch from blockchain APIs
     // For NEAR, this could integrate with NEAR Explorer API, Flipside Crypto, etc.
 

@@ -4,7 +4,7 @@
  */
 
 
-import { TokenMetadata, AssetBalance, AssetInfo, IntentError } from './types';
+import { TokenMetadata, AssetBalance, AssetInfo } from './types';
 import { Account, Contract } from 'near-api-js';
 import { formatTokenAmount, parseTokenAmount, stringToBigInt } from '../utils/helpers';
 
@@ -159,8 +159,8 @@ export class AssetManager {
       if (asset.is_native) {
         // Get NEAR balance
         const accountState = await this.account!.state();
-        balance = accountState.amount;
-        available = accountState.amount;
+        balance = accountState.amount.toString();
+        available = accountState.amount.toString();
         locked = '0';
       } else {
         // Get FT balance
@@ -383,7 +383,7 @@ export class AssetManager {
   /**
    * Get asset price from external oracle (placeholder)
    */
-  async getAssetPrice(tokenId: string, _quoteCurrency: string = 'USD'): Promise<number | null> {
+  async getAssetPrice(tokenId: string, _quoteCurrency: string = 'USD'): Promise<number | null> { // eslint-disable-line @typescript-eslint/no-unused-vars
     // Placeholder implementation
     // In production, this would integrate with price oracles like:
     // - Chainlink

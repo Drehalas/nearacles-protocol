@@ -12,7 +12,7 @@ import {
   IntentConfig,
   IntentError,
   AsyncResult,
-  AIDecision,
+  AIDecision as IntentAIDecision,
   MarketAnalysis 
 } from './types';
 import { IntentRequest } from './intent-request';
@@ -20,8 +20,8 @@ import { AssetManager } from './asset-manager';
 import { SolverBus } from './solver-bus';
 import { QuoteManager } from './quote-manager';
 import { VerifierContract } from './verifier-contract';
-import { Account, connect, ConnectConfig, keyStores, utils } from 'near-api-js';
-import { getCurrentTimestamp, retry } from '../utils/helpers';
+import { Account, connect, ConnectConfig, keyStores } from 'near-api-js';
+import { getCurrentTimestamp } from '../utils/helpers';
 
 
 export class IntentAgent {
@@ -337,7 +337,7 @@ export class IntentAgent {
 
       // Generate AI decision
 
-      const aiDecision: AIDecision = await this.generateAIDecision(
+      const aiDecision: IntentAIDecision = await this.generateAIDecision(
         intentResult.data.quotes,
         preferences
       );
@@ -466,8 +466,8 @@ export class IntentAgent {
    */
   private async generateAIDecision(
     quotes: QuoteAnalysis[], 
-    _preferences?: Record<string, unknown>
-  ): Promise<AIDecision> {
+    _preferences?: Record<string, unknown> // eslint-disable-line @typescript-eslint/no-unused-vars
+  ): Promise<IntentAIDecision> {
     if (quotes.length === 0) {
       return {
         action: 'wait',
