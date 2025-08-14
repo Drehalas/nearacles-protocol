@@ -40,7 +40,9 @@ export class AIAgent {
     // Create a MarketDataProviders instance for IntentOptimizer
     const marketDataConfig = {
       providers: ['mock'],
+      fallback_providers: ['mock'],
       cache_duration: 300000,
+      update_frequency: 300000,
       fallback_enabled: true,
       timeout_ms: 10000
     };

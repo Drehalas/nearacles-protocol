@@ -174,8 +174,8 @@ export class AdvancedRiskAssessor {
     assetIn: string,
     assetOut: string,
     amount: string,
-    _marketDataIn: Record<string, unknown>,
-    _marketDataOut: Record<string, unknown>
+    _marketDataIn: Record<string, unknown>, // eslint-disable-line @typescript-eslint/no-unused-vars
+    _marketDataOut: Record<string, unknown> // eslint-disable-line @typescript-eslint/no-unused-vars
   ): Promise<RiskMetrics> {
     const [volatilityMetrics, liquidityMetrics, marketMetrics, operationalMetrics, counterpartyMetrics] = await Promise.all([
       this.calculateVolatilityMetrics(assetIn, assetOut),
@@ -255,7 +255,7 @@ export class AdvancedRiskAssessor {
   /**
    * Calculate market-related risk metrics
    */
-  private async calculateMarketMetrics(_assetIn: string, _assetOut: string) {
+  private async calculateMarketMetrics(_assetIn: string, _assetOut: string) { // eslint-disable-line @typescript-eslint/no-unused-vars
     // Correlation with major assets (simplified)
     const correlationRisk = Math.random() * 0.3 + 0.1; // 0.1-0.4 range
     
@@ -299,7 +299,7 @@ export class AdvancedRiskAssessor {
   /**
    * Calculate counterparty risk metrics
    */
-  private async calculateCounterpartyMetrics(_assetIn: string, _assetOut: string) {
+  private async calculateCounterpartyMetrics(_assetIn: string, _assetOut: string) { // eslint-disable-line @typescript-eslint/no-unused-vars
     // Protocol risk (depends on the specific protocol being used)
     const protocolRisk = Math.random() * 0.2 + 0.05; // 0.05-0.25 range
     
@@ -323,7 +323,7 @@ export class AdvancedRiskAssessor {
   /**
    * Assess smart contract specific risks
    */
-  private assessSmartContractRisk(_assetIn: string, _assetOut: string): number {
+  private assessSmartContractRisk(_assetIn: string, _assetOut: string): number { // eslint-disable-line @typescript-eslint/no-unused-vars
     // In a real implementation, this would analyze:
     // - Contract audit status
     // - Time since deployment
@@ -424,7 +424,7 @@ export class AdvancedRiskAssessor {
   /**
    * Generate risk-based recommendations
    */
-  private async generateRecommendations(riskFactors: RiskFactor[], metrics: RiskMetrics, _executionStrategy: string) {
+  private async generateRecommendations(riskFactors: RiskFactor[], metrics: RiskMetrics, _executionStrategy: string) { // eslint-disable-line @typescript-eslint/no-unused-vars
     const recommendations = [];
 
     const overallRisk = this.calculateOverallRiskScore(metrics, riskFactors);

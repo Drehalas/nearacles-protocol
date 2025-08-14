@@ -325,7 +325,7 @@ export class VerifierContract {
   /**
    * Estimate gas for intent execution
    */
-  async estimateExecutionGas(_intentId: string, _quoteId: string): Promise<string> {
+  async estimateExecutionGas(_intentId: string, _quoteId: string): Promise<string> { // eslint-disable-line @typescript-eslint/no-unused-vars
     try {
       // This would typically call a view method that simulates execution
       // For now, return a conservative estimate

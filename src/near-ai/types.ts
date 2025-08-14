@@ -40,6 +40,9 @@ export interface AIDecision {
   execution_params?: Record<string, unknown>;
 }
 
+// Alias for backward compatibility
+export type IntentAIDecision = AIDecision;
+
 export interface AIDecisionContext {
   intent_data: Record<string, unknown>;
   market_conditions: Record<string, unknown>;

@@ -131,7 +131,7 @@ export async function retry<T>(
     }
   }
   
-  throw lastError!;
+  throw new Error(lastError ? lastError.message : 'Operation failed after retries');
 }
 
 /**

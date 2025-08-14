@@ -9,7 +9,6 @@ import {
   SolverInfo, 
   IntentError,
   AsyncResult,
-  UserPreferences,
   QuoteEvaluationCriteria,
   QuoteAnalysis 
 } from './types';

@@ -62,20 +62,7 @@ async function retry<T>(fn: () => Promise<T>, retries: number, delay: number): P
   }
 }
 
-// Helper function for timestamp
-function getCurrentTimestamp(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
-export interface PriceOracleConfig {
-  pyth_program_id?: string;
-  chainlink_feeds?: Record<string, string>;
-  chainlink?: { rateLimitMs?: number; feeds?: Record<string, string>; updateInterval?: number } | boolean;
-  near_oracles?: string[];
-  fallback_providers: string[];
-  update_frequency: number;
-  coingecko?: { rateLimitMs?: number } | boolean;
-}
+// Duplicate PriceOracleConfig interface removed
 
 export class MarketDataProviders {
   private config: MarketDataConfig;
@@ -95,8 +82,6 @@ export class MarketDataProviders {
 
     // Try multiple data sources in order of preference
     const sources = [
-      () => this.fetchFromChainlink(assetPair),
-      () => this.fetchFromFlux(assetPair),
       () => this.fetchFromPyth(assetPair),
       () => this.fetchFromCoinGecko(assetPair),
     ];
@@ -104,8 +89,8 @@ export class MarketDataProviders {
     for (const source of sources) {
       try {
         const data = await retry(source, 2, 1000);
-        this.cacheData(cacheKey, data);
-        return data;
+        this.cacheData(cacheKey, data as MarketData);
+        return data as MarketData;
       } catch (error) {
         console.warn(`Market data source failed for ${assetPair}:`, error);
         continue;
@@ -115,7 +100,7 @@ export class MarketDataProviders {
     const [baseAsset, quoteAsset] = assetPair.split('/');
     const basePrice = this.generateMockPrice(baseAsset, quoteAsset);
     
-    const marketData: MarketData = {
+    const fallbackMarketData: MarketData = {
       symbol: assetPair,
       price: basePrice,
       volume: Math.random() * 1000000,
@@ -132,27 +117,9 @@ export class MarketDataProviders {
     };
 
     // Cache the result
-    this.cache.set(assetPair, { data: marketData, timestamp: Date.now() });
+    this.cache.set(assetPair, { data: fallbackMarketData, timestamp: Date.now() });
     
-    return marketData;
-
-    const data = await response.json();
-    
-    const marketData = data as any; // Type assertion for external API data
-    return {
-      symbol: assetPair,
-      price: parseFloat(marketData.price),
-      volume: parseFloat(marketData.volume_24h || '0'),
-      high_24h: parseFloat(marketData.price) * 1.05,
-      low_24h: parseFloat(marketData.price) * 0.95,
-      change_24h: marketData.price_change_24h || 0,
-      market_cap: Math.random() * 10000000,
-      timestamp: Date.now(),
-      volume_24h: marketData.volume_24h || '0',
-      price_change_24h: marketData.price_change_24h || 0,
-      liquidity_score: marketData.liquidity_score || 0.5,
-      volatility_index: marketData.volatility || 0.3,
-    };
+    return fallbackMarketData;
   }
 
   /**
