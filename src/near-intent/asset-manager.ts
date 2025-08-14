@@ -383,7 +383,7 @@ export class AssetManager {
   /**
    * Get asset price from external oracle (placeholder)
    */
-  async getAssetPrice(tokenId: string, _quoteCurrency: string = 'USD'): Promise<number | null> { // eslint-disable-line @typescript-eslint/no-unused-vars
+  async getAssetPrice(tokenId: string, _quoteCurrency: string = 'USD'): Promise<number | null> { // eslint-disable-line @typescript-eslint/no-unused-vars, no-unused-vars
     // Placeholder implementation
     // In production, this would integrate with price oracles like:
     // - Chainlink

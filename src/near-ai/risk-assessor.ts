@@ -115,7 +115,7 @@ export class RiskAssessor {
   /**
    * Assess market-related risks
    */
-  private async assessMarketRisk(_intent: IntentRequestParams): Promise<RiskFactor | null> { // eslint-disable-line @typescript-eslint/no-unused-vars
+  private async assessMarketRisk(_intent: IntentRequestParams): Promise<RiskFactor | null> { // eslint-disable-line @typescript-eslint/no-unused-vars, no-unused-vars
     // Mock market volatility analysis
     const volatility = Math.random() * 0.8 + 0.1; // 0.1 to 0.9
     

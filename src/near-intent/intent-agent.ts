@@ -466,7 +466,7 @@ export class IntentAgent {
    */
   private async generateAIDecision(
     quotes: QuoteAnalysis[], 
-    _preferences?: Record<string, unknown> // eslint-disable-line @typescript-eslint/no-unused-vars
+    _preferences?: Record<string, unknown> // eslint-disable-line @typescript-eslint/no-unused-vars, no-unused-vars
   ): Promise<IntentAIDecision> {
     if (quotes.length === 0) {
       return {

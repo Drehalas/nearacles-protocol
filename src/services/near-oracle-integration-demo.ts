@@ -34,7 +34,7 @@ export class NEAROracleIntegration {
   constructor(
     _nearConfig: NEARConfig,
     openaiApiKey: string,
-    _solverConfig: OracleSolverConfig = { // eslint-disable-line @typescript-eslint/no-unused-vars
+    _solverConfig: OracleSolverConfig = { // eslint-disable-line @typescript-eslint/no-unused-vars, no-unused-vars
       minStakeAmount: '1000000000000000000000000',
       maxExecutionTime: 300,
       confidenceThreshold: 0.8,
