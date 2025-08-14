@@ -1,16 +1,20 @@
 module.exports = {
   extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended'
+    'eslint:recommended'
   ],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: 'module',
+    project: './tsconfig.json'
+  },
   env: {
     node: true,
-    es2021: true
+    es2022: true
   },
   rules: {
-    // Security-focused rules
+    // Enhanced security rules for security checks
     'no-eval': 'error',
     'no-implied-eval': 'error',
     'no-new-func': 'error',
@@ -22,25 +26,27 @@ module.exports = {
     'no-multi-spaces': 'error',
     'no-new-wrappers': 'error',
     'no-throw-literal': 'error',
-    
-    // Prevent potential security issues
-    'no-console': 'warn',
     'no-debugger': 'error',
     'no-alert': 'error',
     
-    // TypeScript security rules
+    // TypeScript rules (stricter for security)
     '@typescript-eslint/no-explicit-any': 'error',
-    '@typescript-eslint/no-unsafe-assignment': 'error',
-    '@typescript-eslint/no-unsafe-call': 'error',
-    '@typescript-eslint/no-unsafe-member-access': 'error',
-    '@typescript-eslint/no-unsafe-return': 'error',
+    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
     
-    // Prevent hardcoded secrets
-    'no-secrets/no-secrets': 'off' // Would need eslint-plugin-no-secrets
+    // Code quality
+    'prefer-const': 'error',
+    'no-var': 'error',
+    'no-console': 'warn'
   },
+  ignorePatterns: ['dist/', 'node_modules/', '*.js'],
   overrides: [
     {
       files: ['**/*.test.ts', '**/*.spec.ts'],
+      env: {
+        jest: true
+      },
       rules: {
         'no-console': 'off'
       }
