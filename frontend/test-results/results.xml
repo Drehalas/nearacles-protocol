@@ -1,0 +1,48 @@
+<testsuites id="" name="" tests="1" failures="1" skipped="0" errors="0" time="10.90233">
+<testsuite name="swagger-ui.spec.ts" timestamp="2025-08-10T22:25:03.068Z" hostname="chromium" tests="1" failures="1" skipped="0" time="2.39" errors="0">
+<testcase name="Dashboard Navigation Tests › should render main navigation" classname="swagger-ui.spec.ts" time="2.39">
+<failure message="swagger-ui.spec.ts:8:7 should render main navigation" type="FAILURE">
+<![CDATA[  [chromium] › swagger-ui.spec.ts:8:7 › Dashboard Navigation Tests › should render main navigation ─
+
+    Error: expect.toBeVisible: Error: strict mode violation: locator('text=Nearacles') resolved to 3 elements:
+        1) <h1 class="font-['Pacifico'] text-2xl text-gray-900">Nearacles</h1> aka getByRole('link', { name: ' Nearacles' })
+        2) <h3 class="font-[\'Pacifico\'] text-2xl">Nearacles</h3> aka getByRole('contentinfo').getByRole('heading', { name: 'Nearacles' })
+        3) <p>© 2024 Nearacles. All rights reserved. Built on N…</p> aka getByText('© 2024 Nearacles. All rights')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('text=Nearacles')
+
+
+       9 |     // Check for header and branding
+      10 |     await expect(page.locator('header')).toBeVisible();
+    > 11 |     await expect(page.locator('text=Nearacles')).toBeVisible();
+         |                                                  ^
+      12 |     
+      13 |     // Check for main navigation elements (actual links from Header.tsx)
+      14 |     await expect(page.locator('text=Dashboard')).toBeVisible();
+        at C:\Users\yasin\Nearacles\nearacles-protocol\frontend\e2e\swagger-ui.spec.ts:11:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\video.webm]]
+
+[[ATTACHMENT|swagger-ui-Dashboard-Navig-51dbb-ould-render-main-navigation-chromium\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

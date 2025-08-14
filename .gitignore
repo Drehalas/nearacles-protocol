@@ -91,3 +91,17 @@ public
 # Temporary folders
 tmp/
 temp/
+
+# GitHub issue templates (kept local for reference)
+.github/ISSUE_TEMPLATE/
+
+# Ide
+CLAUDE.local.md
+CLAUDE.md
+myDocs
+.claude
+.claude/
+frontend/out/
+frontend/playwright-report/
+frontend/test-results/
+.claude/settings.local.json

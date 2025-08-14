@@ -32,11 +32,11 @@ export default function SecuritySection() {
   ];
 
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-24 bg-gray-50" aria-labelledby="security-heading">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16">
           <div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            <h2 id="security-heading" className="text-4xl font-bold text-gray-900 mb-6">
               Advanced Consensus Algorithms
             </h2>
             <p className="text-xl text-gray-600 mb-8">

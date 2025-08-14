@@ -1,0 +1,195 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - desktop
+          - mobile
+          - accessibility
+          - performance
+      browser:
+        description: 'Browser to test (for desktop tests)'
+        required: false
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
+      reason:
+        description: 'Reason for running E2E tests'
+        required: false
+        default: 'Manual E2E test run'
+
+jobs:
+  test:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'desktop' }}
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        browser: ${{ 
+          github.event.inputs.browser == 'all' ? fromJson('["chromium", "firefox", "webkit"]') : 
+          github.event.inputs.browser ? fromJson(format('["{0}"]', github.event.inputs.browser)) : 
+          fromJson('["chromium"]')
+        }}
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps ${{ matrix.browser }}
+    
+    - name: Run Playwright tests (starts dev server automatically)
+      working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
+      run: npx playwright test --project=${{ matrix.browser }}
+      timeout-minutes: 10
+      
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-${{ matrix.browser }}
+        path: frontend/playwright-report/
+        retention-days: 30
+        
+    - name: Upload screenshots
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: screenshots-${{ matrix.browser }}
+        path: frontend/test-results/
+        retention-days: 30
+
+  mobile-tests:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'mobile' }}
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run mobile tests
+      working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
+      run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
+      continue-on-error: true
+      
+    - name: Upload mobile test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: mobile-test-report
+        path: frontend/playwright-report/
+        retention-days: 30
+
+  accessibility-tests:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'accessibility' }}
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run accessibility tests
+      working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
+      run: npx playwright test accessibility.spec.ts
+      continue-on-error: true
+      
+    - name: Upload accessibility results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: accessibility-report
+        path: frontend/playwright-report/
+        retention-days: 30
+
+  performance-tests:
+    if: ${{ github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'performance' }}
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      working-directory: ./frontend
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run performance tests
+      working-directory: ./frontend
+      env:
+        CI: true
+        NODE_ENV: development
+      run: npx playwright test performance.spec.ts
+      continue-on-error: true
+      
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-report
+        path: frontend/playwright-report/
+        retention-days: 30

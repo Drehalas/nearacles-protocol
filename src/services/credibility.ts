@@ -46,7 +46,9 @@ export class CredibilityService {
       };
     } catch (error) {
       console.error('Error in credibility evaluation:', error);
-      throw new Error(`Failed to evaluate question: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to evaluate question: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -85,7 +87,7 @@ export class CredibilityService {
     }
 
     // Check for price-based determination (Bitcoin price example)
-    const pricePhraseMatch = answer.match(/the price is ([\d,\.]+)/i);
+    const pricePhraseMatch = answer.match(/the price is ([\d,.]+)/i);
     if (pricePhraseMatch) {
       const currentPrice = parseFloat(pricePhraseMatch[1].replace(/,/g, ''));
       return currentPrice > 50000; // Example threshold

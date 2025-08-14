@@ -5,9 +5,9 @@
 
 import { Source } from './oracle.js';
 
-export type OracleIntentType = 
+export type OracleIntentType =
   | 'credibility_evaluation'
-  | 'refutation_challenge' 
+  | 'refutation_challenge'
   | 'oracle_settlement';
 
 export interface BaseOracleIntent {

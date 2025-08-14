@@ -21,7 +21,7 @@ export class RefutationService {
 
     const { requireMoreSources = true } = options;
     const { question, answer: originalAnswer, sources: originalSources = [] } = originalEvaluation;
-    
+
     const originalSourceCount = originalSources.length;
     const minimumRequiredSources = originalSourceCount + 1;
 
@@ -33,15 +33,20 @@ export class RefutationService {
         minimumRequiredSources
       );
 
-      const { content: _content, sources: refuteSources } = await this.openaiService.searchWithAI(prompt, options);
+      const { sources: refuteSources } = await this.openaiService.searchWithAI(
+        prompt,
+        options
+      );
 
       // Determine refutation success based on source count
-      const refuteAnswer = requireMoreSources 
+      const refuteAnswer = requireMoreSources
         ? refuteSources.length > originalSourceCount
         : !originalAnswer; // Simple opposite for non-source-based refutation
 
       if (requireMoreSources && refuteSources.length <= originalSourceCount) {
-        console.warn(`Refutation found ${refuteSources.length} sources (required: ${minimumRequiredSources})`);
+        console.warn(
+          `Refutation found ${refuteSources.length} sources (required: ${minimumRequiredSources})`
+        );
       } else {
         console.log(`Successfully found ${refuteSources.length} sources for refutation`);
       }
@@ -57,7 +62,9 @@ export class RefutationService {
       };
     } catch (error) {
       console.error('Error in refutation:', error);
-      throw new Error(`Failed to refute evaluation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to refute evaluation: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
