@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import OracleProviders from '@/app/oracles/OracleProviders';
 import DataFeeds from '@/app/oracles/DataFeeds';
 import ConsensusAlgorithms from '@/app/oracles/ConsensusAlgorithms';
