@@ -182,6 +182,7 @@ jobs:
       if: failure()
       working-directory: ./frontend
       run: |
+        npm install --package-lock-only
         npm ci
         npm run build
 
