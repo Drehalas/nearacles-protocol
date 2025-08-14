@@ -169,7 +169,7 @@ export class NEAROracleIntegration {
         gas: BigInt('50000000000000'), // 50 TGas
       });
 
-      console.log(`Evaluation submitted to contract for intent ${intentId}`);
+      console.log('Evaluation submitted to contract for intent %s', intentId);
       return result as unknown as string;
     } catch (error) {
       console.error('Failed to submit evaluation to contract:', error);
@@ -200,7 +200,7 @@ export class NEAROracleIntegration {
         gas: BigInt('50000000000000'), // 50 TGas
       });
 
-      console.log(`Challenge submitted for evaluation ${evaluationId}`);
+      console.log('Challenge submitted for evaluation %s', evaluationId);
       return result as unknown as string;
     } catch (error) {
       console.error('Failed to submit challenge:', error);
@@ -246,7 +246,7 @@ export class NEAROracleIntegration {
 
       for (const intent of pendingIntents as Record<string, unknown>[]) {
         if (intent.intent_type === 'CredibilityEvaluation' && intent.question) {
-          console.log(`Processing intent ${intent.intent_id}: ${intent.question}`);
+          console.log('Processing intent %s: %s', intent.intent_id, intent.question);
 
           try {
             const credibilityIntent: CredibilityEvaluationIntent = {
@@ -269,7 +269,7 @@ export class NEAROracleIntegration {
 
             await this.submitEvaluationToContract((intent as any).intent_id, evaluationResult);
           } catch (error) {
-            console.error(`Failed to process intent ${intent.intent_id}:`, error);
+            console.error('Failed to process intent %s:', intent.intent_id, error);
           }
         }
       }

@@ -97,7 +97,7 @@ class IntentOracleDemo {
     console.log('='.repeat(50));
 
     const question = 'Is Bitcoin currently trading above $50,000?';
-    console.log(`📝 Question: ${question}`);
+    console.log('📝 Question: %s', question);
 
     try {
       // Create credibility evaluation intent
@@ -122,9 +122,9 @@ class IntentOracleDemo {
       const intentMessage =
         this.intentBroadcaster['signingService'].extractIntentMessage(signedIntent);
       console.log('\n📋 Signed Intent Created:');
-      console.log(`   Signer: ${intentMessage.signer_id}`);
-      console.log(`   Deadline: ${intentMessage.deadline}`);
-      console.log(`   Intent Type: ${intentMessage.intents[0].intent}`);
+      console.log('   Signer: %s', intentMessage.signer_id);
+      console.log('   Deadline: %s', intentMessage.deadline);
+      console.log('   Intent Type: %s', intentMessage.intents[0].intent);
 
       // Simulate intent broadcasting
       console.log('\n📡 Broadcasting intent to solver network...');
@@ -152,7 +152,7 @@ class IntentOracleDemo {
       const evaluationHash = 'eval_demo_123';
       const challengeStake = '3000000000000000000000000'; // 3 NEAR (higher than evaluation)
 
-      console.log(`🎯 Challenging evaluation: ${evaluationHash}`);
+      console.log('🎯 Challenging evaluation: %s', evaluationHash);
       console.log(`💰 Challenge stake: 3 NEAR (must be > evaluation stake)`);
 
       // Create refutation challenge intent
@@ -163,7 +163,7 @@ class IntentOracleDemo {
       );
 
       console.log('\n🔍 Challenge Intent Created:');
-      console.log(`   Evaluation Hash: ${evaluationHash}`);
+      console.log('   Evaluation Hash: %s', evaluationHash);
       console.log(`   Challenge Stake: ${challengeStake} yoctoNEAR`);
       const challengeMessage =
         this.intentBroadcaster['signingService'].extractIntentMessage(challengeIntent);
@@ -193,12 +193,12 @@ class IntentOracleDemo {
       const activeExecutions = this.solverNode.getActiveExecutions();
 
       console.log('🤖 Solver Node Metrics:');
-      console.log(`   Total Intents Processed: ${metrics.totalIntentsProcessed}`);
-      console.log(`   Successful Evaluations: ${metrics.successfulEvaluations}`);
-      console.log(`   Failed Evaluations: ${metrics.failedEvaluations}`);
+      console.log('   Total Intents Processed: %d', metrics.totalIntentsProcessed);
+      console.log('   Successful Evaluations: %d', metrics.successfulEvaluations);
+      console.log('   Failed Evaluations: %d', metrics.failedEvaluations);
       console.log(`   Current Reputation: ${(metrics.currentReputation * 100).toFixed(1)}%`);
       console.log(`   Average Execution Time: ${metrics.averageExecutionTime.toFixed(1)}s`);
-      console.log(`   Active Intents: ${metrics.activeIntentsCount}`);
+      console.log('   Active Intents: %d', metrics.activeIntentsCount);
 
       if (metrics.totalEarnings !== '0') {
         const earningsNEAR = (parseFloat(metrics.totalEarnings) / 1e24).toFixed(4);
@@ -214,14 +214,14 @@ class IntentOracleDemo {
             ? `${((execution.endTime - execution.startTime) / 1000).toFixed(1)}s`
             : `${((Date.now() - execution.startTime) / 1000).toFixed(1)}s (ongoing)`;
 
-          console.log(`   ${index + 1}. ${execution.intentId}`);
-          console.log(`      Status: ${execution.status}`);
-          console.log(`      Runtime: ${runtime}`);
+          console.log('   %d. %s', index + 1, execution.intentId);
+          console.log('      Status: %s', execution.status);
+          console.log('      Runtime: %s', runtime);
           if (execution.evaluationId) {
-            console.log(`      Evaluation ID: ${execution.evaluationId}`);
+            console.log('      Evaluation ID: %s', execution.evaluationId);
           }
           if (execution.error) {
-            console.log(`      Error: ${execution.error}`);
+            console.log('      Error: %s', execution.error);
           }
         });
       }

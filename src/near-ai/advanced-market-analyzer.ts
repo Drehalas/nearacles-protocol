@@ -275,7 +275,7 @@ export class AdvancedMarketAnalyzer {
   /**
    * Fetch on-chain metrics for analysis
    */
-  private async fetchOnChainMetrics(_asset: string): Promise<OnChainMetrics> { // eslint-disable-line @typescript-eslint/no-unused-vars
+  private async fetchOnChainMetrics(_asset: string): Promise<OnChainMetrics> { // eslint-disable-line @typescript-eslint/no-unused-vars, no-unused-vars
     // In a real implementation, this would fetch from blockchain APIs
     // For NEAR, this could integrate with NEAR Explorer API, Flipside Crypto, etc.
 

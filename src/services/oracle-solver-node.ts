@@ -105,8 +105,8 @@ export class OracleSolverNode {
       this.startIntentMonitoring();
 
       console.log('🔍 Monitoring for oracle intents...');
-      console.log(`📊 Strategy: ${this.biddingStrategy.name}`);
-      console.log(`⚡ Max concurrent intents: ${this.maxConcurrentIntents}`);
+      console.log('📊 Strategy: %s', this.biddingStrategy.name);
+      console.log('⚡ Max concurrent intents: %d', this.maxConcurrentIntents);
     } catch (error) {
       console.error('❌ Failed to start solver node:', error);
       throw error;
@@ -206,10 +206,10 @@ export class OracleSolverNode {
       // Create competitive quote
       const quote = this.createQuote((intent as any).intent_id, credibilityIntent);
 
-      console.log(`💰 Bidding on intent ${(intent as any).intent_id}`);
-      console.log(`   Question: ${credibilityIntent.question}`);
-      console.log(`   Confidence: ${quote.confidence_guarantee}`);
-      console.log(`   Stake: ${quote.required_stake}`);
+      console.log('💰 Bidding on intent %s', (intent as any).intent_id);
+      console.log('   Question: %s', credibilityIntent.question);
+      console.log('   Confidence: %s', quote.confidence_guarantee);
+      console.log('   Stake: %s', quote.required_stake);
       console.log(`   Time: ${quote.estimated_execution_time}s`);
 
       // Submit bid and start execution if accepted
@@ -224,7 +224,7 @@ export class OracleSolverNode {
       // Execute the intent directly (simplified - in production would wait for quote acceptance)
       this.executeIntent((intent as any).intent_id, credibilityIntent);
     } catch (error) {
-      console.error(`Error processing intent ${(intent as any).intent_id}:`, error);
+      console.error('Error processing intent %s:', (intent as any).intent_id, error);
     }
   }
 
@@ -272,7 +272,7 @@ export class OracleSolverNode {
 
     try {
       execution.status = 'executing';
-      console.log(`⚡ Executing intent ${intentId}`);
+      console.log('⚡ Executing intent %s', intentId);
 
       // Create dummy NEAR intent message for processing
       const intentMessage: NEARIntentMessage = {
@@ -303,7 +303,7 @@ export class OracleSolverNode {
         BigInt(this.metrics.totalEarnings) + BigInt(execution.earnings)
       ).toString();
 
-      console.log(`✅ Completed intent ${intentId} -> evaluation ${evaluationId}`);
+      console.log('✅ Completed intent %s -> evaluation %s', intentId, evaluationId);
       console.log(`   Execution time: ${(execution.endTime - execution.startTime) / 1000}s`);
       console.log(`   Earnings: ${execution.earnings} yoctoNEAR`);
     } catch (error) {
@@ -313,7 +313,7 @@ export class OracleSolverNode {
 
       this.metrics.failedEvaluations++;
 
-      console.error(`❌ Failed to execute intent ${intentId}:`, error);
+      console.error('❌ Failed to execute intent %s:', intentId, error);
     } finally {
       this.metrics.totalIntentsProcessed++;
       // Remove from active executions after a delay to allow for monitoring

@@ -270,7 +270,7 @@ export class IntentOptimizer {
         }
       };
     } catch (error) {
-      console.error(`Error creating direct route for ${dexName}:`, error);
+      console.error('Error creating direct route for %s:', dexName, error);
       return null;
     }
   }
@@ -559,7 +559,7 @@ export class IntentOptimizer {
           liquidity: marketData.liquidity_score || 0.5
         });
       } catch (error) {
-        console.error(`Error fetching price for ${dexName}:`, error);
+        console.error('Error fetching price for %s:', dexName, error);
       }
     }
 

@@ -119,7 +119,7 @@ export class QuoteManager {
 
         validQuotes.push(quote);
       } catch (error) {
-        console.warn(`Invalid quote from ${quote.solver_id}:`, error);
+        console.warn('Invalid quote from %s:', quote.solver_id, error);
       }
     }
 
