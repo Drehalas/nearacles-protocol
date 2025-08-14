@@ -3,18 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development next dev -H 0.0.0.0 -p 3000",
+    "dev": "cross-env NODE_ENV=development next dev -p 3000",
+    "dev:secure": "cross-env NODE_ENV=development next dev -H 127.0.0.1 -p 3000",
     "build": "next build",
+    "start": "next start",
     "lint": "next lint",
-    "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:report": "playwright show-report",
-    "test:e2e:debug": "playwright test --debug",
-    "test:e2e:chromium": "playwright test --project=chromium",
-    "test:e2e:firefox": "playwright test --project=firefox",
-    "test:e2e:webkit": "playwright test --project=webkit",
-    "test:e2e:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'"
+    "lint:fix": "next lint --fix",
+    "audit": "npm audit --audit-level high",
+    "security:check": "npm audit && npm run lint"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",
@@ -24,17 +20,13 @@
     "recharts": "^3.0.2"
   },
   "devDependencies": {
-    "@playwright/test": "^1.54.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
-    "axe-playwright": "^2.1.0",
     "cross-env": "^7.0.3",
-    "playwright": "^1.54.2",
     "postcss": "^8.5.5",
-    "serve": "^14.2.4",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
   }

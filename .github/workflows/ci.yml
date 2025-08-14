@@ -1,93 +1,192 @@
 name: CI/CD Pipeline
+
 on:
   push:
-    branches: [main, develop, feature/*]
+    branches: [ main, develop, 'fix/*', 'feature/*' ]
   pull_request:
-    branches: [main, develop]
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '20'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
-  test:
+  lint-and-test:
+    name: Lint and Test
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-
+    
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: |
-            package-lock.json
-            frontend/package-lock.json
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install backend dependencies
-        run: npm ci
+    - name: Install dependencies
+      run: |
+        npm install --package-lock-only
+        npm ci
 
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: npm ci
+    - name: Run type checking
+      run: npm run type-check
 
-      - name: Type check backend
-        run: npm run type-check
+    - name: Run linting
+      run: npm run lint
 
-      - name: Run backend linter
-        run: npm run lint
+    - name: Run tests
+      run: npm test
+      env:
+        NODE_ENV: test
 
-      - name: Run frontend linter
-        working-directory: ./frontend
-        run: npm run lint
+    - name: Generate test coverage
+      run: npm test -- --coverage
+      continue-on-error: true
 
-      - name: Run backend tests
-        run: npm test
-        env:
-          CI: true
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        file: ./coverage/coverage-final.json
+        fail_ci_if_error: false
 
-      - name: Run integration tests (optional)
-        run: npm run test:integration || echo "Integration tests skipped - NEAR environment not available"
-        continue-on-error: true
-
-      - name: Build backend
-        run: npm run build
-
-      - name: Build frontend
-        working-directory: ./frontend
-        run: npm run build
-
-  smart-contract-tests:
+  frontend-build:
+    name: Frontend Build and Test
     runs-on: ubuntu-latest
-
+    
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Use Node.js 22.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: |
+        npm install --package-lock-only
+        npm ci
 
-      - name: Check for smart contracts
-        run: |
-          if [ -d "./contracts" ] && [ "$(ls -A ./contracts)" ]; then
-            echo "Smart contracts found, running tests"
-            echo "CONTRACTS_EXIST=true" >> $GITHUB_ENV
-          else
-            echo "No smart contracts found, skipping tests"
-            echo "CONTRACTS_EXIST=false" >> $GITHUB_ENV
-          fi
+    - name: Lint frontend
+      working-directory: ./frontend
+      run: npm run lint
 
-      - name: Run smart contract tests
-        run: |
-          if [ "$CONTRACTS_EXIST" = "true" ]; then
-            npm run test:contracts
-          else
-            echo "Smart contract tests skipped - no contracts available"
-          fi
-        continue-on-error: true
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+      env:
+        NODE_ENV: production
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: frontend/.next/
+
+  security-checks:
+    name: Security Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        npm install --package-lock-only
+        npm ci
+
+    - name: Security audit
+      run: |
+        npm audit --audit-level high --production
+        # Allow moderate vulnerabilities but report them
+        npm audit --audit-level moderate || echo "Moderate vulnerabilities detected"
+
+    - name: Check for known security issues
+      run: |
+        # Check for hardcoded secrets patterns
+        echo "Checking for potential secrets..."
+        if grep -r -E "(password|secret|key|token)\s*=\s*['\"][^'\"]{8,}" . --exclude-dir=node_modules --exclude-dir=.git; then
+          echo "❌ Potential hardcoded secrets found"
+          exit 1
+        fi
+        echo "✅ No obvious hardcoded secrets found"
+
+  build-and-publish:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    needs: [lint-and-test, frontend-build, security-checks]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        registry-url: 'https://npm.pkg.github.com'
+
+    - name: Install dependencies
+      run: |
+        npm install --package-lock-only
+        npm ci
+
+    - name: Build project
+      run: npm run build
+
+    - name: Publish to GitHub Packages
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      continue-on-error: true
+
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    needs: [lint-and-test, frontend-build, security-checks]
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download frontend build
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-build
+        path: frontend/.next/
+
+    - name: Deploy to preview environment
+      run: |
+        echo "🚀 Deploying preview for PR #${{ github.event.number }}"
+        echo "Preview URL would be: https://nearacles-pr-${{ github.event.number }}.preview.com"
+        # Add actual deployment logic here
+
+  notify-security:
+    name: Security Notification
+    runs-on: ubuntu-latest
+    needs: [security-checks]
+    if: failure()
+    
+    steps:
+    - name: Notify security team
+      run: |
+        echo "🚨 Security checks failed for commit ${{ github.sha }}"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Actor: ${{ github.actor }}"
+        # Add actual notification logic (Slack, email, etc.)

@@ -3,10 +3,8 @@
  * Bridges our TypeScript oracle services with NEAR intent infrastructure
  */
 
-import { Account, Connection, KeyPair } from 'near-api-js';
+import { Account, connect, KeyPair } from 'near-api-js';
 import { InMemoryKeyStore } from 'near-api-js/lib/key_stores';
-import { JsonRpcProvider } from 'near-api-js/lib/providers';
-import { InMemorySigner } from 'near-api-js';
 
 import { OracleService } from './oracle.js';
 // import { IntentBroadcaster } from './intent-broadcaster.js';
@@ -68,11 +66,15 @@ export class NEAROracleIntegration {
     const keyPair = KeyPair.fromString(config.privateKey as any);
     await keyStore.setKey(config.networkId, config.accountId, keyPair);
 
-    const provider = new JsonRpcProvider({ url: config.nodeUrl });
-    const signer = new InMemorySigner(keyStore);
-    const connection = new Connection(config.networkId, provider, signer, config.accountId);
-
-    return new Account(connection, config.accountId);
+    const connectionConfig = {
+      networkId: config.networkId,
+      keyStore: keyStore,
+      nodeUrl: config.nodeUrl,
+      headers: {}
+    };
+    
+    const near = await connect(connectionConfig);
+    return await near.account(config.accountId);
   }
 
   /**
