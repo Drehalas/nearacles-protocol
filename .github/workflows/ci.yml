@@ -24,12 +24,9 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
 
     - name: Install dependencies
-      run: |
-        npm install --package-lock-only
-        npm ci
+      run: npm install
 
     - name: Run type checking
       run: npm run type-check
@@ -65,13 +62,10 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
 
     - name: Install frontend dependencies
       working-directory: ./frontend
-      run: |
-        npm install --package-lock-only
-        npm ci
+      run: npm install
 
     - name: Lint frontend
       working-directory: ./frontend
@@ -101,12 +95,9 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
 
     - name: Install dependencies
-      run: |
-        npm install --package-lock-only
-        npm ci
+      run: npm install
 
     - name: Security audit
       run: |
@@ -142,13 +133,10 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
         registry-url: 'https://npm.pkg.github.com'
 
     - name: Install dependencies
-      run: |
-        npm install --package-lock-only
-        npm ci
+      run: npm install
 
     - name: Build project
       run: npm run build
@@ -173,8 +161,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache: 'npm'
 
     - name: Download frontend build
       uses: actions/download-artifact@v4
@@ -186,8 +172,7 @@ jobs:
     - name: Build frontend (fallback if artifact not found)
       if: failure()
       working-directory: ./frontend
-      run: |
-        npm ci
+      run: npm install
         npm run build
 
     - name: Deploy to preview environment
