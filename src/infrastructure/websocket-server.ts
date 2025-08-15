@@ -13,7 +13,7 @@ export interface WSMessage {
 }
 
 export class OracleWebSocketServer {
-  private wss: WebSocket.Server;
+  private wss!: WebSocket.Server;
 
   constructor(private port: number = 8080) {
     this.setupServer();
