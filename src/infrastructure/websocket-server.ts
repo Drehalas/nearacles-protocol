@@ -5,6 +5,7 @@
 
 import WebSocket from 'ws';
 import { createServer } from 'http';
+import { securityMiddleware, getSecurityConfigFromEnv } from '../utils/security';
 
 export interface WSMessage {
   type: 'intent' | 'response' | 'ping' | 'ai_request' | 'ai_response';
@@ -24,13 +25,50 @@ export class OracleWebSocketServer {
   private wss!: WebSocket.Server;
   private clients: Map<string, WSClient> = new Map();
   private aiServiceClient?: WSClient;
+  private latencyHistory: number[] = [];
+  private startTime: number = Date.now();
 
   constructor(private port: number = 8080) {
     this.setupServer();
   }
 
   private setupServer(): void {
-    const server = createServer();
+    const securityConfig = getSecurityConfigFromEnv();
+    
+    const server = createServer((req, res) => {
+      // Apply security middleware
+      const securityResult = securityMiddleware(req, res, securityConfig);
+      
+      if (!securityResult.allowed) {
+        if (securityResult.reason === 'Rate limit exceeded') {
+          res.writeHead(429, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Rate limit exceeded' }));
+        } else {
+          res.writeHead(403, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: securityResult.reason }));
+        }
+        return;
+      }
+      
+      // Handle OPTIONS requests for CORS
+      if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
+      }
+      
+      // Simple HTTP health endpoint
+      if (req.url === '/health' && req.method === 'GET') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(this.getHealthStatus()));
+        return;
+      }
+      
+      // Default response for other paths
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('WebSocket server - use /health for status');
+    });
+    
     this.wss = new WebSocket.Server({ server });
 
     this.wss.on('connection', (ws: WebSocket, req) => {
@@ -101,6 +139,9 @@ export class OracleWebSocketServer {
   }
 
   private handleMessage(message: WSMessage, sender: WSClient): void {
+    // Track latency for performance monitoring
+    const processingStart = Date.now();
+    
     switch (message.type) {
       case 'intent':
         this.handleIntent(message, sender);
@@ -118,6 +159,9 @@ export class OracleWebSocketServer {
         // Broadcast other messages to all clients
         this.broadcast(message, sender.id);
     }
+    
+    // Track processing latency
+    this.trackLatency(message, processingStart);
   }
 
   private handleIntent(message: WSMessage, sender: WSClient): void {
@@ -170,6 +214,27 @@ export class OracleWebSocketServer {
       data: { type: 'pong', timestamp: Date.now() },
       timestamp: Date.now(),
     });
+  }
+
+  private trackLatency(message: WSMessage, startTime: number): void {
+    const latency = Date.now() - startTime;
+    
+    // Keep a rolling window of latency measurements
+    this.latencyHistory.push(latency);
+    if (this.latencyHistory.length > 100) {
+      this.latencyHistory.shift(); // Keep only last 100 measurements
+    }
+    
+    // Warn about high latency
+    if (latency > 100) {
+      console.warn(`High latency detected: ${latency}ms for ${message.type} from client ${message.client_id}`);
+    }
+  }
+
+  private calculateAverageLatency(): number {
+    if (this.latencyHistory.length === 0) return 0;
+    const sum = this.latencyHistory.reduce((a, b) => a + b, 0);
+    return Math.round(sum / this.latencyHistory.length);
   }
 
   private generateClientId(): string {
@@ -228,11 +293,25 @@ export class OracleWebSocketServer {
     }));
   }
 
-  public getHealthStatus(): { status: string; clients: number; ai_connected: boolean } {
+  public getHealthStatus(): { 
+    status: string; 
+    clients: number; 
+    ai_connected: boolean; 
+    avg_latency_ms: number;
+    max_latency_ms: number;
+    uptime_ms: number;
+    total_messages: number;
+  } {
+    const maxLatency = this.latencyHistory.length > 0 ? Math.max(...this.latencyHistory) : 0;
+    
     return {
       status: 'healthy',
       clients: this.clients.size,
       ai_connected: !!this.aiServiceClient,
+      avg_latency_ms: this.calculateAverageLatency(),
+      max_latency_ms: maxLatency,
+      uptime_ms: Date.now() - this.startTime,
+      total_messages: this.latencyHistory.length,
     };
   }
 
