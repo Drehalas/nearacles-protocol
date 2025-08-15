@@ -95,6 +95,10 @@ temp/
 # GitHub issue templates (kept local for reference)
 .github/ISSUE_TEMPLATE/
 
+# Rust build artifacts
+target/
+**/*.rs.bk
+
 # Ide
 CLAUDE.local.md
 CLAUDE.md
