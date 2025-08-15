@@ -5,8 +5,11 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development next dev -p 3000",
     "dev:secure": "cross-env NODE_ENV=development next dev -H 127.0.0.1 -p 3000",
+    "dev:testnet": "cross-env NODE_ENV=development NEXT_PUBLIC_DEPLOYMENT_ENV=testnet next dev -p 3000",
     "build": "next build",
+    "build:testnet": "cross-env NODE_ENV=production NEXT_PUBLIC_DEPLOYMENT_ENV=testnet next build",
     "start": "next start",
+    "deploy:testnet": "./scripts/deploy-testnet.sh",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "audit": "npm audit --audit-level high",
