@@ -115,7 +115,11 @@ export async function initializeNearIntentProtocol(
   });
 
   // Initialize agents
-  await intentAgent.initialize(accountId, privateKey);
+  const initResult = await intentAgent.initialize(accountId, privateKey);
+  
+  if (!initResult.success) {
+    throw new Error(`Failed to initialize Intent Agent: ${initResult.error?.message}`);
+  }
   
   return {
     intentAgent,
