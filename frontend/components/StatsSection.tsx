@@ -44,7 +44,7 @@ export default function StatsSection() {
               Built on NEAR Protocol
             </h3>
             <p className="text-green-100 text-lg leading-relaxed">
-              Leveraging NEAR's fast finality, low costs, and developer-friendly environment 
+              Leveraging NEAR&apos;s fast finality, low costs, and developer-friendly environment 
               to deliver the most advanced oracle network in the ecosystem. Our platform 
               processes thousands of data points per second with sub-second latency and 
               enterprise-grade reliability.
