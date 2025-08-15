@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { NearWallet } from '../lib/near-wallet.js';
+import { NearWallet } from '../lib/near-wallet';
 
 interface WalletConnectorProps {
   onConnectionChange?: (isConnected: boolean, accountId: string | null) => void;
