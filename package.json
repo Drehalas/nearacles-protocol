@@ -18,7 +18,17 @@
     "lint:security": "eslint src/**/*.ts --config .eslintrc.security.cjs",
     "clean": "rm -rf dist",
     "demo": "npm run build && node dist/examples/intent-oracle-demo.js",
-    "start-solver": "npm run build && node -e \"import('./dist/services/oracle-solver-node.js').then(m => new m.OracleSolverNode({}).start())\""
+    "start-solver": "npm run build && node -e \"import('./dist/services/oracle-solver-node.js').then(m => new m.OracleSolverNode({}).start())\"",
+    "test:intent": "tsx scripts/test-near-intent.ts",
+    "test:testnet": "tsx testnet-swap.ts",
+    "swap:testnet": "tsx testnet-real-swap.ts",
+    "swap:classic": "tsx classic-swap.ts",
+    "swap:fixed": "tsx fixed-swap.ts",
+    "swap:working": "tsx working-swap.ts",
+    "dex:test": "tsx real-testnet-dex.ts",
+    "swap:mainnet": "tsx mainnet-real-swap.ts",
+    "strategy": "tsx smart-contract-calls-strategy.ts",
+    "wallets": "tsx wallet-config.ts"
   },
   "keywords": [
     "oracle",
