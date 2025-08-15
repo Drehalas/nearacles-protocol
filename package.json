@@ -22,7 +22,13 @@
     "test:intent": "tsx scripts/test-near-intent.ts",
     "test:testnet": "tsx testnet-swap.ts",
     "swap:testnet": "tsx testnet-real-swap.ts",
-    "swap:classic": "tsx classic-swap.ts"
+    "swap:classic": "tsx classic-swap.ts",
+    "swap:fixed": "tsx fixed-swap.ts",
+    "swap:working": "tsx working-swap.ts",
+    "dex:test": "tsx real-testnet-dex.ts",
+    "swap:mainnet": "tsx mainnet-real-swap.ts",
+    "strategy": "tsx smart-contract-calls-strategy.ts",
+    "wallets": "tsx wallet-config.ts"
   },
   "keywords": [
     "oracle",

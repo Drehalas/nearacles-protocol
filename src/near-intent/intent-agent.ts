@@ -79,7 +79,7 @@ export class IntentAgent {
    */
   private async connectWithCredentials(accountId: string, privateKey: string): Promise<void> {
     const keyStore = new keyStores.InMemoryKeyStore();
-    const keyPair = KeyPair.fromString(privateKey);
+    const keyPair = KeyPair.fromString(privateKey as any);
     await keyStore.setKey(this.config.network_id, accountId, keyPair);
 
     const connectionConfig: ConnectConfig = {
