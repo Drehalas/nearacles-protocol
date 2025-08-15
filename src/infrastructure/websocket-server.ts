@@ -195,7 +195,7 @@ export class OracleWebSocketServer {
   private handleAIResponse(message: WSMessage, sender: WSClient): void {
     // Handle responses from AI service
     if (sender === this.aiServiceClient) {
-      const { original_request_id, target_client } = message.data;
+      const { target_client } = message.data;
       
       if (target_client) {
         // Send to specific client
