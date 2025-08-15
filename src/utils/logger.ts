@@ -185,7 +185,7 @@ export class Logger {
    * Write logs to file
    */
   private async writeLogsToFile(logs: LogEntry[]): Promise<void> {
-    if (typeof window !== 'undefined') {
+    if (typeof globalThis !== 'undefined' && 'window' in globalThis) {
       // Browser environment - skip file logging
       return;
     }
@@ -399,9 +399,10 @@ export function initializeLogger(config: LoggerConfig): Logger {
   globalErrorTracker = new ErrorTracker(globalLogger);
   
   // Setup global error handlers
-  if (typeof window !== 'undefined') {
+  if (typeof globalThis !== 'undefined' && 'window' in globalThis) {
     // Browser environment
-    window.addEventListener('error', (event) => {
+    const window = (globalThis as any).window;
+    window.addEventListener('error', (event: any) => {
       globalErrorTracker.trackError(event.error, {
         user_action: 'page_error',
         component: 'global',
@@ -413,7 +414,7 @@ export function initializeLogger(config: LoggerConfig): Logger {
       });
     });
 
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', (event: any) => {
       globalErrorTracker.trackError(new Error(event.reason), {
         user_action: 'unhandled_rejection',
         component: 'global',
@@ -458,4 +459,104 @@ export function getErrorTracker(): ErrorTracker {
     throw new Error('Error tracker not initialized. Call initializeLogger() first.');
   }
   return globalErrorTracker;
+}
+
+/**
+ * Simple health monitoring utilities
+ */
+export class HealthMonitor {
+  private logger: Logger;
+  private healthChecks: Map<string, () => Promise<boolean>> = new Map();
+  private lastHealthStatus: Map<string, { status: boolean; timestamp: number }> = new Map();
+
+  constructor(logger: Logger) {
+    this.logger = logger;
+  }
+
+  /**
+   * Register a health check function
+   */
+  registerHealthCheck(name: string, checkFn: () => Promise<boolean>): void {
+    this.healthChecks.set(name, checkFn);
+  }
+
+  /**
+   * Run all health checks and return status
+   */
+  async checkHealth(): Promise<{ 
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    checks: Record<string, { status: boolean; timestamp: number; error?: string }>;
+    timestamp: number;
+  }> {
+    const results: Record<string, { status: boolean; timestamp: number; error?: string }> = {};
+    let overallHealthy = true;
+
+    for (const [name, checkFn] of this.healthChecks) {
+      try {
+        const status = await checkFn();
+        const timestamp = Date.now();
+        
+        results[name] = { status, timestamp };
+        this.lastHealthStatus.set(name, { status, timestamp });
+        
+        if (!status) overallHealthy = false;
+        
+        this.logger.debug(`Health check ${name}: ${status ? 'PASS' : 'FAIL'}`);
+      } catch (error) {
+        const timestamp = Date.now();
+        results[name] = { 
+          status: false, 
+          timestamp,
+          error: error instanceof Error ? error.message : String(error)
+        };
+        
+        this.lastHealthStatus.set(name, { status: false, timestamp });
+        overallHealthy = false;
+        
+        this.logger.warn(`Health check ${name} failed with error`, { error });
+      }
+    }
+
+    const overallStatus = overallHealthy ? 'healthy' : 'unhealthy';
+    
+    this.logger.info(`Health check completed: ${overallStatus}`, {
+      total_checks: this.healthChecks.size,
+      passing: Object.values(results).filter(r => r.status).length,
+    });
+
+    return {
+      status: overallStatus,
+      checks: results,
+      timestamp: Date.now(),
+    };
+  }
+
+  /**
+   * Get simple health status
+   */
+  getSimpleStatus(): { status: string; timestamp: number } {
+    const allHealthy = Array.from(this.lastHealthStatus.values())
+      .every(check => check.status);
+    
+    return {
+      status: allHealthy ? 'healthy' : 'unhealthy',
+      timestamp: Date.now(),
+    };
+  }
+}
+
+/**
+ * Create health monitor instance
+ */
+export function createHealthMonitor(config?: { service_name?: string }): HealthMonitor {
+  const logger = globalLogger || initializeLogger({
+    service_name: config?.service_name || 'health-monitor',
+    environment: 'testnet',
+    min_level: LogLevel.INFO,
+    enable_console: true,
+    enable_file: false,
+    enable_remote: false,
+  });
+
+  return new HealthMonitor(logger);
 }

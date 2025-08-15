@@ -7,6 +7,7 @@ import { AIAgent } from '../near-ai/ai-agent';
 import { AIAgentConfig } from '../near-ai/types';
 import { getCurrentTimestamp } from '../utils/helpers';
 import WebSocket from 'ws';
+import { WSMessage } from './websocket-server';
 
 export interface AIServiceConfig {
   websocketUrl: string;
@@ -103,7 +104,7 @@ export class AIService {
         });
 
         this.wsClient.on('close', () => {
-          this.log('warning', 'WebSocket connection closed');
+          this.log('warn', 'WebSocket connection closed');
           if (this.isRunning) {
             this.scheduleReconnect();
           }
@@ -167,7 +168,7 @@ export class AIService {
         }
         break;
       default:
-        this.log('warning', `Unknown AI action: ${action}`);
+        this.log('warn', `Unknown AI action: ${action}`);
     }
   }
 
@@ -267,6 +268,9 @@ export class AIService {
       
       // Get AI decision
       const aiResponse = await this.aiAgent.makeDecision(intent, quotes, {
+        intent_data: intentData,
+        historical_performance: {},
+        risk_tolerance: 0.5, // Convert from string to number
         user_profile: {
           risk_tolerance: intentData.user_risk_tolerance || 'medium',
           experience_level: intentData.user_experience || 'intermediate',
@@ -275,7 +279,6 @@ export class AIService {
           volatility: intentData.market_volatility || 'normal',
           liquidity: intentData.market_liquidity || 'good',
         },
-        timestamp: getCurrentTimestamp(),
       });
 
       if (!aiResponse.success) {
@@ -382,7 +385,10 @@ export class AIService {
       timestamp: getCurrentTimestamp(),
     };
 
-    this.wsServer.broadcast(message);
+    // Send to WebSocket server instead of broadcasting directly
+    if (this.wsClient && this.wsClient.readyState === WebSocket.OPEN) {
+      this.wsClient.send(JSON.stringify(message));
+    }
   }
 
   /**
@@ -398,7 +404,10 @@ export class AIService {
       timestamp: getCurrentTimestamp(),
     };
 
-    this.wsServer.broadcast(wsMessage);
+    // Send to WebSocket server instead of broadcasting directly
+    if (this.wsClient && this.wsClient.readyState === WebSocket.OPEN) {
+      this.wsClient.send(JSON.stringify(wsMessage));
+    }
   }
 
   /**
