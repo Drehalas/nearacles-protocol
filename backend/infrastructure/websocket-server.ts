@@ -321,7 +321,7 @@ export class OracleWebSocketServer {
 }
 
 // Start server when run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (require.main === module) {
   const port = parseInt(process.env.WEBSOCKET_PORT || '8080', 10);
   const server = new OracleWebSocketServer(port);
   
