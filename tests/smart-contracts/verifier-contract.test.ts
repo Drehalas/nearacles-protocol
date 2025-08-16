@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { Worker, NearAccount } from 'near-workspaces';
-import { Intent, Quote } from '../../src/near-intent/types';
+import { Intent, Quote } from '../../backend/near-intent/types';
 
 describe('Verifier Contract Tests', () => {
   let worker: Worker;

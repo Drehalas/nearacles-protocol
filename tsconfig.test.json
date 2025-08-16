@@ -12,7 +12,7 @@
     "types": ["jest", "node"]
   },
   "include": [
-    "src/**/*",
+    "backend/**/*",
     "tests/**/*"
   ],
   "exclude": [

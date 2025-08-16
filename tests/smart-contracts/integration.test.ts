@@ -4,10 +4,10 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { IntentAgent } from '../../src/near-intent/intent-agent';
-import { AIAgent } from '../../src/near-ai/ai-agent';
-import { NEAR_INTENT_CONFIG } from '../../src/near-intent';
-import { NEAR_AI_CONFIG } from '../../src/near-ai';
+import { IntentAgent } from '../../backend/near-intent/intent-agent';
+import { AIAgent } from '../../backend/near-ai/ai-agent';
+import { NEAR_INTENT_CONFIG } from '../../backend/near-intent';
+import { NEAR_AI_CONFIG } from '../../backend/near-ai';
 
 describe('NEAR Intent Protocol Integration Tests', () => {
   let intentAgent: IntentAgent;

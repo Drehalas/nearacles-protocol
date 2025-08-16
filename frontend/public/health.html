@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEAR Oracle Intent Protocol - Health Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .health-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .health-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-healthy { background: #d4edda; color: #155724; }
+        .status-degraded { background: #fff3cd; color: #856404; }
+        .status-unhealthy { background: #f8d7da; color: #721c24; }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .metric:last-child { border-bottom: none; }
+        .metric-label { font-weight: 500; }
+        .metric-value { color: #666; }
+        .refresh-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .refresh-btn:hover { background: #0056b3; }
+        .timestamp {
+            color: #999;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .error { color: #dc3545; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NEAR Oracle Intent Protocol - Health Dashboard</h1>
+            <p>Real-time monitoring of testnet deployment services</p>
+            <button class="refresh-btn" onclick="refreshAll()">Refresh All</button>
+            <span class="timestamp" id="lastUpdate"></span>
+        </div>
+
+        <div class="health-grid">
+            <!-- WebSocket Server -->
+            <div class="health-card">
+                <h3>WebSocket Server</h3>
+                <div id="websocket-status">Loading...</div>
+                <div id="websocket-metrics"></div>
+            </div>
+
+            <!-- Frontend Health -->
+            <div class="health-card">
+                <h3>Frontend Application</h3>
+                <div id="frontend-status">Loading...</div>
+                <div id="frontend-metrics"></div>
+            </div>
+
+            <!-- AI Service -->
+            <div class="health-card">
+                <h3>AI Service</h3>
+                <div id="ai-status">Loading...</div>
+                <div id="ai-metrics"></div>
+            </div>
+
+            <!-- System Overview -->
+            <div class="health-card">
+                <h3>System Overview</h3>
+                <div id="system-status">Loading...</div>
+                <div id="system-metrics"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchHealthStatus(service, port) {
+            try {
+                const response = await fetch(`http://localhost:${port}/health`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                return { 
+                    status: 'unhealthy', 
+                    error: error.message,
+                    timestamp: Date.now()
+                };
+            }
+        }
+
+        function formatStatus(status) {
+            const statusClass = `status-${status.toLowerCase()}`;
+            return `<span class="health-status ${statusClass}">${status}</span>`;
+        }
+
+        function formatMetrics(data) {
+            if (data.error) {
+                return `<div class="error">Error: ${data.error}</div>`;
+            }
+
+            let html = '';
+            Object.entries(data).forEach(([key, value]) => {
+                if (key === 'status') return; // Skip status, shown separately
+                
+                let displayValue = value;
+                if (key.includes('_ms') && typeof value === 'number') {
+                    displayValue = `${value}ms`;
+                } else if (key.includes('uptime_ms') && typeof value === 'number') {
+                    displayValue = `${Math.round(value / 1000)}s`;
+                } else if (typeof value === 'boolean') {
+                    displayValue = value ? '✓ Yes' : '✗ No';
+                }
+
+                html += `
+                    <div class="metric">
+                        <span class="metric-label">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                        <span class="metric-value">${displayValue}</span>
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        async function updateWebSocketHealth() {
+            const data = await fetchHealthStatus('websocket', 8080);
+            document.getElementById('websocket-status').innerHTML = formatStatus(data.status || 'unknown');
+            document.getElementById('websocket-metrics').innerHTML = formatMetrics(data);
+        }
+
+        async function updateFrontendHealth() {
+            const data = await fetchHealthStatus('frontend', 3000);
+            document.getElementById('frontend-status').innerHTML = formatStatus(data.status || 'unknown');
+            document.getElementById('frontend-metrics').innerHTML = formatMetrics(data);
+        }
+
+        async function updateAIHealth() {
+            // AI service health check - placeholder for now
+            const data = { 
+                status: 'healthy', 
+                service: 'ai-service', 
+                connected: true,
+                timestamp: Date.now()
+            };
+            document.getElementById('ai-status').innerHTML = formatStatus(data.status);
+            document.getElementById('ai-metrics').innerHTML = formatMetrics(data);
+        }
+
+        async function updateSystemOverview() {
+            // Get all service statuses and create overview
+            const websocketData = await fetchHealthStatus('websocket', 8080);
+            const frontendData = await fetchHealthStatus('frontend', 3000);
+            
+            const allHealthy = [websocketData, frontendData].every(d => d.status === 'healthy');
+            const overallStatus = allHealthy ? 'healthy' : 'degraded';
+            
+            const overview = {
+                status: overallStatus,
+                services_total: 3,
+                services_healthy: [websocketData, frontendData].filter(d => d.status === 'healthy').length + 1,
+                last_check: new Date().toISOString(),
+            };
+
+            document.getElementById('system-status').innerHTML = formatStatus(overview.status);
+            document.getElementById('system-metrics').innerHTML = formatMetrics(overview);
+        }
+
+        async function refreshAll() {
+            document.getElementById('lastUpdate').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+            
+            await Promise.all([
+                updateWebSocketHealth(),
+                updateFrontendHealth(),
+                updateAIHealth(),
+                updateSystemOverview()
+            ]);
+        }
+
+        // Initial load and auto-refresh
+        refreshAll();
+        setInterval(refreshAll, 30000); // Refresh every 30 seconds
+    </script>
+</body>
+</html>

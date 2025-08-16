@@ -784,3 +784,7 @@ MIT License - Build the decentralized future of information verification!
 ---
 
 *Last updated: August 2025 | Version 0.2.0*
+
+  npm run test:e2e                    # Sandbox testing
+  npm run test:e2e:testnet            # Testnet testing
+  npm run validate:testnet            # Full testnet validation

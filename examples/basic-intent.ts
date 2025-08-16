@@ -2,7 +2,7 @@
  * Basic Intent Creation Example
  */
 
-import { setupTestnet } from '../src/index';
+import { setupTestnet } from '../backend/index';
 
 async function basicIntentExample() {
   // Initialize protocol for testnet

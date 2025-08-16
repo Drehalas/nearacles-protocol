@@ -4,10 +4,10 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { AdvancedRiskAssessor, RiskAssessmentConfig } from '../../src/near-ai/advanced-risk-assessor';
-import { RiskMonitoringSystem, MonitoringConfig } from '../../src/near-ai/risk-monitoring';
-import { MarketDataProviders, MarketDataConfig } from '../../src/near-ai/market-data-providers';
-import { AIAgentConfig } from '../../src/near-ai/types';
+import { AdvancedRiskAssessor, RiskAssessmentConfig } from '../../backend/near-ai/advanced-risk-assessor';
+import { RiskMonitoringSystem, MonitoringConfig } from '../../backend/near-ai/risk-monitoring';
+import { MarketDataProviders, MarketDataConfig } from '../../backend/near-ai/market-data-providers';
+import { AIAgentConfig } from '../../backend/near-ai/types';
 
 describe('Risk Assessor Tests', () => {
   let riskAssessor: AdvancedRiskAssessor;
