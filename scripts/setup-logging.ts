@@ -5,7 +5,7 @@
  * Initializes centralized logging for testnet deployment
  */
 
-import { initializeLogger, LogLevel, LoggerConfig } from '../src/utils/logger';
+import { initializeLogger, LogLevel, LoggerConfig } from '../backend/utils/logger';
 import { mkdirSync, existsSync } from 'fs';
 import { resolve } from 'path';
 

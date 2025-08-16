@@ -5,7 +5,7 @@
  * Generates environment variables and configuration files for feature flags
  */
 
-import { FeatureFlagService, initializeFeatureFlags } from '../src/utils/feature-flags';
+import { FeatureFlagService, initializeFeatureFlags } from '../backend/utils/feature-flags';
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 

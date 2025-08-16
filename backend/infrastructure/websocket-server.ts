@@ -3,7 +3,7 @@
  * Handles solver-oracle communication with AI service integration
  */
 
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { securityMiddleware, getSecurityConfigFromEnv } from '../utils/security';
 
@@ -22,7 +22,7 @@ export interface WSClient {
 }
 
 export class OracleWebSocketServer {
-  private wss!: WebSocket.Server;
+  private wss!: WebSocketServer;
   private clients: Map<string, WSClient> = new Map();
   private aiServiceClient?: WSClient;
   private latencyHistory: number[] = [];
@@ -69,7 +69,7 @@ export class OracleWebSocketServer {
       res.end('WebSocket server - use /health for status');
     });
     
-    this.wss = new WebSocket.Server({ server });
+    this.wss = new WebSocketServer({ server });
 
     this.wss.on('connection', (ws: WebSocket, req) => {
       const clientId = this.generateClientId();
@@ -318,4 +318,25 @@ export class OracleWebSocketServer {
   public close(): void {
     this.wss.close();
   }
+}
+
+// Start server when run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const port = parseInt(process.env.WEBSOCKET_PORT || '8080', 10);
+  const server = new OracleWebSocketServer(port);
+  
+  console.log(`🚀 WebSocket server started on port ${port}`);
+  
+  // Graceful shutdown
+  process.on('SIGINT', () => {
+    console.log('🛑 Shutting down WebSocket server...');
+    server.close();
+    process.exit(0);
+  });
+  
+  process.on('SIGTERM', () => {
+    console.log('🛑 Shutting down WebSocket server...');
+    server.close();
+    process.exit(0);
+  });
 }

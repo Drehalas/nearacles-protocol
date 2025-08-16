@@ -20,14 +20,14 @@
     "downlevelIteration": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@/near-intent/*": ["src/near-intent/*"],
-      "@/near-ai/*": ["src/near-ai/*"],
-      "@/utils/*": ["src/utils/*"]
+      "@/*": ["backend/*"],
+      "@/near-intent/*": ["backend/near-intent/*"],
+      "@/near-ai/*": ["backend/near-ai/*"],
+      "@/utils/*": ["backend/utils/*"]
     }
   },
   "include": [
-    "src/**/*"
+    "backend/**/*"
   ],
   "exclude": [
     "node_modules",

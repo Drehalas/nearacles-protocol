@@ -5,10 +5,15 @@
  * Initializes and starts the AI service for testnet deployment
  */
 
-import { AIService, AIServiceConfig } from '../src/infrastructure/ai-service';
-import { AIAgentConfig } from '../src/near-ai/types';
+import { AIService, AIServiceConfig } from '../backend/infrastructure/ai-service';
+import { AIAgentConfig } from '../backend/near-ai/types';
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Load environment variables
 config({ path: resolve(__dirname, '../config/.env') });
@@ -109,7 +114,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Start the service
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   startAIService().catch((error) => {
     console.error('💥 Failed to start AI service:', error);
     process.exit(1);

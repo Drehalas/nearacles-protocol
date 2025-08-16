@@ -71,7 +71,7 @@ start_websocket_server() {
     cd "$PROJECT_ROOT"
     
     # Start WebSocket server in background
-    nohup npx tsx src/infrastructure/websocket-server.ts > "$LOG_DIR/websocket.log" 2>&1 &
+    nohup npx tsx backend/infrastructure/websocket-server.ts > "$LOG_DIR/websocket.log" 2>&1 &
     local pid=$!
     echo $pid > "$PID_DIR/websocket.pid"
     

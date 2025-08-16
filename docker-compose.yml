@@ -1,18 +1,16 @@
 # NEAR Oracle Intent Protocol - Testnet Docker Compose Configuration
 # Complete testnet deployment stack
 
-version: '3.8'
-
 services:
   # Frontend Application
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile.testnet
+      dockerfile: frontend/Dockerfile.testnet
       target: static-server
     container_name: nearacles-frontend-testnet
-    ports:
-      - "3000:80"
+    expose:
+      - "3000"
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_DEPLOYMENT_ENV=testnet
@@ -20,7 +18,7 @@ services:
       - nearacles-testnet
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -28,12 +26,15 @@ services:
 
   # WebSocket Server
   websocket:
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile.websocket
+    image: node:22-alpine
     container_name: nearacles-websocket-testnet
-    ports:
-      - "8080:8080"
+    working_dir: /app
+    command: sh -c "npm install --silent && npm install tsx && npx tsx backend/infrastructure/websocket-server.ts"
+    expose:
+      - "8080"
+    volumes:
+      - .:/app
+      - websocket-node-modules:/app/node_modules
     environment:
       - NODE_ENV=production
       - WEBSOCKET_PORT=8080
@@ -42,7 +43,7 @@ services:
       - nearacles-testnet
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:8080/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -50,14 +51,18 @@ services:
 
   # AI Decision Engine (if available)
   ai-engine:
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile.ai
+    image: node:22-alpine
     container_name: nearacles-ai-testnet
+    working_dir: /app
+    command: sh -c "npm install --silent && npm install tsx && npx tsx scripts/start-ai-service.ts"
+    volumes:
+      - .:/app
+      - ai-node-modules:/app/node_modules
     environment:
       - NODE_ENV=production
       - NEAR_NETWORK_ID=testnet
       - AI_MODEL_ENDPOINT=${AI_MODEL_ENDPOINT:-http://localhost:5000}
+      - WEBSOCKET_URL=ws://nearacles-websocket-testnet:8080
     networks:
       - nearacles-testnet
     restart: unless-stopped
@@ -69,29 +74,34 @@ services:
     image: nginx:alpine
     container_name: nearacles-nginx-testnet
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/testnet.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/ssl:/etc/nginx/ssl
     networks:
       - nearacles-testnet
     restart: unless-stopped
     depends_on:
       - frontend
       - websocket
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   # Redis for caching (optional for testnet)
   redis:
     image: redis:7-alpine
     container_name: nearacles-redis-testnet
     ports:
-      - "6379:6379"
+      - '6380:6379' # Use different host port to avoid conflict
     networks:
       - nearacles-testnet
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -103,4 +113,8 @@ networks:
 
 volumes:
   redis-data:
+    driver: local
+  websocket-node-modules:
+    driver: local
+  ai-node-modules:
     driver: local

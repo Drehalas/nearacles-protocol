@@ -166,7 +166,7 @@ export const createMockOracleConfig = () => ({
 });
 
 // Mock the entire NEAR Intent modules to return success
-jest.mock('../src/near-intent/solver-bus', () => {
+jest.mock('../backend/near-intent/solver-bus', () => {
   return {
     SolverBus: jest.fn().mockImplementation(() => ({
       publishIntent: jest.fn().mockResolvedValue({ success: true, data: 'mock_intent_id' }),
@@ -193,7 +193,7 @@ jest.mock('../src/near-intent/solver-bus', () => {
   };
 });
 
-jest.mock('../src/near-intent/verifier-contract', () => {
+jest.mock('../backend/near-intent/verifier-contract', () => {
   return {
     VerifierContract: jest.fn().mockImplementation(() => ({
       submitIntent: jest.fn().mockResolvedValue({ success: true, data: 'mock_tx_hash' }),
@@ -203,7 +203,7 @@ jest.mock('../src/near-intent/verifier-contract', () => {
   };
 });
 
-jest.mock('../src/near-intent/asset-manager', () => {
+jest.mock('../backend/near-intent/asset-manager', () => {
   return {
     AssetManager: jest.fn().mockImplementation(() => ({
       validateAssets: jest.fn().mockResolvedValue({ success: true, data: true }),
@@ -222,7 +222,7 @@ jest.mock('../src/near-intent/asset-manager', () => {
 });
 
 // Mock MarketAnalyzer and AdvancedMarketAnalyzer
-jest.mock('../src/near-ai/market-analyzer', () => ({
+jest.mock('../backend/near-ai/market-analyzer', () => ({
   MarketAnalyzer: jest.fn().mockImplementation(() => ({
     analyze: jest.fn().mockResolvedValue({
       success: true,
@@ -247,7 +247,7 @@ jest.mock('../src/near-ai/market-analyzer', () => ({
   })),
 }));
 
-jest.mock('../src/near-ai/advanced-market-analyzer', () => ({
+jest.mock('../backend/near-ai/advanced-market-analyzer', () => ({
   AdvancedMarketAnalyzer: jest.fn().mockImplementation(() => {
     let analysisConfig = {
       enableMLPredictions: true,
@@ -305,7 +305,7 @@ jest.mock('../src/near-ai/advanced-market-analyzer', () => ({
 }));
 
 // Mock IntentRequest 
-jest.mock('../src/near-intent/intent-request', () => ({
+jest.mock('../backend/near-intent/intent-request', () => ({
   IntentRequest: {
     fromParams: jest.fn().mockResolvedValue({
       success: true,
@@ -325,7 +325,7 @@ jest.mock('../src/near-intent/intent-request', () => ({
 }));
 
 // Mock QuoteManager
-jest.mock('../src/near-intent/quote-manager', () => ({
+jest.mock('../backend/near-intent/quote-manager', () => ({
   QuoteManager: jest.fn().mockImplementation(() => ({
     initialize: jest.fn().mockResolvedValue(undefined), // Added initialize method
     requestQuotes: jest.fn().mockResolvedValue({
