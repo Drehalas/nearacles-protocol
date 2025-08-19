@@ -4,9 +4,9 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { AdvancedMarketAnalyzer, AdvancedAnalysisConfig } from '../../src/near-ai/advanced-market-analyzer';
-import { MarketDataProviders, PriceOracleConfig, MarketDataConfig } from '../../src/near-ai/market-data-providers';
-import { AIAgentConfig } from '../../src/near-ai/types';
+import { AdvancedMarketAnalyzer, AdvancedAnalysisConfig } from '../../backend/near-ai/advanced-market-analyzer';
+import { MarketDataProviders, PriceOracleConfig, MarketDataConfig } from '../../backend/near-ai/market-data-providers';
+import { AIAgentConfig } from '../../backend/near-ai/types';
 
 describe('Market Analyzer Tests', () => {
   let marketAnalyzer: AdvancedMarketAnalyzer;

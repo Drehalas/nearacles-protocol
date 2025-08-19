@@ -5,8 +5,13 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development next dev -H 0.0.0.0 -p 3000",
     "dev:secure": "cross-env NODE_ENV=development next dev -H 127.0.0.1 -p 3000",
+    "dev:testnet": "cross-env NODE_ENV=development NEXT_PUBLIC_DEPLOYMENT_ENV=testnet next dev -p 3000",
     "build": "next build",
+    "build:static": "cross-env BUILD_MODE=static next build",
+    "build:testnet": "cross-env NODE_ENV=production NEXT_PUBLIC_DEPLOYMENT_ENV=testnet next build",
+    "build:testnet-static": "cross-env NODE_ENV=production NEXT_PUBLIC_DEPLOYMENT_ENV=testnet BUILD_MODE=static next build",
     "start": "next start",
+    "deploy:testnet": "./scripts/deploy-testnet.sh",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "audit": "npm audit --audit-level high",
@@ -14,10 +19,12 @@
   },
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",
+    "near-api-js": "^6.2.5",
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "recharts": "^3.0.2"
+    "recharts": "^3.0.2",
+    "tsx": "^4.20.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",

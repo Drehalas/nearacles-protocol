@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { IntentOptimizer, OptimizationConfig } from '../../src/near-ai/intent-optimizer';
-import { MarketDataProviders } from '../../src/near-ai/market-data-providers';
+import { IntentOptimizer, OptimizationConfig } from '../../backend/near-ai/intent-optimizer';
+import { MarketDataProviders } from '../../backend/near-ai/market-data-providers';
 
 describe('Intent Optimizer Basic Tests', () => {
   let intentOptimizer: IntentOptimizer;
