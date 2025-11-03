@@ -156,6 +156,16 @@ pub struct UserProfile {
     pub total_stake_committed: Balance,
 }
 
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct PriceData {
+    pub asset_id: String,
+    pub price: String,
+    pub confidence: String,
+    pub expo: i32,
+    pub publish_time: u64,
+}
+
 #[near(contract_state)]
 pub struct OracleIntentContract {
     pub owner: AccountId,
@@ -173,6 +183,8 @@ pub struct OracleIntentContract {
     pub min_stake: Balance,
     pub max_evaluation_time: U64,
     pub challenge_period: U64, // nanoseconds
+    pub price_data: LookupMap<String, PriceData>,
+    pub is_paused: bool,
 }
 
 impl Default for OracleIntentContract {
@@ -183,7 +195,7 @@ impl Default for OracleIntentContract {
             evaluations: UnorderedMap::new(b"e"),
             challenges: UnorderedMap::new(b"c"),
             solvers: LookupMap::new(b"s"),
-            solver_stakes: LookupMap::new(b"s"),
+            solver_stakes: LookupMap::new(b"ss"),
             users: LookupMap::new(b"u"),
             admins: Vector::new(b"a"),
             verifiers: Vector::new(b"v"),
@@ -193,6 +205,8 @@ impl Default for OracleIntentContract {
             min_stake: MIN_STAKE,
             max_evaluation_time: U64(300_000_000_000), // 5 minutes in nanoseconds
             challenge_period: U64(86_400_000_000_000), // 24 hours in nanoseconds
+            price_data: LookupMap::new(b"p"),
+            is_paused: false,
         }
     }
 }
@@ -207,7 +221,7 @@ impl OracleIntentContract {
             evaluations: UnorderedMap::new(b"e"),
             challenges: UnorderedMap::new(b"c"),
             solvers: LookupMap::new(b"s"),
-            solver_stakes: LookupMap::new(b"s"),
+            solver_stakes: LookupMap::new(b"ss"),
             users: LookupMap::new(b"u"),
             admins: Vector::new(b"a"),
             verifiers: Vector::new(b"v"),
@@ -217,6 +231,8 @@ impl OracleIntentContract {
             min_stake: MIN_STAKE,
             max_evaluation_time: U64(300_000_000_000),
             challenge_period: U64(86_400_000_000_000),
+            price_data: LookupMap::new(b"p"),
+            is_paused: false,
         }
     }
 
@@ -1114,5 +1130,62 @@ impl OracleIntentContract {
             }
             self.solvers.insert(solver_id, &solver);
         }
+    }
+
+    // ========== PRICE ORACLE FUNCTIONS ==========
+
+    /// Update price data for an asset (Pyth-compatible)
+    pub fn update_price_data(&mut self, asset_id: String, price_data: PriceData) {
+        require!(!self.is_paused, "Contract is paused");
+
+        let caller = env::predecessor_account_id();
+
+        // Verify caller is a registered and active solver
+        let solver = self.solvers.get(&caller)
+            .expect("Only registered solvers can update price data");
+
+        require!(solver.is_active, "Solver is not active");
+
+        // Store price data
+        self.price_data.insert(&asset_id, &price_data);
+
+        env::log_str(&format!("Price updated for {}: {} (expo: {})",
+            asset_id, price_data.price, price_data.expo));
+    }
+
+    /// Get price data for an asset (Pyth-compatible)
+    pub fn get_price_data(&self, asset_id: String) -> Option<PriceData> {
+        self.price_data.get(&asset_id)
+    }
+
+    /// Get price for an asset (simplified)
+    pub fn get_price(&self, asset_id: String) -> Option<String> {
+        self.price_data.get(&asset_id).map(|data| data.price)
+    }
+
+    /// Get all available assets
+    pub fn get_all_assets(&self) -> Vec<String> {
+        // Note: This is inefficient for large datasets
+        // In production, consider maintaining a separate list
+        vec![] // TODO: Implement efficient asset listing
+    }
+
+    /// Pause contract (owner only)
+    pub fn pause(&mut self) {
+        require!(env::predecessor_account_id() == self.owner, "Only owner can pause");
+        self.is_paused = true;
+        env::log_str("Contract paused");
+    }
+
+    /// Unpause contract (owner only)
+    pub fn unpause(&mut self) {
+        require!(env::predecessor_account_id() == self.owner, "Only owner can unpause");
+        self.is_paused = false;
+        env::log_str("Contract unpaused");
+    }
+
+    /// Check if contract is paused
+    pub fn is_contract_paused(&self) -> bool {
+        self.is_paused
     }
 }

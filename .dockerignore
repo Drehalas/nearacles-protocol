@@ -1,0 +1,52 @@
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+dist
+build
+*.js.map
+
+# Development files
+.env
+.env.local
+.env.*.local
+
+# Tests
+__tests__
+*.test.ts
+*.test.js
+coverage
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Contracts (deployed separately)
+contracts/target
+contracts/**/target
+*.wasm
+
+# Logs
+logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Frontend (not needed for backend)
+frontend
+twitter-bot-sites-database.txt
